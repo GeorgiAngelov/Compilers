@@ -1,5 +1,7 @@
 %{
 #include <string.h>
+#include <fstream>
+using namespace std;
 %}
 
 /*digit is just a shorthand/definition to be used when defining regular expressions*/
@@ -7,7 +9,7 @@ digit [0-9]
 
 /*noyywrap option invoked*/
 %option noyywrap
-
+%option c++
 
 /*Regular expressions for generating tokens*/
 
@@ -32,18 +34,13 @@ digit [0-9]
 
 /* Main program. Only needs to be here for standalone lexer*/
 
-int main( argc, argv )
-int argc;
-char **argv;
+int main( int argc, char* argv[] )
 {
-    ++argv, --argc;   /*  skip over program name */
-    if ( argc > 0 )
-            yyin = fopen( argv[0], "r" );
-    else 
-            yyin = stdin;
-         
-    yylex();
-
+    ifstream LexerFIn;
+    LexerFIn.open(argv[1]);
+    yyFlexLexer lexer(&LexerFIn);
+	lexer.yylex();
+	return 0;
 }
 
 
