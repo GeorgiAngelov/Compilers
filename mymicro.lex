@@ -78,6 +78,7 @@ int main( int argc, char* argv[] )
 	int counter=0;
 	stack<int> tok_stack;
 	int lone_right = 0;
+	int main_declared = 0;
 	/**
 	 *
 	 *
@@ -110,16 +111,30 @@ int main( int argc, char* argv[] )
 					tok_stack.pop();
 			break;
 			default:
-				cout << token << "\n";
+			{
+				if (token == ID && strcmp(lexer.YYText(),"main")==0)
+				{
+					main_declared = 1;
+				}
+			}
 		}
-		//cout << lexer.yylex() << "\n";
 	};
+		
 	cout << "Total tokens: " << counter << "\n";
+	
+	cout << "Main declared: ";
+	if(main_declared)
+		cout << "Yes\n";
+	else
+		cout << "No\n";
+	
+	cout << "All brackets match: ";
 	if(tok_stack.size() > 0 || lone_right == 1)
-		cout << "All brackets match: No";
+		 cout << "No\n";
 	else{
-		cout << "All brackets match: Yes";
+		cout << "Yes\n";
 	}
+
 	//lexer.yylex();
 	return 0;
 }
