@@ -1,4 +1,4 @@
-var x : {a : int, b : int} ;
+var x : {a : int, b : int} ; //hello world
 
 function main (argv : [[int]]) : int {
       var x : int;

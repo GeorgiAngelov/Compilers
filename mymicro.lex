@@ -1,6 +1,7 @@
 %{
 #include <string.h>
 #include <fstream>
+#include "utils.hpp"
 using namespace std;
 %}
 
@@ -17,50 +18,52 @@ digit [0-9]
 
 " " 		{continue;}
 "\n"		{continue;}
-"var" 		{printf( "VAR\n");}
-"type" 		{printf( "TYPE\n");}
-"function"	{printf( "FUNCTION\n");}
-"int"		{printf( "INT\n");}
-"bool"		{printf( "BOOL\n");}
-"if"		{printf( "IF\n");}
-"else"		{printf( "ELSE\n");}
-"for"		{printf( "FOR\n");}
-"to"		{printf( "TO\n");}
-"while"		{printf( "WHILE\n");}
-"return"	{printf( "RETURN\n");}
-"nil"		{printf( "NIL\n");}
-"true"		{printf( "TRUE\n");}
-"false"		{printf( "FALSE\n");}
-"++"	{printf( "INCREMENT\n");}
-"--" 	{printf( "DECREMENT\n");}
-"+"		{printf( "PLUS\n");}
-"-"		{printf( "MINUS\n");}
-"/"		{printf( "DIVISION\n");}
-"%"		{printf( "MOD\n");}
-"\*"	{printf( "TIMES\n");}
-"|"		{printf( "OR\n");}
-"&"		{printf( "AND\n");}
-"<="	{printf( "LESSEQUAL\n");}
-">="	{printf( "GREATEREQUAL\n");}
-"=="	{printf( "EQUAL\n");}
-"!="	{printf( "NOTEQUAL\n");}
-"<"		{printf( "LESS\n");}
-">"		{printf( "GREATER\n");}
-"="		{printf( "ASSIGN\n");}
-"!"		{printf( "NOT\n");}
-[A-Za-z][A-Za-z0-9"_"]*        {printf( "ID(%s)\n", yytext);}
-{digit}+	               {printf( "NUM(%d)\n", atoi(yytext));}
-"("		{printf( "LEFTPAREN\n");}
-")"		{printf( "RIGHTTPAREN\n");}
-"["		{printf( "LEFTSQUARE\n");}
-"]"		{printf( "RIGHTSQUARE\n");}
-"{"		{printf( "LEFTCURLY\n");}
-"}"		{printf( "RIGHTCURLY\n");}
-";"		{printf( "SEMICOLON\n");}
-":"		{printf( "COLON\n");}
-","		{printf( "COMMA\n");}
-"."		{printf( "PERIOD\n");}
-.	                       {printf( "illegal token(%s)\n", yytext);}
+"/""\*".*"\*""/"	{continue;}
+"//".*"\n"	{continue;}
+"var" 		{return VAR;}
+"type" 		{return TYPE;}
+"function"	{return FUNCTION;}
+"int"		{return INT;}
+"bool"		{return BOOL;}
+"if"		{return IF;}
+"else"		{return ELSE;}
+"for"		{return FOR;}
+"to"		{return TO;}
+"while"		{return WHILE;}
+"return"	{return RETURN;}
+"nil"		{return NIL;}
+"true"		{return TRUE;}
+"false"		{return FALSE;}
+"++"	{return INCREMENT;}
+"--" 	{return DECREMENT;}
+"+"		{return PLUS;}
+"-"		{return MINUS;}
+"/"		{return DIVISION;}
+"%"		{return MOD;}
+"\*"	{return TIMES;}
+"|"		{return OR;}
+"&"		{return AND;}
+"<="	{return LESSEQUAL;}
+">="	{return GREATEREQUAL;}
+"=="	{return EQUAL;}
+"!="	{return NOTEQUAL;}
+"<"		{return LESS;}
+">"		{return GREATER;}
+"="		{return ASSIGN;}
+"!"		{return NOT;}
+[A-Za-z][A-Za-z0-9"_"]*        {return ID;}
+{digit}+	               {return NUM;}
+"("		{return LEFTPAREN;}
+")"		{return RIGHTTPAREN;}
+"["		{return LEFTSQUARE;}
+"]"		{return RIGHTSQUARE;}
+"{"		{return LEFTCURLY;}
+"}"		{return RIGHTCURLY;}
+";"		{return SEMICOLON;}
+":"		{return COLON;}
+","		{return COMMA;}
+"."		{return PERIOD;}
+.	    {printf(" illegal token(%s)\n", yytext);}
 %%
 
 /* Main program. Only needs to be here for standalone lexer*/
@@ -69,8 +72,19 @@ int main( int argc, char* argv[] )
 {
     ifstream LexerFIn;
     LexerFIn.open(argv[1]);
-    yyFlexLexer lexer(&LexerFIn);
-	lexer.yylex();
+    yyFlexLexer lexer;
+	int token;
+	int counter=0;
+	
+	while((token = lexer.yylex()) != 0){
+		counter++;
+		/*switch(token){
+			case ID:
+		}*/
+		//cout << lexer.yylex() << "\n";
+	};
+	cout << "Total tokens: " << counter << "\n";
+	//lexer.yylex();
 	return 0;
 }
 
