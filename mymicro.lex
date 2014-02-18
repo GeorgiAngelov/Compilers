@@ -1,5 +1,7 @@
 %{
 #include <string.h>
+#include <fstream>
+using namespace std;
 %}
 
 /*digit is just a shorthand/definition to be used when defining regular expressions*/
@@ -7,14 +9,14 @@ digit [0-9]
 
 /*noyywrap option invoked*/
 %option noyywrap
-
+%option c++
 
 /*Regular expressions for generating tokens*/
 
 %%
 
 " " 		{continue;}
-["/*"][A-Za-z0-9"_"" "]*["*/"] 	{continue;}
+"\n"		{continue;}
 "var" 		{printf( "VAR\n");}
 "type" 		{printf( "TYPE\n");}
 "function"	{printf( "FUNCTION\n");}
@@ -33,9 +35,9 @@ digit [0-9]
 "--" 	{printf( "DECREMENT\n");}
 "+"		{printf( "PLUS\n");}
 "-"		{printf( "MINUS\n");}
-"/"		{printf( "MINUS\n");}
+"/"		{printf( "DIVISION\n");}
 "%"		{printf( "MOD\n");}
-"*"		{printf( "TIMES\n");}
+"\*"	{printf( "TIMES\n");}
 "|"		{printf( "OR\n");}
 "&"		{printf( "AND\n");}
 "<="	{printf( "LESSEQUAL\n");}
@@ -46,7 +48,7 @@ digit [0-9]
 ">"		{printf( "GREATER\n");}
 "="		{printf( "ASSIGN\n");}
 "!"		{printf( "NOT\n");}
-[A-Za-z][A-Za-z0-9"_"" "]*        {printf( "ID(%s)\n", yytext);}
+[A-Za-z][A-Za-z0-9"_"]*        {printf( "ID(%s)\n", yytext);}
 {digit}+	               {printf( "NUM(%d)\n", atoi(yytext));}
 "("		{printf( "LEFTPAREN\n");}
 ")"		{printf( "RIGHTTPAREN\n");}
@@ -63,18 +65,13 @@ digit [0-9]
 
 /* Main program. Only needs to be here for standalone lexer*/
 
-int main( argc, argv )
-int argc;
-char **argv;
+int main( int argc, char* argv[] )
 {
-    ++argv, --argc;   /*  skip over program name */
-    if ( argc > 0 )
-            yyin = fopen( argv[0], "r" );
-    else 
-            yyin = stdin;
-         
-    yylex();
-
+    ifstream LexerFIn;
+    LexerFIn.open(argv[1]);
+    yyFlexLexer lexer(&LexerFIn);
+	lexer.yylex();
+	return 0;
 }
 
 
