@@ -1,0 +1,5 @@
+begin
+begintest:= 0;
+y:= 71+x;
+print(x);
+end 
