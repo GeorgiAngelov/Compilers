@@ -1825,7 +1825,7 @@ int main( int argc, char* argv[] )
 	int token;
 	int counter=0;
 	stack<int> tok_stack;
-	
+	int lone_right = 0;
 	/**
 	 *
 	 *
@@ -1843,15 +1843,18 @@ int main( int argc, char* argv[] )
 				tok_stack.push(LEFTCURLY);
 			break;
 			case RIGHTPAREN:
-				if(tok_stack.top() == LEFTPAREN)
+				if(tok_stack.size() == 0) lone_right = 1;
+				else if(tok_stack.top() == LEFTPAREN)
 					tok_stack.pop();
 			break;
 			case RIGHTSQUARE:
-				if(tok_stack.top() == LEFTSQUARE)
+				if(tok_stack.size() == 0) lone_right = 1;
+				else if(tok_stack.top() == LEFTSQUARE)
 					tok_stack.pop();
 			break;
 			case RIGHTCURLY:
-				if(tok_stack.top() == LEFTCURLY)
+				if(tok_stack.size() == 0) lone_right = 1;
+				else if(tok_stack.top() == LEFTCURLY)
 					tok_stack.pop();
 			break;
 			default:
@@ -1860,12 +1863,11 @@ int main( int argc, char* argv[] )
 		//cout << lexer.yylex() << "\n";
 	};
 	cout << "Total tokens: " << counter << "\n";
-	if(tok_stack.size() == 0)
-		cout << "All brackets match: Yes";
-	else{
+	if(tok_stack.size() > 0 || lone_right == 1)
 		cout << "All brackets match: No";
+	else{
+		cout << "All brackets match: Yes";
 	}
-	
 	//lexer.yylex();
 	return 0;
 }
