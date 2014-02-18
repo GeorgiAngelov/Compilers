@@ -472,12 +472,13 @@ static yyconst flex_int16_t yy_chk[158] =
 #line 2 "mymicro.lex"
 #include <string.h>
 #include <fstream>
+#include <stack>
 #include "utils.hpp"
 using namespace std;
 /*digit is just a shorthand/definition to be used when defining regular expressions*/
 /*noyywrap option invoked*/
 /*Regular expressions for generating tokens*/
-#line 481 "lex.yy.cc"
+#line 482 "lex.yy.cc"
 
 #define INITIAL 0
 
@@ -577,10 +578,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 17 "mymicro.lex"
+#line 18 "mymicro.lex"
 
 
-#line 584 "lex.yy.cc"
+#line 585 "lex.yy.cc"
 
 	if ( !(yy_init) )
 		{
@@ -665,252 +666,252 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 19 "mymicro.lex"
+#line 20 "mymicro.lex"
 {continue;}
 	YY_BREAK
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 20 "mymicro.lex"
+#line 21 "mymicro.lex"
 {continue;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 21 "mymicro.lex"
+#line 22 "mymicro.lex"
 {continue;}
 	YY_BREAK
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 22 "mymicro.lex"
+#line 23 "mymicro.lex"
 {continue;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 23 "mymicro.lex"
+#line 24 "mymicro.lex"
 {return VAR;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 24 "mymicro.lex"
+#line 25 "mymicro.lex"
 {return TYPE;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 25 "mymicro.lex"
+#line 26 "mymicro.lex"
 {return FUNCTION;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 26 "mymicro.lex"
+#line 27 "mymicro.lex"
 {return INT;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 27 "mymicro.lex"
+#line 28 "mymicro.lex"
 {return BOOL;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 28 "mymicro.lex"
+#line 29 "mymicro.lex"
 {return IF;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 29 "mymicro.lex"
+#line 30 "mymicro.lex"
 {return ELSE;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 30 "mymicro.lex"
+#line 31 "mymicro.lex"
 {return FOR;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 31 "mymicro.lex"
+#line 32 "mymicro.lex"
 {return TO;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 32 "mymicro.lex"
+#line 33 "mymicro.lex"
 {return WHILE;}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 33 "mymicro.lex"
+#line 34 "mymicro.lex"
 {return RETURN;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 34 "mymicro.lex"
+#line 35 "mymicro.lex"
 {return NIL;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 35 "mymicro.lex"
+#line 36 "mymicro.lex"
 {return TRUE;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 36 "mymicro.lex"
+#line 37 "mymicro.lex"
 {return FALSE;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 37 "mymicro.lex"
+#line 38 "mymicro.lex"
 {return INCREMENT;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 38 "mymicro.lex"
+#line 39 "mymicro.lex"
 {return DECREMENT;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 39 "mymicro.lex"
+#line 40 "mymicro.lex"
 {return PLUS;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 40 "mymicro.lex"
+#line 41 "mymicro.lex"
 {return MINUS;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 41 "mymicro.lex"
+#line 42 "mymicro.lex"
 {return DIVISION;}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 42 "mymicro.lex"
+#line 43 "mymicro.lex"
 {return MOD;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 43 "mymicro.lex"
+#line 44 "mymicro.lex"
 {return TIMES;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 44 "mymicro.lex"
+#line 45 "mymicro.lex"
 {return OR;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 45 "mymicro.lex"
+#line 46 "mymicro.lex"
 {return AND;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 46 "mymicro.lex"
+#line 47 "mymicro.lex"
 {return LESSEQUAL;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 47 "mymicro.lex"
+#line 48 "mymicro.lex"
 {return GREATEREQUAL;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 48 "mymicro.lex"
+#line 49 "mymicro.lex"
 {return EQUAL;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 49 "mymicro.lex"
+#line 50 "mymicro.lex"
 {return NOTEQUAL;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 50 "mymicro.lex"
+#line 51 "mymicro.lex"
 {return LESS;}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 51 "mymicro.lex"
+#line 52 "mymicro.lex"
 {return GREATER;}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 52 "mymicro.lex"
+#line 53 "mymicro.lex"
 {return ASSIGN;}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 53 "mymicro.lex"
+#line 54 "mymicro.lex"
 {return NOT;}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 54 "mymicro.lex"
+#line 55 "mymicro.lex"
 {return ID;}
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 55 "mymicro.lex"
+#line 56 "mymicro.lex"
 {return NUM;}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 56 "mymicro.lex"
+#line 57 "mymicro.lex"
 {return LEFTPAREN;}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 57 "mymicro.lex"
-{return RIGHTTPAREN;}
+#line 58 "mymicro.lex"
+{return RIGHTPAREN;}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 58 "mymicro.lex"
+#line 59 "mymicro.lex"
 {return LEFTSQUARE;}
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 59 "mymicro.lex"
+#line 60 "mymicro.lex"
 {return RIGHTSQUARE;}
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 60 "mymicro.lex"
+#line 61 "mymicro.lex"
 {return LEFTCURLY;}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 61 "mymicro.lex"
+#line 62 "mymicro.lex"
 {return RIGHTCURLY;}
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 62 "mymicro.lex"
+#line 63 "mymicro.lex"
 {return SEMICOLON;}
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 63 "mymicro.lex"
+#line 64 "mymicro.lex"
 {return COLON;}
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 64 "mymicro.lex"
+#line 65 "mymicro.lex"
 {return COMMA;}
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 65 "mymicro.lex"
+#line 66 "mymicro.lex"
 {return PERIOD;}
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 66 "mymicro.lex"
+#line 67 "mymicro.lex"
 {printf(" illegal token(%s)\n", yytext);}
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 67 "mymicro.lex"
+#line 68 "mymicro.lex"
 ECHO;
 	YY_BREAK
-#line 914 "lex.yy.cc"
+#line 915 "lex.yy.cc"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1810,7 +1811,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 67 "mymicro.lex"
+#line 68 "mymicro.lex"
 
 
 
@@ -1823,16 +1824,48 @@ int main( int argc, char* argv[] )
     yyFlexLexer lexer;
 	int token;
 	int counter=0;
+	stack<int> tok_stack;
 	
+	/**
+	 *
+	 *
+	 **/
 	while((token = lexer.yylex()) != 0){
-		//token = lexer.yylex();
 		counter++;
-		/*switch(token){
-			case ID:
-		}*/
+		switch(token){
+			case LEFTPAREN:
+				tok_stack.push(LEFTPAREN);
+			break;
+			case LEFTSQUARE:
+				tok_stack.push(LEFTSQUARE);
+			break;
+			case LEFTCURLY:
+				tok_stack.push(LEFTCURLY);
+			break;
+			case RIGHTPAREN:
+				if(tok_stack.top() == LEFTPAREN)
+					tok_stack.pop();
+			break;
+			case RIGHTSQUARE:
+				if(tok_stack.top() == LEFTSQUARE)
+					tok_stack.pop();
+			break;
+			case RIGHTCURLY:
+				if(tok_stack.top() == LEFTCURLY)
+					tok_stack.pop();
+			break;
+			default:
+				cout << token << "\n";
+		}
 		//cout << lexer.yylex() << "\n";
 	};
 	cout << "Total tokens: " << counter << "\n";
+	if(tok_stack.size() == 0)
+		cout << "All brackets match: Yes";
+	else{
+		cout << "All brackets match: No";
+	}
+	
 	//lexer.yylex();
 	return 0;
 }

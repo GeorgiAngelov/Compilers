@@ -35,7 +35,7 @@
 #define ID 32
 #define NUM 33
 #define LEFTPAREN 34
-#define RIGHTTPAREN 35
+#define RIGHTPAREN 35
 #define LEFTSQUARE 36
 #define RIGHTSQUARE 37
 #define LEFTCURLY 38
