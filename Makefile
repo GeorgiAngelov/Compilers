@@ -15,5 +15,3 @@ lex.yy.cc:
 clean: 
 	rm *.o pa1 lex.yy.cc
 	
-	
-	

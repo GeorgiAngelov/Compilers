@@ -44,5 +44,6 @@
 #define COLON 41
 #define COMMA 42
 #define PERIOD 43
+#define STRING 44
 
 #endif

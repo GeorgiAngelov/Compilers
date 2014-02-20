@@ -60,6 +60,7 @@ digit [0-9]
 "{"		{return LEFTCURLY;}
 "}"		{return RIGHTCURLY;}
 ";"		{return SEMICOLON;}
+"\""("\\""\""|[^"\n""\r""\""])*"\""   {return STRING;}
 ":"		{return COLON;}
 ","		{return COMMA;}
 "."		{return PERIOD;}
