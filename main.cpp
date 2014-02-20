@@ -17,6 +17,8 @@ int main( int argc, char* argv[] )
 	stack<int> tok_stack;
 	int lone_right = 0;
 	int main_declared = 0;
+	int function_dec = 0;
+	
 	/**
 	 *
 	 *
@@ -48,13 +50,19 @@ int main( int argc, char* argv[] )
 				else if(tok_stack.top() == LEFTCURLY)
 					tok_stack.pop();
 			break;
-			default:
+			case FUNCTION:
+				function_dec = 1;
+				break;
+			case ID:
 			{
-				if (token == ID && strcmp(lexer.YYText(),"main")==0)
-				{
+				if (function_dec == 1 && strcmp(lexer.YYText(),"main")==0)
 					main_declared = 1;
-				}
+				else 
+					function_dec = 0;
 			}
+			break;
+			default:
+			break;
 		}
 	};
 		
