@@ -43,17 +43,45 @@ static void yyerror(const char*);
 
 // A Liger program is either a list of declarations or it's an "extended Liger"
 // program -- an EVAL token followed by a Liger expression.
-program: 
-      decls
+program: stmtlist
       | EVAL '(' expr ')' ';'
 
-decls:  ID ':' EQ expr
+stmtlist: stmt stmtlist
+
+stmt: decls
+      FUNCTION ID '(' paramlist ')' '{' functionbody '}' 
+
+decls:  ID ':' EQ expr ';'
      | PRINT '(' ID ')' 
      
+    
+functionbody: 
+				| RETURN '(' expr ')'
+     
+exprlist: expr ',' exprlist 
+    
 expr: '(' expr ')'
-      |   expr '+' expr 
-      |   ID
-      |   NUM   
+	|	expr '+' expr 
+	|	expr '-' expr
+	|	expr '*' expr
+	|	expr '/' expr
+	|	bexpr
+	|	ID '(' exprlist ')'
+	|	ID
+	|	NUM 
+
+
+bexpr: TRUE
+	|	FALSE
+	|	bexpr '&' bexpr
+	|	bexpr '|' bexpr
+	| 	expr EQ expr
+	|	expr NOT_EQ expr
+	|	expr LT_EQ expr
+	| 	expr GT_EQ expr
+	| 	'!' bexpr
+
+paramlist: 
 
 %%
 
