@@ -22,6 +22,7 @@ static void yyerror(const char*);
       ID STR NUM
       UNKNOWN
       EVAL
+      PRINT
 
 // These associate tokens with string lits like "<=" so we can use them in our
 // grammar.
@@ -44,13 +45,13 @@ static void yyerror(const char*);
 // program -- an EVAL token followed by a Liger expression.
 program: 
       decls
-      | EVAL '(' exp ')' ';'
+      | EVAL '(' expr ')' ';'
 
-decls:  ID COLON EQ expr
-     | PRINT LPAREN ID RPAREN 
+decls:  ID ':' EQ expr
+     | PRINT '(' ID ')' 
      
-expr: LPAREN expr RPAREN
-      |   expr PLUS expr 
+expr: '(' expr ')'
+      |   expr '+' expr 
       |   ID
       |   NUM   
 
