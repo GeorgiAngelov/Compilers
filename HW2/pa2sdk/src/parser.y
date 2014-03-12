@@ -43,45 +43,54 @@ static void yyerror(const char*);
 
 // A Liger program is either a list of declarations or it's an "extended Liger"
 // program -- an EVAL token followed by a Liger expression.
-program: stmtlist { printf("hi$1\n"); }
-      | EVAL '(' expr ')' ';'
+program: stmtlist
+      | EVAL '(' expr ')' ';'	{printf ("Eval\n");}
+      | EVAL '(' bexpr ')' ';'	{printf ("bEval\n");}
 
 stmtlist: stmt stmtlist
+		|
 
 stmt: decls
-      FUNCTION ID '(' paramlist ')' '{' functionbody '}' 
+    |  FUNCTION ID '(' paramlist ')' returntype '{' functionbody '}' 	{printf ("function\n");}
 
-decls:  ID ':' EQ expr ';' {printf ("Assignment");}
-     | PRINT '(' ID ')' 
+decls:  VAR ID ':' INT '=' expr ';' {printf ("Assignment\n");}
+     | PRINT '(' ID ')' 			{printf ("print\n");}
      
     
-functionbody: 
-				| RETURN '(' expr ')'
-     
-exprlist: expr ',' exprlist 
+functionbody: RETURN '(' expr ')' ';'	{printf ("return\n");}
+			|
+
+returntype: ':' INT
+			|
+
+exprlist: expr exprlist 
+		|
     
-expr: '(' expr ')'
-	|	expr '+' expr 
-	|	expr '-' expr
-	|	expr '*' expr
-	|	expr '/' expr
-	|	bexpr
-	|	ID '(' exprlist ')'
-	|	ID
-	|	NUM 
+expr: '(' expr ')'		
+	|	NUM 				{printf ("NUM\n");}
+	|	expr '+' expr 		{printf ("plus\n");}
+	|	expr '-' expr		{printf ("minus\n");}
+	|	expr '*' expr		{printf ("times\n");}
+	|	expr '/' expr		{printf ("division\n");}
+	|	ID '(' exprlist ')'	{printf ("functioncall\n");}
+	|	ID					{printf ("ID\n");}
 
 
-bexpr: TRUE
-	|	FALSE
-	|	bexpr '&' bexpr
-	|	bexpr '|' bexpr
-	| 	expr EQ expr
-	|	expr NOT_EQ expr
-	|	expr LT_EQ expr
-	| 	expr GT_EQ expr
-	| 	'!' bexpr
 
-paramlist: 
+bexpr: TRUE					{printf ("TRUE\n");}
+	|	FALSE				{printf ("FALSE\n");}
+	|	bexpr '&' bexpr		{printf ("AND\n");}
+	|	bexpr '|' bexpr		{printf ("OR\n");}
+	| 	expr EQ expr		{printf ("EQ\n");}
+	|	expr NOT_EQ expr	{printf ("NOTEQ\n");}
+	|	expr LT_EQ expr		{printf ("LTEQ\n");}
+	| 	expr GT_EQ expr		{printf ("GTEQ\n");}
+	| 	'!' bexpr			{printf ("NOT\n");}
+
+paramlist: param paramlist
+		|
+		
+param: ID ':' INT
 
 %%
 
