@@ -1,0 +1,53 @@
+/* A program to solve the 8-queens problem */
+
+var N : int = 8;
+
+type intArray : [int];
+
+var row : intArray = new_array(N);
+var col : intArray = new_array(N);
+
+var diag1 : intArray = new_array(N+N-1);
+var diag2 : intArray = new_array(N+N-1);
+
+function printboard() {
+      var i : int;
+      var j : int;
+
+      for (i = 0 to N-1) {
+            for (j = 0 to N-1) {
+                  if (col[i] == col[j]) {
+                        print(" O");
+                  } else {
+                        print(" .");
+                  }
+            }
+            print([10]);
+      }
+      print([10]);
+}
+
+function try(c : int) {
+      var r : int;
+
+      if (c == N) {
+            printboard();
+      } else {
+            for (r = 0 to N-1) {
+                  if (row[r] == 0 & diag1[r+c] == 0 & diag2[r+7-c] == 0) {
+                        row[r] = 1; diag1[r+c] = 1; diag2[r+7-c] = 1;
+
+                        col[c] = r;
+                        try(c+1);
+
+                        row[r] = 0; diag1[r+c] = 0; diag2[r+7-c] = 0;
+                  }
+            }
+      }
+}
+
+function main(argv : [[int]]) : int {
+      try(0);
+      return (0);
+}
+

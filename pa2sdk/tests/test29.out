@@ -1,0 +1,21 @@
+Genuine Liger: yes
+Function new_array:
+   Arity: 1
+   Defined: no
+   Calls: 4
+Function print:
+   Arity: 1
+   Defined: no
+   Calls: 4
+Function printboard:
+   Arity: 0
+   Defined: yes
+   Calls: 1
+Function try:
+   Arity: 1
+   Defined: yes
+   Calls: 2
+Function main:
+   Arity: 1
+   Defined: yes
+   Calls: 0

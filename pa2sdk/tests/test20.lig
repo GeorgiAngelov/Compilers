@@ -1,0 +1,3 @@
+function f() {
+      for (a = 1 to 2) { x = 1 }
+}

@@ -1,5 +1,0 @@
-// Test of mismatched parens.
-function fun() : int {
-      var x : [ int } ;
-      return 5;
-]

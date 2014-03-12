@@ -1,0 +1,49 @@
+Genuine Liger: yes
+Function getchar:
+   Arity: 0
+   Defined: no
+   Calls: 4
+Function ord:
+   Arity: 1
+   Defined: no
+   Calls: 5
+Function isdigit:
+   Arity: 1
+   Defined: yes
+   Calls: 2
+Function skipto:
+   Arity: 0
+   Defined: yes
+   Calls: 1
+Function readint:
+   Arity: 1
+   Defined: yes
+   Calls: 1
+Function readlist:
+   Arity: 0
+   Defined: yes
+   Calls: 3
+Function merge:
+   Arity: 2
+   Defined: yes
+   Calls: 3
+Function f:
+   Arity: 1
+   Defined: yes
+   Calls: 3
+Function chr:
+   Arity: 1
+   Defined: no
+   Calls: 1
+Function print:
+   Arity: 1
+   Defined: no
+   Calls: 5
+Function printint:
+   Arity: 1
+   Defined: yes
+   Calls: 1
+Function printlist:
+   Arity: 1
+   Defined: yes
+   Calls: 2
