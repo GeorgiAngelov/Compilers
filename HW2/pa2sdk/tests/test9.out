@@ -1,0 +1,9 @@
+Genuine Liger: yes
+Function g:
+   Arity mismatch!
+   Defined: no
+   Calls: 3
+Function f:
+   Arity: 0
+   Defined: yes
+   Calls: 0

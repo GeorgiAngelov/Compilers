@@ -1,0 +1,6 @@
+function bad3(x : int) : int {
+      x = 2;
+      // Decls must be at the start of the function.
+      var y : int = 1;
+      return (x + y);
+}

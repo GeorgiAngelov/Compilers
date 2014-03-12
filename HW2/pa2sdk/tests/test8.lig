@@ -1,0 +1,12 @@
+var x : int = 5;
+
+function f(y : int) : int {
+      return (f(x + y));
+}
+
+function g() {
+      return (g(x));
+}
+
+function h() { }
+function h() { }
