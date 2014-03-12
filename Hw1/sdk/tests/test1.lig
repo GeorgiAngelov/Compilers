@@ -1,0 +1,4 @@
+var x : int = 5;
+function fun(y : int) : int {
+      return (y + 5);
+}
