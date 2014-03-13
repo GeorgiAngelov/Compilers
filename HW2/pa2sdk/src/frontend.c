@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
 		printf("File could not be opened\n");
 		exit(-1);
 	}
-	//p
+	
 	yyrestart(f);
     yyparse();
     return 0;

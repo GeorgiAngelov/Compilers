@@ -62,7 +62,7 @@ functionbody: RETURN '(' expr ')' ';'	{printf ("return\n");}
 
 returntype: ':' INT
 			|
-
+ 
 exprlist: expr exprlist 
 		|
     
@@ -87,14 +87,18 @@ bexpr: TRUE					{printf ("TRUE\n");}
 	| 	expr GT_EQ expr		{printf ("GTEQ\n");}
 	| 	'!' bexpr			{printf ("NOT\n");}
 
-paramlist: param paramlist
-		|
-		
-param: ID ':' INT
+paramlist: paramlist2
+
+paramlist2 : 
+			| P1 P2
+	
+P1: ID ':' INT
+
+P2: 
+	| ','  ID ':' INT P2
 
 %%
 
 void yyerror(const char* p) {
       fprintf(stderr, "%s\n", p);
 }
-
