@@ -49,19 +49,24 @@ program: stmtlist
 
 stmtlist: stmt stmtlist
 		|
-
+		
 stmt: decls
-    |  FUNCTION ID '(' paramlist ')' returntype '{' functionbody '}' 	{printf ("function\n");}
+    |  FUNCTION ID '(' paramlist ')' returntype '{' stmtlist '}' 	{printf ("function\n");}
+	| IF '(' bexpr ')' '{' stmtlist '}' {printf ("IF statement\n");}
+	| RETURN return_type ';' {printf("return\n");}
+	| 
 
-decls:  VAR ID ':' INT '=' expr ';' {printf ("Assignment\n");}
-     | PRINT '(' ID ')' 			{printf ("print\n");}
-     
-    
-functionbody: RETURN '(' expr ')' ';'	{printf ("return\n");}
-			|
-
+decls: VAR ID ':' DATA '=' expr ';' {printf ("Assignment with data\n");}
+	|	VAR ID ':' DATA '=' array_assign ';' {printf ("Assignment with ARRAY\n");}
+	|	PRINT '(' ID ')' 			{printf ("print\n");}
+	|	VAR ID ':' '{' paramlist '}' ';'	{printf ("Structure\n");}
+	|	VAR ID ':' DATA ';'			{printf ("Assignment without data\n");}
+ 
+return_type:
+			| '(' expr ')'
+			
 returntype: 
-			| ':' INT
+			| ':' DATA
  
 exprlist: exprList2 
 exprList2:
@@ -70,16 +75,15 @@ expr1: expr
 expr2: 
 		| ',' expr expr2
 		
-expr: '(' expr ')'		
+expr: '(' expr ')'
 	|	NUM 				{printf ("NUM\n");}
 	|	expr '+' expr 		{printf ("plus\n");}
 	|	expr '-' expr		{printf ("minus\n");}
 	|	expr '*' expr		{printf ("times\n");}
 	|	expr '/' expr		{printf ("division\n");}
+	|	expr '%' expr		{printf ("modulus\n");}
 	|	ID '(' exprlist ')'	{printf ("functioncall\n");}
 	|	ID					{printf ("ID\n");} 
-
-
 
 bexpr: TRUE					{printf ("TRUE\n");}
 	|	FALSE				{printf ("FALSE\n");}
@@ -89,6 +93,8 @@ bexpr: TRUE					{printf ("TRUE\n");}
 	|	expr NOT_EQ expr	{printf ("NOTEQ\n");}
 	|	expr LT_EQ expr		{printf ("LTEQ\n");}
 	| 	expr GT_EQ expr		{printf ("GTEQ\n");}
+	|	expr '>' expr		{printf ("GT\n");}
+	|	expr '<' expr		{printf ("LT\n");}
 	| 	'!' bexpr			{printf ("NOT\n");}
 
 paramlist: paramlist2
@@ -96,11 +102,31 @@ paramlist: paramlist2
 paramlist2 : 
 			| P1 P2
 	
-P1: ID ':' INT
+P1: ID ':' DATA
 
 P2: 
-	| ','  ID ':' INT P2
+	| ','  ID ':' DATA P2
 
+DATA: INT
+	| ARRAY
+	| ID
+
+ARRAY: '[' DATA ']'
+
+array_assign: 
+	|'[' array_data ']'
+	
+array_data: INT {printf
+
+val1:	ID {printf("val1 ID\n");}
+	|	INT {printf("val1 INT\n");}
+	|	array_assign  {printf("val1 ARRAY_ASSIGN\n");}
+
+val2: ',' ID val2 {printf("val2 ID\n");}
+	|	',' INT val2 {printf("val2 INT\n");}
+	|	',' array_assign val2 {printf("val2 ARRAY_ASSIGN\n");}
+	| {printf("val2 NULL\n");}
+	
 %%
 
 void yyerror(const char* p) {
