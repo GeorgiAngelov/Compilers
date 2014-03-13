@@ -60,8 +60,8 @@ decls:  VAR ID ':' INT '=' expr ';' {printf ("Assignment\n");}
 functionbody: RETURN '(' expr ')' ';'	{printf ("return\n");}
 			|
 
-returntype: ':' INT
-			|
+returntype: 
+			| ':' INT
  
 exprlist: expr exprlist 
 		|
