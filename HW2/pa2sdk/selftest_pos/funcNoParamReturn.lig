@@ -1,0 +1,23 @@
+function f() : int{
+}
+
+function f(){
+}
+
+function f( x:int ) : int{
+}
+
+function f( x:int ){
+}
+
+function f( x:int, b:int ) : int{
+}
+
+function f( x:int, b:int ){
+}
+
+function f( x:int, b:int, c:int ) : int{
+}
+
+function f( x:int, b:int, c:int, a:int ) : int{
+}
