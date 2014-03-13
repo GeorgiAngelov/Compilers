@@ -63,9 +63,13 @@ functionbody: RETURN '(' expr ')' ';'	{printf ("return\n");}
 returntype: 
 			| ':' INT
  
-exprlist: expr exprlist 
-		|
-    
+exprlist: exprList2 
+exprList2:
+		|	expr1 expr2
+expr1: expr
+expr2: 
+		| ',' expr expr2
+		
 expr: '(' expr ')'		
 	|	NUM 				{printf ("NUM\n");}
 	|	expr '+' expr 		{printf ("plus\n");}
@@ -73,7 +77,7 @@ expr: '(' expr ')'
 	|	expr '*' expr		{printf ("times\n");}
 	|	expr '/' expr		{printf ("division\n");}
 	|	ID '(' exprlist ')'	{printf ("functioncall\n");}
-	|	ID					{printf ("ID\n");}
+	|	ID					{printf ("ID\n");} 
 
 
 
