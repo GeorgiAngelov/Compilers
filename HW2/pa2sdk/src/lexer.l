@@ -60,7 +60,7 @@ SHORT_TOK         {SHORT_COMP_OP}|{ARITH_OP}|{BOOL_OP}|{ASSIGN}|{PUNCTUATION}
 
 "eval"      { return EVAL; /* Special token just for pa2. */ }
 
-{ID}        {yylval.text = yytext; return ID; }
+{ID}        {yylval.text = strdup(yytext); return ID; }
 
 [ \n\r\t]+ { /* Eat up whitespace. */ }
 

@@ -1,23 +1,27 @@
 #include "lexer.h" // yyin, yylex, etc.
 #include "parser.h" // yyparse, yylval, token enum, etc.
-#include <unordered_map>
+#include <map>
+#include <algorithm>    // std::sort
+#include <vector>       // std::vector
 #include <iostream>
 
 typedef struct fundata {
 	char* name;
 	int parity;
+	int parity_mismatch;
 	int references;
 	int declared;
 } funData;
 
 extern int result;
-extern std::unordered_map<std::string, funData> function_map;
+extern int eval;
+extern int beval;
+extern std::map<std::string, funData> function_map;
 
 using namespace std;
 
 int main(int argc, char** argv) {
 	int check;
-	int eval = 1;
 	
 	if(argc!=2){
 		printf("To run please execute: ./pa2 <file_name>\n");
@@ -33,9 +37,9 @@ int main(int argc, char** argv) {
 	yyrestart(f);
     check = yyparse();
     
-    cout << "Valid Liger: ";
+    cout << "Genuine Liger: ";
     
-    if (check == 1)
+    if (check == 0)
     {
     	cout << "yes\n"; 
     }
@@ -44,14 +48,41 @@ int main(int argc, char** argv) {
     	cout << "no\n";
     }
     
+    
     if (eval == 1)
     cout << "Result: " << result << "\n";
     
-    printf("Hi %d\n", 6);
+    if (beval == 1)
+    {
+    	cout << "Result: ";
+    	if (result == 1)
+    	cout << "true\n";
+    	else
+    	cout << "false\n";
+    }
+    
+    //sort(function_map.begin(), function_map.end());
     
     for (auto it = function_map.begin(); it != function_map.end(); ++it)
     {
-    	cout << it->second.name << "\n";	
+    	cout << "Function " << it->second.name << ":\n";
+    	if (it->second.parity_mismatch == 1)
+    	{
+    		cout << "   Arity mismatch!\n";
+    	}
+    	else
+    	{
+    		cout << "   Arity: " << it->second.parity << "\n";
+    	}
+    	if (it->second.declared > 1)
+    	{
+    		cout <<	"   Multiple definitions!\n";
+    	}
+    	else
+    	{
+    		cout << "   Defined: yes" << "\n";
+    	}
+    	cout << "   Calls: " << it->second.references << "\n";
     }
     
     
