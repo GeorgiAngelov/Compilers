@@ -192,7 +192,8 @@ ARRAY: '[' DATA ']'
 array_assign: 
 	|'[' array_data ']'
 
-array_data: INT
+array_data: exprlist
+		
 
 val1:	ID {/*printf("val1 ID\n");*/}
 	|	INT {/*printf("val1 INT\n");*/}
@@ -201,8 +202,7 @@ val1:	ID {/*printf("val1 ID\n");*/}
 val2: ',' ID val2 {/*printf("val2 ID\n");*/}
 	|	',' INT val2 {/*printf("val2 INT\n");*/}
 	|	',' array_assign val2 {/*printf("val2 ARRAY_ASSIGN\n");*/}
-	| {printf(/*"val2 NULL\n");*/}
-
+	| {/*printf("val2 NULL\n");*/}
 %%
 
 void yyerror(const char* p) {
