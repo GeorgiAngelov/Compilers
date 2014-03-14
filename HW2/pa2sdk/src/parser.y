@@ -57,6 +57,7 @@ static void yyerror(const char*);
 %type <num> expr
 %type <boolean> bexpr
 %type <num> paramlist
+%type <num> paramlist2
 %type <num> P1
 %type <num> P2
 
@@ -86,15 +87,11 @@ stmt: decls
 	| 
 
 decls: VAR ID ':' DATA '=' expr ';' {printf ("Assignment with data\n");}
-	|	VAR ID ':' DATA '=' '[' array_assign ']' ';' {printf ("Assignment with ARRAY\n");}
+	|	VAR ID ':' DATA '=' array_assign ';' {printf ("Assignment with ARRAY\n");}
 	|	PRINT '(' ID ')' 			{printf ("print\n");}
 	|	VAR ID ':' '{' paramlist '}' ';'	{printf ("Structure\n");}
 	|	VAR ID ':' DATA ';'			{printf ("Assignment without data\n");}
      
-    
-functionbody: RETURN '(' expr ')' ';'	{printf ("return\n");}
-			|
-
 return_type:
 			| '(' expr ')'
 			|	expr
@@ -135,7 +132,9 @@ bexpr: TRUE					{$$= 1;}
 	|	expr '<' expr		{$$= $1 < $3;}
 	| 	'!' bexpr			{$$= !$2;}
 
-paramlist:	{$$=0;}
+paramlist:	paramlist2
+
+paramlist2:	{$$=0;}
 			| P1 P2 {$$=$1 + $2;}
 	
 P1: ID ':' DATA {$$=1;}
@@ -150,9 +149,18 @@ DATA: INT
 ARRAY: '[' DATA ']'
 
 array_assign: 
-	| INT {printf("array assign INT");}
-	
-array_data: INT {printf("array_data INT");}
+	|'[' array_data ']'
+
+array_data: INT
+
+val1:	ID {printf("val1 ID\n");}
+	|	INT {printf("val1 INT\n");}
+	|	array_assign  {printf("val1 ARRAY_ASSIGN\n");}
+
+val2: ',' ID val2 {printf("val2 ID\n");}
+	|	',' INT val2 {printf("val2 INT\n");}
+	|	',' array_assign val2 {printf("val2 ARRAY_ASSIGN\n");}
+	| {printf("val2 NULL\n");}
 
 %%
 
