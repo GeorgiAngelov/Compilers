@@ -16,6 +16,7 @@ typedef struct fundata {
 extern int result;
 extern int eval;
 extern int beval;
+extern int validResult;
 extern std::map<std::string, funData> function_map;
 
 using namespace std;
@@ -48,17 +49,23 @@ int main(int argc, char** argv) {
     	cout << "no\n";
     }
     
-    
-    if (eval == 1)
-    cout << "Result: " << result << "\n";
-    
-    if (beval == 1)
+    if (validResult == 1)
     {
-    	cout << "Result: ";
-    	if (result == 1)
-    	cout << "true\n";
-    	else
-    	cout << "false\n";
+    	if (eval == 1)
+    	cout << "Result: " << result << "\n";
+    	
+    	if (beval == 1)
+    	{
+	    	cout << "Result: ";
+	 		if (result == 1)
+    		cout << "true\n";
+    		else
+    		cout << "false\n";
+    	}
+    }
+    else
+    {
+    	cout << "Result: unknown\n";
     }
     
     //sort(function_map.begin(), function_map.end());

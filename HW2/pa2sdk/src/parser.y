@@ -24,6 +24,7 @@ extern int yylex(void);
 int result;
 int eval = 0;
 int beval = 0;
+int validResult = 1;
 
 std::map<std::string, funData> function_map;
 
@@ -133,8 +134,8 @@ expr: '(' expr ')'			{$$=$2;}
 	|	expr '+' expr 		{$$= $1 + $3;}
 	|	expr '-' expr		{$$= $1 - $3;}
 	|	expr '*' expr		{$$= $1 * $3;}
-	|	expr '/' expr		{$$= $1 / $3;}
-	|	expr '%' expr		{$$= $1 % $3;}
+	|	expr '/' expr		{if ($3 == 0){validResult = 0; $$=0;}else{$$= $1 % $3;}}
+	|	expr '%' expr		{if ($3 == 0){validResult = 0; $$=0;}else{$$= $1 % $3;}}
 	|	ID '(' exprlist ')'	{
 							if (function_map.find($1) == function_map.end())
     							{
