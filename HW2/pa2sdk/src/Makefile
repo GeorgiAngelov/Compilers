@@ -19,5 +19,5 @@ $(PROGRAM): $(YFILE:.y=.o) $(LFILE:.l=.o) $(CFILES:.c=.o) $(HEADERS)
 clean:
 	-rm $(YFILE:.y=.o) $(YFILE:.y=.c) $(YFILE:.y=.h)
 	-rm $(LFILE:.l=.o) $(LFILE:.l=.c) $(LFILE:.l=.h)
-	-rm $(CFILES:.c=.o)
+	-rm $(CFILES:.cpp=.o)
 	-rm $(PROGRAM)
