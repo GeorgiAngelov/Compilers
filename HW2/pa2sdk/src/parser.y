@@ -113,7 +113,13 @@ decls: VAR ID ':' DATA '=' expr ';' {printf ("Assignment with data\n");}
 	|	PRINT '(' ID ')' 			{printf ("print\n");}
 	|	VAR ID ':' '{' paramlist '}' ';'	{printf ("Structure\n");}
 	|	VAR ID ':' DATA ';'			{printf ("Assignment without data\n");}
-     
+	|	TYPE ID ':' '{' struct_declare '}' ';'
+	
+struct_declare: ID ':' INT struct_declare2
+
+struct_declare2: ',' ID ':' INT struct_declare2
+	|	',' ID '=' INT struct_declare2
+
 return_type:
 			| '(' expr ')'
 			|	expr
