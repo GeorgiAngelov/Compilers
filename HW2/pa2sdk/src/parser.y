@@ -8,8 +8,9 @@
 using namespace std;
 
 typedef struct fundata {
-	std::string name;
+	char* name;
 	int parity;
+	int parity_mismatch;
 	int references;
 	int declared;
 } funData;
@@ -55,8 +56,12 @@ static void yyerror(const char*);
 
 
 %type <num> expr
+%type <num> expr1
+%type <num> expr2
 %type <boolean> bexpr
 %type <num> paramlist
+%type <num> exprlist
+%type <num> exprList2
 %type <num> P1
 %type <num> P2
 
@@ -75,12 +80,25 @@ stmtlist: stmt stmtlist
 		|
 
 stmt: decls
-    |  FUNCTION ID '(' paramlist ')' returntype '{' stmtlist '}' 	{funData temp; 
-    																	temp.name = $2; 
-    																	temp.parity = $4; 
-    																	temp.references = 0; 
-    																	temp.declared = 1;
-    																	function_map[$2] = temp;}
+    |  FUNCTION ID '(' paramlist ')' returntype '{' stmtlist '}' 	{if (function_map.find($2) == function_map.end())
+    																	{
+    																		funData temp; 
+    																		temp.name = $2; 
+    																		temp.parity = $4; 
+    																		temp.references = 0; 
+    																		temp.declared = 1;
+    																		function_map[$2] = temp;
+    																	}
+    																  else
+    																  	{
+    																  		function_map[$2].declared++;
+    																  		//check parity if function was called but not declared yet
+    																  		if ($4 != function_map[$2].parity)
+																			{
+																				function_map[$2].parity_mismatch = 1;
+																			}
+    																  	}
+    																  }
 	| IF '(' bexpr ')' '{' stmtlist '}' {printf ("IF statement\n");}
 	| RETURN return_type ';' {printf("return\n");}
 	| 
@@ -102,12 +120,12 @@ return_type:
 returntype: 
 			| ':' DATA
 			
-exprlist: exprList2 
+exprlist: exprList2 		{$$=$1;}
 exprList2:
-		|	expr1 expr2
-expr1: expr
-expr2: 
-		| ',' expr expr2
+		|	expr1 expr2		{$$= $1 + $2;}
+expr1: expr 				{$$=1;}
+expr2: 						{$$=0;}
+		| ',' expr expr2	{$$=$3 + 1;}
 		
 expr: '(' expr ')'			{$$=$2;}
 	|	NUM 				{$$=$1;}
@@ -116,7 +134,26 @@ expr: '(' expr ')'			{$$=$2;}
 	|	expr '*' expr		{$$= $1 * $3;}
 	|	expr '/' expr		{$$= $1 / $3;}
 	|	expr '%' expr		{$$= $1 % $3;}
-	|	ID '(' exprlist ')'	{}
+	|	ID '(' exprlist ')'	{
+							if (function_map.find($1) == function_map.end())
+    							{
+    								funData temp; 
+    								temp.name = $1; 
+    								temp.parity = $3; 
+    								temp.references = 1; 
+    								temp.declared = 0;
+    								function_map[$1] = temp;
+								}
+							else
+								{
+									function_map[$1].references++;
+									//check parity
+									if ($3 != function_map[$1].parity)
+									{
+										function_map[$1].parity_mismatch = 1;
+									}
+								}
+							}
 	|	ID					{}
 	|	'-' NUM				{$$ = -1*$2;}
 	|	'+' NUM				{$$ = $2;}

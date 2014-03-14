@@ -6,6 +6,7 @@
 typedef struct fundata {
 	char* name;
 	int parity;
+	int parity_mismatch;
 	int references;
 	int declared;
 } funData;
@@ -47,11 +48,27 @@ int main(int argc, char** argv) {
     if (eval == 1)
     cout << "Result: " << result << "\n";
     
-    printf("Hi %d\n", 6);
     
     for (auto it = function_map.begin(); it != function_map.end(); ++it)
     {
-    	cout << it->second.name << "\n";	
+    	cout << "Function " << it->second.name << ":\n";
+    	if (it->second.parity_mismatch == 1)
+    	{
+    		cout << "   Arity mismatch!\n";
+    	}
+    	else
+    	{
+    		cout << "   Arity: " << it->second.parity << "\n";
+    	}
+    	if (it->second.declared > 1)
+    	{
+    		cout <<	"   Multiple definitions!\n";
+    	}
+    	else
+    	{
+    		cout << "   Defined: " << it->second.declared << "\n";
+    	}
+    	cout << "   Calls: " << it->second.references << "\n";
     }
     
     
