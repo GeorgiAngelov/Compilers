@@ -4,7 +4,9 @@
 #include <string.h>
 #include "parser.h"
 #include <iostream>
-#include <unordered_map>
+#include <map>
+#include <algorithm>    // std::sort
+#include <vector>       // std::vector
 using namespace std;
 
 typedef struct fundata {
@@ -20,8 +22,10 @@ typedef struct fundata {
 // generate the lexer.h header).
 extern int yylex(void);
 int result;
+int eval = 0;
+int beval = 0;
 
-std::unordered_map<std::string, funData> function_map;
+std::map<std::string, funData> function_map;
 
 static void yyerror(const char*);
 
@@ -58,7 +62,7 @@ static void yyerror(const char*);
 %type <num> expr
 %type <num> expr1
 %type <num> expr2
-%type <boolean> bexpr
+%type <num> bexpr
 %type <num> paramlist
 %type <num> exprlist
 %type <num> exprList2
@@ -73,8 +77,8 @@ static void yyerror(const char*);
 // A Liger program is either a list of declarations or it's an "extended Liger"
 // program -- an EVAL token followed by a Liger expression.
 program: stmtlist
-      | EVAL '(' expr ')' ';'	{result = $3;}
-      | EVAL '(' bexpr ')' ';'	{if ($3 == 1){printf ("Result: True\n");}else{printf("Result: False\n");}}
+      | EVAL '(' expr ')' ';'	{eval = 1;result = $3;}
+      | EVAL '(' bexpr ')' ';'	{beval = 1;if ($3 == 1){result = 1;}else{result = 0;}}
 
 stmtlist: stmt stmtlist
 		|
@@ -100,10 +104,10 @@ stmt: decls
     																  	}
     																  }
 	| IF '(' bexpr ')' '{' stmtlist '}' {printf ("IF statement\n");}
-	| RETURN return_type ';' {printf("return\n");}
+	| RETURN return_type ';' {/*printf("return\n");*/}
 	| 
 
-decls: VAR ID ':' DATA '=' expr ';' {printf ("Assignment with data\n");}
+decls: VAR ID ':' DATA '=' expr ';' {/*printf ("Assignment with data\n");*/}
 	|	VAR ID ':' DATA '=' '[' array_assign ']' ';' {printf ("Assignment with ARRAY\n");}
 	|	PRINT '(' ID ')' 			{printf ("print\n");}
 	|	VAR ID ':' '{' paramlist '}' ';'	{printf ("Structure\n");}
