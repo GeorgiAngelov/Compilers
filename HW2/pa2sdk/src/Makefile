@@ -1,11 +1,11 @@
 PROGRAM = pa2
-CFILES = frontend.c
+CFILES = frontend.cpp
 HEADERS = 
 YFILE = parser.y
 LFILE = lexer.l
 
-CC = gcc
-CFLAGS = -Wall
+CC = g++ -std=c++0x
+CFLAGS = -Wall 
 LEX = flex
 YACC = bison
 

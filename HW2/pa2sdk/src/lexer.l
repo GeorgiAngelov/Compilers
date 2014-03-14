@@ -53,14 +53,14 @@ SHORT_TOK         {SHORT_COMP_OP}|{ARITH_OP}|{BOOL_OP}|{ASSIGN}|{PUNCTUATION}
       return *yytext;
 }
 
-{DIGIT}+    { return NUM; }
+{DIGIT}+    { yylval.num = atoi(yytext); return NUM; }
 
 \"(\\\"|\\\\|[^"\r\n\\])*\" { return STR; }
 
 
 "eval"      { return EVAL; /* Special token just for pa2. */ }
 
-{ID}        { return ID; }
+{ID}        {yylval.text = yytext; return ID; }
 
 [ \n\r\t]+ { /* Eat up whitespace. */ }
 

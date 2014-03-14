@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
     
     for (auto it = function_map.begin(); it != function_map.end(); ++it)
     {
-    	cout << it->first << "\n";	
+    	cout << it->second.name << "\n";	
     }
     
     
