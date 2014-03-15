@@ -120,10 +120,12 @@ decls: VAR ID ':' DATA '=' expr ';' {/*printf ("Assignment with data\n");*/}
 	
 struct_declare: ID ':' INT struct_declare2
 	|	ID '=' expr struct_declare2
+	|	ID '='  '{'struct_declare '}' struct_declare2
 
 struct_declare2: 
 	|	',' ID ':' INT struct_declare2
 	|	',' ID '=' expr struct_declare2
+	|	',' ID '=' '{' struct_declare '}' struct_declare2
 
 return_type:
 			| '(' expr ')'
