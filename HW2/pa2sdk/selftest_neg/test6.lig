@@ -1,0 +1,1 @@
+var s3 : my_struct = {x = i1, y = i2, y:5};

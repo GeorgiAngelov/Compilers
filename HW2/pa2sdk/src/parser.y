@@ -109,17 +109,20 @@ stmt: decls
 	| RETURN return_type ';' {/*printf("return\n");*/}
 	| 
 
-decls: VAR ID ':' DATA '=' expr ';' {/*printf ("Assignment with data\n");*/}
+decls: VAR ID ':' DATA '=' expr ';' {/*printf ("Assignment with data\n");*/} 
 	|	VAR ID ':' DATA '=' array_assign ';' {/*printf ("Assignment with ARRAY\n");*/}
 	|	PRINT '(' ID ')' 			{/*printf ("print\n");*/}
 	|	VAR ID ':' '{' paramlist '}' ';'	{/*printf ("Structure\n");*/}
 	|	VAR ID ':' DATA ';'			{/*printf ("Assignment without data\n");*/}
 	|	TYPE ID ':' '{' struct_declare '}' ';'
+	|	VAR ID ':' ID '=' '{' struct_declare '}' ';'
 	
 struct_declare: ID ':' INT struct_declare2
-
-struct_declare2: ',' ID ':' INT struct_declare2
-	|	',' ID '=' INT struct_declare2
+	|	ID '=' DATA struct_declare2
+	
+struct_declare2: 
+	|	',' ID ':' INT struct_declare2
+	|	',' ID '=' DATA struct_declare2
 
 return_type:
 			| '(' expr ')'
