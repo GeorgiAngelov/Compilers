@@ -111,18 +111,19 @@ stmt: decls
 
 decls: VAR ID ':' DATA '=' expr ';' {/*printf ("Assignment with data\n");*/} 
 	|	VAR ID ':' DATA '=' array_assign ';' {/*printf ("Assignment with ARRAY\n");*/}
-	|	PRINT '(' ID ')' 			{/*printf ("print\n");*/}
+	|	PRINT '(' ID ')' ';'			{/*printf ("print\n");*/}
 	|	VAR ID ':' '{' paramlist '}' ';'	{/*printf ("Structure\n");*/}
 	|	VAR ID ':' DATA ';'			{/*printf ("Assignment without data\n");*/}
 	|	TYPE ID ':' '{' struct_declare '}' ';'
 	|	VAR ID ':' ID '=' '{' struct_declare '}' ';'
+	|	VAR ID ':' '{' paramlist '}' '=' '{'struct_declare '}' ';'
 	
 struct_declare: ID ':' INT struct_declare2
-	|	ID '=' DATA struct_declare2
-	
+	|	ID '=' expr struct_declare2
+
 struct_declare2: 
 	|	',' ID ':' INT struct_declare2
-	|	',' ID '=' DATA struct_declare2
+	|	',' ID '=' expr struct_declare2
 
 return_type:
 			| '(' expr ')'
@@ -168,6 +169,7 @@ expr: '(' expr ')'			{$$=$2;}
 	|	ID					{}
 	|	'-' NUM				{$$ = -1*$2;}
 	|	'+' NUM				{$$ = $2;}
+	|	array_assign		{}
 
 
 
@@ -196,14 +198,15 @@ P2: {$$=0;}
 DATA: INT
 	| ARRAY
 	| ID
+	| struct_declare
+	| array_assign
 
 ARRAY: '[' DATA ']'
 
-array_assign: 
-	|'[' array_data ']'
+array_assign: '[' array_data ']'
 
-array_data: exprlist
-		
+array_data: exprlist 
+	|
 
 val1:	ID {/*printf("val1 ID\n");*/}
 	|	INT {/*printf("val1 INT\n");*/}
