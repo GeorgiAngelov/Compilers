@@ -201,7 +201,9 @@ expr: '(' expr ')'			{$$=$2;}
 	|	'+' expr			{$$ = $2;}
 	|	array_assign		{}
 	|	'{' struct_declare '}' '.' ID
-	| TRUE					{$$= 1;}
+	|	ID array_elems
+	|	ID '.' ID
+	| 	TRUE					{$$= 1;}
 	|	FALSE				{$$= 0;}
 	|	expr '&' expr		{$$= $1 && $3;}
 	|	expr '|' expr		{$$= $1 || $3;}
@@ -213,6 +215,11 @@ expr: '(' expr ')'			{$$=$2;}
 	|	expr '<' expr		{$$= $1 < $3;}
 	| 	'!' expr			{$$= !$2;}
 
+array_elems: '[' expr ']' array_elems2
+
+array_elems2:
+	|	array_elems
+	
 paramlist:	paramlist2
 
 paramlist2:	{$$=0;}
