@@ -118,7 +118,7 @@ decls: VAR ID ':' DATA '=' expr ';' {/*printf ("Assignment with data\n");*/}
 	|	VAR ID ':' '{' paramlist '}' '=' '{'struct_declare '}' ';'
 	|	'{' struct_declare '}' '.' ID '=' expr ';'
 	|	ID '(' ')' dot_right_side '=' expr ';'
-	|	ARRAY '[' INT ']' '=' expr ';'
+	|	array_assign '[' NUM ']' '=' expr ';'
 	|	ID '=' expr ';'
 	
 dot_right_side:|	'[' NUM ']'
@@ -213,9 +213,7 @@ DATA: INT
 
 ARRAY: '[' DATA ']'
 
-array_assign: '[' array_data ']'
-
-array_data: exprlist 
+array_assign: '[' exprlist ']'
 
 val1:	ID 				{/*printf("val1 ID\n");*/}
 	|	INT 			{/*printf("val1 INT\n");*/}
