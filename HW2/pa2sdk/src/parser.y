@@ -93,8 +93,8 @@ program: stmtlist
 stmtlist: 
 	| stmt stmtlist
 
-stmtlist_w_return : RETURN '(' NUM ')' ';'
-	| stmtlist RETURN '(' NUM ')' ';'
+stmtlist_w_return : RETURN '(' expr ')' ';'
+	| stmtlist RETURN '(' expr ')' ';'
 		
 stmt: decls
     |  FUNCTION ID '(' paramlist ')' func_right_side 	{if (function_map.find($2) == function_map.end())
