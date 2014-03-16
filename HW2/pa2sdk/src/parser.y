@@ -75,6 +75,9 @@ static void yyerror(const char*);
 
 %left '|'
 %left '&'
+%left EQ LT_EQ GT_EQ
+%left NOT_EQ
+%left '!'
 %left '+' '-'
 %left '*' '/' '%'
 %left UMINUS
@@ -88,14 +91,13 @@ static void yyerror(const char*);
 // program -- an EVAL token followed by a Liger expression.
 program: stmtlist
       | EVAL '(' expr ')' ';'	{eval = 1;result = $3;}
-      | EVAL '(' expr ')' ';'	{beval = 1;if ($3 == 1){result = 1;}else{result = 0;}}
 
 stmtlist: 
 	| stmt stmtlist
 
 stmtlist_w_return : RETURN '(' expr ')' ';'
 	| stmtlist RETURN '(' expr ')' ';'
-		
+
 stmt: decls
     |  FUNCTION ID '(' paramlist ')' func_right_side 	{if (function_map.find($2) == function_map.end())
     																	{
@@ -121,9 +123,9 @@ stmt: decls
 	| WHILE '(' expr ')' '{' stmtlist '}' {/*printf ("WHILE loop\n");*/}
 	| FOR '(' ID '=' expr TO expr ')' '{' stmtlist '}'
 
-func_right_side: ':' INT '{' stmtlist_w_return '}'
+func_right_side: ':' INT '{' stmtlist '}'
 	|	'{' stmtlist '}'
-	
+
 else_statement:
 	| ELSE '{' stmtlist '}'
 
@@ -135,8 +137,8 @@ decls: VAR ID ':' DATA '=' expr ';' {/*printf ("Assignment with data\n");*/}
 	|	TYPE ID ':' '{' struct_declare '}' ';'
 	|	VAR ID ':' ID '=' '{' struct_declare '}' ';'
 	|	VAR ID ':' '{' paramlist '}' '=' '{'struct_declare '}' ';'
-	|	'{' struct_declare '}' '.' ID '=' expr ';'
-	|	func_left_side func_right_side ';'
+	|	'{' struct_declare '}' '.' ID '=' expr ';'					{validResult = 0;}
+	|	func_left_side func_right_side_assign ';'
 	|	array_assign '[' NUM ']' '=' expr ';'
 	|	ID '=' expr ';'
 
@@ -161,11 +163,11 @@ func_left_side: ID '(' exprlist ')'	{
 							}
 						}
 					}
-	
-func_right_side:
+
+func_right_side_assign:
 	|	'[' NUM ']' '=' expr 
-	|	'.' ID '=' expr
-	
+	|	'.' ID '=' expr			{validResult = 0;}
+
 struct_declare: ID ':' INT struct_declare2
 	|	ID '=' expr struct_declare2
 	|	ID '='  '{'struct_declare '}' struct_declare2
@@ -180,14 +182,14 @@ return_type:
 			|	expr
 
 returntype: ':' DATA
-			
+
 exprlist: exprList2 		{$$=$1;}
 exprList2: expr1 expr2		{$$= $1 + $2;}
 			|				{$$=0;}	
 expr1: expr 				{$$=1;}
 expr2: 						{$$=0;}
 		| ',' expr expr2	{$$=$3 + 1;}
-		
+
 expr: '(' expr ')'			{$$=$2;}
 	|	NUM 				{$$=$1;}
 	|	expr '+' expr 		{$$= $1 + $3;}
@@ -200,36 +202,37 @@ expr: '(' expr ')'			{$$=$2;}
 	|	'-' expr			{$$ = -1*$2;}
 	|	'+' expr			{$$ = $2;}
 	|	array_assign		{}
-	|	'{' struct_declare '}' '.' ID
+	|	'{' struct_declare '}' '.' ID		{validResult = 0;}
 	|	ID array_elems
 	|	ID '.' ID
-	| 	TRUE					{$$= 1;}
-	|	FALSE				{$$= 0;}
-	|	expr '&' expr		{$$= $1 && $3;}
-	|	expr '|' expr		{$$= $1 || $3;}
-	| 	expr EQ expr		{$$= $1 == $3;}
-	|	expr NOT_EQ expr	{$$= $1 != $3;}
-	|	expr LT_EQ expr		{$$= $1 <= $3;}
-	| 	expr GT_EQ expr		{$$= $1 >= $3;}
-	|	expr '>' expr		{$$= $1 > $3;}
-	|	expr '<' expr		{$$= $1 < $3;}
-	| 	'!' expr			{$$= !$2;}
+	| 	TRUE				{beval = 1;$$= 1;}
+	|	FALSE				{beval = 1;$$= 0;}
+	|	expr '&' expr		{beval = 1;$$= $1 && $3;}
+	|	expr '|' expr		{beval = 1;$$= $1 || $3;}
+	| 	expr EQ expr		{beval = 1;$$= $1 == $3;}
+	|	expr NOT_EQ expr	{beval = 1;$$= $1 != $3;}
+	|	expr LT_EQ expr		{beval = 1;$$= $1 <= $3;}
+	| 	expr GT_EQ expr		{beval = 1;$$= $1 >= $3;}
+	|	expr '>' expr		{beval = 1;$$= $1 > $3;}
+	|	expr '<' expr		{beval = 1;$$= $1 < $3;}
+	| 	'!' expr			{beval = 1;$$= !$2;}
+
 
 array_elems: '[' expr ']' array_elems2
 
 array_elems2:
 	|	array_elems
-	
+
 paramlist:	paramlist2
 
 paramlist2:	{$$=0;}
 			| P1 P2 {$$=$1 + $2;}
-	
+
 P1: ID ':' DATA {$$=1;}
 
 P2: {$$=0;}
 	| ','  ID ':' DATA P2 {$$= $5 + 1;}
-	
+
 DATA: INT
 	| ARRAY
 	| ID
