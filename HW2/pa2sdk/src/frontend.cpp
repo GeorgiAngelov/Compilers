@@ -85,9 +85,13 @@ int main(int argc, char** argv) {
     	{
     		cout <<	"   Multiple definitions!\n";
     	}
-    	else
+    	else if (it->second.declared == 1)
     	{
     		cout << "   Defined: yes" << "\n";
+    	}
+    	else 
+    	{
+    		cout << "   Defined: no" << "\n";	
     	}
     	cout << "   Calls: " << it->second.references << "\n";
     }

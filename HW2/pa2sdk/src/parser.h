@@ -68,7 +68,8 @@ extern int yydebug;
     LT_EQ = 278,
     GT_EQ = 279,
     EQ = 280,
-    NOT_EQ = 281
+    NOT_EQ = 281,
+    UMINUS = 282
   };
 #endif
 
@@ -84,7 +85,7 @@ union YYSTYPE
       char* text;
       int boolean;
 
-#line 88 "parser.h" /* yacc.c:1909  */
+#line 89 "parser.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
