@@ -63,7 +63,6 @@ static void yyerror(const char*);
 %type <num> expr
 %type <num> expr1
 %type <num> expr2
-%type <num> bexpr
 %type <num> paramlist
 %type <num> paramlist2
 %type <num> exprlist
@@ -89,7 +88,7 @@ static void yyerror(const char*);
 // program -- an EVAL token followed by a Liger expression.
 program: stmtlist
       | EVAL '(' expr ')' ';'	{eval = 1;result = $3;}
-      | EVAL '(' bexpr ')' ';'	{beval = 1;if ($3 == 1){result = 1;}else{result = 0;}}
+      | EVAL '(' expr ')' ';'	{beval = 1;if ($3 == 1){result = 1;}else{result = 0;}}
 
 stmtlist: stmt stmtlist
 		|
@@ -114,8 +113,10 @@ stmt: decls
 																			}
     																  	}
     																  }
-	| IF '(' bexpr ')' '{' stmtlist '}' else_statement {/*printf ("IF statement\n");*/}
+	| IF '(' expr ')' '{' stmtlist '}' else_statement {/*printf ("IF statement\n");*/}
 	| RETURN return_type ';' {/*printf("return\n");*/}
+	| WHILE '(' expr ')' '{' stmtlist '}' {/*printf ("WHILE loop\n");*/}
+	| FOR '(' ID '=' expr TO expr ')' '{' stmtlist '}'
 
 else_statement:
 	| ELSE '{' stmtlist '}'
@@ -193,20 +194,17 @@ expr: '(' expr ')'			{$$=$2;}
 	|	'+' NUM				{$$ = $2;}
 	|	array_assign		{}
 	|	'{' struct_declare '}' '.' ID
-
-
-
-bexpr: TRUE					{$$= 1;}
+	| TRUE					{$$= 1;}
 	|	FALSE				{$$= 0;}
-	|	bexpr '&' bexpr		{$$= $1 && $3;}
-	|	bexpr '|' bexpr		{$$= $1 || $3;}
+	|	expr '&' expr		{$$= $1 && $3;}
+	|	expr '|' expr		{$$= $1 || $3;}
 	| 	expr EQ expr		{$$= $1 == $3;}
 	|	expr NOT_EQ expr	{$$= $1 != $3;}
 	|	expr LT_EQ expr		{$$= $1 <= $3;}
 	| 	expr GT_EQ expr		{$$= $1 >= $3;}
 	|	expr '>' expr		{$$= $1 > $3;}
 	|	expr '<' expr		{$$= $1 < $3;}
-	| 	'!' bexpr			{$$= !$2;}
+	| 	'!' expr			{$$= !$2;}
 
 paramlist:	paramlist2
 
