@@ -65,7 +65,7 @@ SHORT_TOK         {SHORT_COMP_OP}|{ARITH_OP}|{BOOL_OP}|{ASSIGN}|{PUNCTUATION}
 [ \n\r\t]+ { /* Eat up whitespace. */ }
 
 . {
-      fprintf(stderr, "Error: unrecognized character: %s\n", yytext);
+      //fprintf(stderr, "Error: unrecognized character: %s\n", yytext);
       return UNKNOWN;
 }
 
