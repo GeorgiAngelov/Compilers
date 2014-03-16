@@ -90,10 +90,11 @@ program: stmtlist
       | EVAL '(' expr ')' ';'	{eval = 1;result = $3;}
       | EVAL '(' expr ')' ';'	{beval = 1;if ($3 == 1){result = 1;}else{result = 0;}}
 
-stmtlist: stmt stmtlist
-		|
+stmtlist: 
+	| stmt stmtlist
 
-stmtlist_w_return : stmt stmtlist RETURN expr	
+stmtlist_w_return : RETURN '(' NUM ')' ';'
+	| stmtlist RETURN '(' NUM ')' ';'
 		
 stmt: decls
     |  FUNCTION ID '(' paramlist ')' func_right_side 	{if (function_map.find($2) == function_map.end())
@@ -120,7 +121,7 @@ stmt: decls
 	| WHILE '(' expr ')' '{' stmtlist '}' {/*printf ("WHILE loop\n");*/}
 	| FOR '(' ID '=' expr TO expr ')' '{' stmtlist '}'
 
-func_right_side: returntype '{' stmtlist_w_return '}'
+func_right_side: ':' INT '{' stmtlist_w_return '}'
 	|	'{' stmtlist '}'
 	
 else_statement:
@@ -156,8 +157,7 @@ return_type:
 			| '(' expr ')'
 			|	expr
 
-returntype: 
-			| ':' DATA
+returntype: ':' DATA
 			
 exprlist: exprList2 		{$$=$1;}
 exprList2: expr1 expr2		{$$= $1 + $2;}
