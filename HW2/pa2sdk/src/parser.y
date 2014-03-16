@@ -136,9 +136,31 @@ decls: VAR ID ':' DATA '=' expr ';' {/*printf ("Assignment with data\n");*/}
 	|	VAR ID ':' ID '=' '{' struct_declare '}' ';'
 	|	VAR ID ':' '{' paramlist '}' '=' '{'struct_declare '}' ';'
 	|	'{' struct_declare '}' '.' ID '=' expr ';'
-	|	ID '(' ')' func_right_side ';'
+	|	func_left_side func_right_side ';'
 	|	array_assign '[' NUM ']' '=' expr ';'
 	|	ID '=' expr ';'
+
+func_left_side: ID '(' exprlist ')'	{
+					//if the function has not been previously encountered
+					if (function_map.find($1) == function_map.end())
+						{
+							funData temp; 
+							temp.name = $1; 
+							temp.parity = $3; 
+							temp.references = 1; 
+							temp.declared = 0;
+							function_map[$1] = temp;
+						}
+					else
+						{
+							function_map[$1].references++;
+							//check parity
+							if ($3 != function_map[$1].parity)
+							{
+								function_map[$1].parity_mismatch = 1;
+							}
+						}
+					}
 	
 func_right_side:
 	|	'[' NUM ']' '=' expr 
@@ -173,30 +195,10 @@ expr: '(' expr ')'			{$$=$2;}
 	|	expr '*' expr		{$$= $1 * $3;}
 	|	expr '/' expr			{if ($3 == 0){validResult = 0; $$=0;}else{$$= $1 / $3;}}
 	|	expr '%' expr			{if ($3 == 0){validResult = 0; $$=0;}else{$$= $1 % $3;}}
-	|	ID '(' exprlist ')'	{
-							//if the function has not been previously encountered
-							if (function_map.find($1) == function_map.end())
-    							{
-    								funData temp; 
-    								temp.name = $1; 
-    								temp.parity = $3; 
-    								temp.references = 1; 
-    								temp.declared = 0;
-    								function_map[$1] = temp;
-								}
-							else
-								{
-									function_map[$1].references++;
-									//check parity
-									if ($3 != function_map[$1].parity)
-									{
-										function_map[$1].parity_mismatch = 1;
-									}
-								}
-							}
+	|	func_left_side
 	|	ID					{}
-	|	'-' NUM				{$$ = -1*$2;}
-	|	'+' NUM				{$$ = $2;}
+	|	'-' expr			{$$ = -1*$2;}
+	|	'+' expr			{$$ = $2;}
 	|	array_assign		{}
 	|	'{' struct_declare '}' '.' ID
 	| TRUE					{$$= 1;}
