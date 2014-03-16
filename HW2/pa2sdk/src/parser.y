@@ -91,13 +91,15 @@ static void yyerror(const char*);
 // program -- an EVAL token followed by a Liger expression.
 program: stmtlist
       | EVAL '(' expr ')' ';'	{eval = 1;result = $3;}
-      | EVAL '(' expr ')' ';'	{/*beval = 1;if ($3 == 1){result = 1;}else{result = 0;}*/}
 
-stmtlist: stmt stmtlist
-		|
+stmtlist: 
+	| stmt stmtlist
 
+stmtlist_w_return : RETURN '(' expr ')' ';'
+	| stmtlist RETURN '(' expr ')' ';'
+		
 stmt: decls
-    |  FUNCTION ID '(' paramlist ')' returntype '{' stmtlist '}' 	{if (function_map.find($2) == function_map.end())
+    |  FUNCTION ID '(' paramlist ')' func_right_side 	{if (function_map.find($2) == function_map.end())
     																	{
     																		funData temp; 
     																		temp.name = $2; 
@@ -121,6 +123,9 @@ stmt: decls
 	| WHILE '(' expr ')' '{' stmtlist '}' {/*printf ("WHILE loop\n");*/}
 	| FOR '(' ID '=' expr TO expr ')' '{' stmtlist '}'
 
+func_right_side: ':' INT '{' stmtlist_w_return '}'
+	|	'{' stmtlist '}'
+	
 else_statement:
 	| ELSE '{' stmtlist '}'
 
@@ -133,9 +138,31 @@ decls: VAR ID ':' DATA '=' expr ';' {/*printf ("Assignment with data\n");*/}
 	|	VAR ID ':' ID '=' '{' struct_declare '}' ';'
 	|	VAR ID ':' '{' paramlist '}' '=' '{'struct_declare '}' ';'
 	|	'{' struct_declare '}' '.' ID '=' expr ';'					{validResult = 0;}
-	|	ID '(' ')' func_right_side ';'
+	|	func_left_side func_right_side ';'
 	|	array_assign '[' NUM ']' '=' expr ';'
 	|	ID '=' expr ';'
+
+func_left_side: ID '(' exprlist ')'	{
+					//if the function has not been previously encountered
+					if (function_map.find($1) == function_map.end())
+						{
+							funData temp; 
+							temp.name = $1; 
+							temp.parity = $3; 
+							temp.references = 1; 
+							temp.declared = 0;
+							function_map[$1] = temp;
+						}
+					else
+						{
+							function_map[$1].references++;
+							//check parity
+							if ($3 != function_map[$1].parity)
+							{
+								function_map[$1].parity_mismatch = 1;
+							}
+						}
+					}
 	
 func_right_side:
 	|	'[' NUM ']' '=' expr 
@@ -154,8 +181,7 @@ return_type:
 			| '(' expr ')'
 			|	expr
 
-returntype: 
-			| ':' DATA
+returntype: ':' DATA
 			
 exprlist: exprList2 		{$$=$1;}
 exprList2: expr1 expr2		{$$= $1 + $2;}
@@ -171,30 +197,10 @@ expr: '(' expr ')'			{$$=$2;}
 	|	expr '*' expr		{$$= $1 * $3;}
 	|	expr '/' expr			{if ($3 == 0){validResult = 0; $$=0;}else{$$= $1 / $3;}}
 	|	expr '%' expr			{if ($3 == 0){validResult = 0; $$=0;}else{$$= $1 % $3;}}
-	|	ID '(' exprlist ')'	{
-							//if the function has not been previously encountered
-							if (function_map.find($1) == function_map.end())
-    							{
-    								funData temp; 
-    								temp.name = $1; 
-    								temp.parity = $3; 
-    								temp.references = 1; 
-    								temp.declared = 0;
-    								function_map[$1] = temp;
-								}
-							else
-								{
-									function_map[$1].references++;
-									//check parity
-									if ($3 != function_map[$1].parity)
-									{
-										function_map[$1].parity_mismatch = 1;
-									}
-								}
-							}
+	|	func_left_side
 	|	ID					{}
-	|	'-' NUM				{$$ = -1*$2;}
-	|	'+' NUM				{$$ = $2;}
+	|	'-' expr			{$$ = -1*$2;}
+	|	'+' expr			{$$ = $2;}
 	|	array_assign		{}
 	|	'{' struct_declare '}' '.' ID		{validResult = 0;}
 	| 	TRUE				{beval = 1;$$= 1;}
