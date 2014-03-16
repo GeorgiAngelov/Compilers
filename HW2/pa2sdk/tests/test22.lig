@@ -7,10 +7,4 @@ function f() {
 
       if (a > b) { x = 1; f(); }
       if (f() > f()) { x = 1; f(); } else { x = 2; f(); }
-      while (f()) { }
-      for (x = f() to f()) { }
-
-      return (f() + 2);
-
-      return ;
 }
