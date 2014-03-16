@@ -107,7 +107,6 @@ stmt: decls
     																  }
 	| IF '(' bexpr ')' '{' stmtlist '}' {/*printf ("IF statement\n");*/}
 	| RETURN return_type ';' {/*printf("return\n");*/}
-	| 
 
 decls: VAR ID ':' DATA '=' expr ';' {/*printf ("Assignment with data\n");*/} 
 	|	VAR ID ':' DATA '=' array_assign ';' {/*printf ("Assignment with ARRAY\n");*/}
@@ -135,8 +134,8 @@ returntype:
 			| ':' DATA
 			
 exprlist: exprList2 		{$$=$1;}
-exprList2:
-		|	expr1 expr2		{$$= $1 + $2;}
+exprList2: expr1 expr2		{$$= $1 + $2;}
+			|				{$$=0;}	
 expr1: expr 				{$$=1;}
 expr2: 						{$$=0;}
 		| ',' expr expr2	{$$=$3 + 1;}
@@ -208,16 +207,15 @@ ARRAY: '[' DATA ']'
 array_assign: '[' array_data ']'
 
 array_data: exprlist 
-	|
 
-val1:	ID {/*printf("val1 ID\n");*/}
-	|	INT {/*printf("val1 INT\n");*/}
-	|	array_assign  {/*printf("val1 ARRAY_ASSIGN\n");*/}
+val1:	ID 				{/*printf("val1 ID\n");*/}
+	|	INT 			{/*printf("val1 INT\n");*/}
+	|	array_assign  	{/*printf("val1 ARRAY_ASSIGN\n");*/}
 
-val2: ',' ID val2 {/*printf("val2 ID\n");*/}
-	|	',' INT val2 {/*printf("val2 INT\n");*/}
-	|	',' array_assign val2 {/*printf("val2 ARRAY_ASSIGN\n");*/}
-	| {/*printf("val2 NULL\n");*/}
+val2: ',' ID val2 				{/*printf("val2 ID\n");*/}
+	|	',' INT val2 			{/*printf("val2 INT\n");*/}
+	|	',' array_assign val2 	{/*printf("val2 ARRAY_ASSIGN\n");*/}
+	| 							{/*printf("val2 NULL\n");*/}
 %%
 
 void yyerror(const char* p) {
