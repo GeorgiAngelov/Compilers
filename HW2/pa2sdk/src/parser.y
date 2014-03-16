@@ -93,8 +93,10 @@ program: stmtlist
 stmtlist: stmt stmtlist
 		|
 
+stmtlist_w_return : stmt stmtlist RETURN expr	
+		
 stmt: decls
-    |  FUNCTION ID '(' paramlist ')' returntype '{' stmtlist '}' 	{if (function_map.find($2) == function_map.end())
+    |  FUNCTION ID '(' paramlist ')' func_right_side 	{if (function_map.find($2) == function_map.end())
     																	{
     																		funData temp; 
     																		temp.name = $2; 
@@ -118,6 +120,9 @@ stmt: decls
 	| WHILE '(' expr ')' '{' stmtlist '}' {/*printf ("WHILE loop\n");*/}
 	| FOR '(' ID '=' expr TO expr ')' '{' stmtlist '}'
 
+func_right_side: returntype '{' stmtlist_w_return '}'
+	|	'{' stmtlist '}'
+	
 else_statement:
 	| ELSE '{' stmtlist '}'
 
