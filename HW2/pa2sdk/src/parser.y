@@ -114,8 +114,11 @@ stmt: decls
 																			}
     																  	}
     																  }
-	| IF '(' bexpr ')' '{' stmtlist '}' {/*printf ("IF statement\n");*/}
+	| IF '(' bexpr ')' '{' stmtlist '}' else_statement {/*printf ("IF statement\n");*/}
 	| RETURN return_type ';' {/*printf("return\n");*/}
+
+else_statement:
+	| ELSE '{' stmtlist '}'
 
 decls: VAR ID ':' DATA '=' expr ';' {/*printf ("Assignment with data\n");*/} 
 	|	VAR ID ':' DATA '=' array_assign ';' {/*printf ("Assignment with ARRAY\n");*/}
@@ -125,6 +128,14 @@ decls: VAR ID ':' DATA '=' expr ';' {/*printf ("Assignment with data\n");*/}
 	|	TYPE ID ':' '{' struct_declare '}' ';'
 	|	VAR ID ':' ID '=' '{' struct_declare '}' ';'
 	|	VAR ID ':' '{' paramlist '}' '=' '{'struct_declare '}' ';'
+	|	'{' struct_declare '}' '.' ID '=' expr ';'
+	|	ID '(' ')' func_right_side ';'
+	|	array_assign '[' NUM ']' '=' expr ';'
+	|	ID '=' expr ';'
+	
+func_right_side:
+	|	'[' NUM ']' '=' expr 
+	|	'.' ID '=' expr
 	
 struct_declare: ID ':' INT struct_declare2
 	|	ID '=' expr struct_declare2
@@ -181,6 +192,7 @@ expr: '(' expr ')'			{$$=$2;}
 	|	'-' NUM				{$$ = -1*$2;}
 	|	'+' NUM				{$$ = $2;}
 	|	array_assign		{}
+	|	'{' struct_declare '}' '.' ID
 
 
 
@@ -214,9 +226,7 @@ DATA: INT
 
 ARRAY: '[' DATA ']'
 
-array_assign: '[' array_data ']'
-
-array_data: exprlist 
+array_assign: '[' exprlist ']'
 
 %%
 
