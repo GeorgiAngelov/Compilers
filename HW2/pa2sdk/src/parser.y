@@ -75,6 +75,9 @@ static void yyerror(const char*);
 
 %left '|'
 %left '&'
+%left EQ LT_EQ GT_EQ
+%left NOT_EQ
+%left '!'
 %left '+' '-'
 %left '*' '/' '%'
 %left UMINUS
@@ -88,7 +91,7 @@ static void yyerror(const char*);
 // program -- an EVAL token followed by a Liger expression.
 program: stmtlist
       | EVAL '(' expr ')' ';'	{eval = 1;result = $3;}
-      | EVAL '(' expr ')' ';'	{beval = 1;if ($3 == 1){result = 1;}else{result = 0;}}
+      | EVAL '(' expr ')' ';'	{/*beval = 1;if ($3 == 1){result = 1;}else{result = 0;}*/}
 
 stmtlist: stmt stmtlist
 		|
@@ -129,14 +132,14 @@ decls: VAR ID ':' DATA '=' expr ';' {/*printf ("Assignment with data\n");*/}
 	|	TYPE ID ':' '{' struct_declare '}' ';'
 	|	VAR ID ':' ID '=' '{' struct_declare '}' ';'
 	|	VAR ID ':' '{' paramlist '}' '=' '{'struct_declare '}' ';'
-	|	'{' struct_declare '}' '.' ID '=' expr ';'
+	|	'{' struct_declare '}' '.' ID '=' expr ';'					{validResult = 0;}
 	|	ID '(' ')' func_right_side ';'
 	|	array_assign '[' NUM ']' '=' expr ';'
 	|	ID '=' expr ';'
 	
 func_right_side:
 	|	'[' NUM ']' '=' expr 
-	|	'.' ID '=' expr
+	|	'.' ID '=' expr			{validResult = 0;}
 	
 struct_declare: ID ':' INT struct_declare2
 	|	ID '=' expr struct_declare2
@@ -193,18 +196,18 @@ expr: '(' expr ')'			{$$=$2;}
 	|	'-' NUM				{$$ = -1*$2;}
 	|	'+' NUM				{$$ = $2;}
 	|	array_assign		{}
-	|	'{' struct_declare '}' '.' ID
-	| TRUE					{$$= 1;}
-	|	FALSE				{$$= 0;}
-	|	expr '&' expr		{$$= $1 && $3;}
-	|	expr '|' expr		{$$= $1 || $3;}
-	| 	expr EQ expr		{$$= $1 == $3;}
-	|	expr NOT_EQ expr	{$$= $1 != $3;}
-	|	expr LT_EQ expr		{$$= $1 <= $3;}
-	| 	expr GT_EQ expr		{$$= $1 >= $3;}
-	|	expr '>' expr		{$$= $1 > $3;}
-	|	expr '<' expr		{$$= $1 < $3;}
-	| 	'!' expr			{$$= !$2;}
+	|	'{' struct_declare '}' '.' ID		{validResult = 0;}
+	| 	TRUE				{beval = 1;$$= 1;}
+	|	FALSE				{beval = 1;$$= 0;}
+	|	expr '&' expr		{beval = 1;$$= $1 && $3;}
+	|	expr '|' expr		{beval = 1;$$= $1 || $3;}
+	| 	expr EQ expr		{beval = 1;$$= $1 == $3;}
+	|	expr NOT_EQ expr	{beval = 1;$$= $1 != $3;}
+	|	expr LT_EQ expr		{beval = 1;$$= $1 <= $3;}
+	| 	expr GT_EQ expr		{beval = 1;$$= $1 >= $3;}
+	|	expr '>' expr		{beval = 1;$$= $1 > $3;}
+	|	expr '<' expr		{beval = 1;$$= $1 < $3;}
+	| 	'!' expr			{beval = 1;$$= !$2;}
 
 paramlist:	paramlist2
 
