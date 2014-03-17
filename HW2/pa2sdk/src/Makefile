@@ -4,13 +4,13 @@ HEADERS =
 YFILE = parser.y
 LFILE = lexer.l
 
-CC = g++ -std=c++0x
+CC = g++ -std=c++0x 
 CFLAGS = -Wall 
 LEX = flex
 YACC = bison
 
 # Autogenerate headers as well as *.c files.
-YFLAGS = --defines=$(YFILE:.y=.h) -o y.tab.c
+YFLAGS = --report=state --defines=$(YFILE:.y=.h) -o y.tab.c
 LFLAGS = --header-file=$(LFILE:.l=.h)
 
 $(PROGRAM): $(YFILE:.y=.o) $(LFILE:.l=.o) $(CFILES:.c=.o) $(HEADERS)

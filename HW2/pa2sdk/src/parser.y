@@ -6,6 +6,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+
 using namespace std;
 
 typedef struct fundata {
@@ -69,12 +70,14 @@ static void yyerror(const char*);
 
 %left '|'
 %left '&'
-%left EQ LT_EQ GT_EQ
-%left NOT_EQ
-%left '!'
+%left LT_EQ
+%left GT_EQ
+%left '<'
+%left '>'
+%left NOT_EQ EQ
 %left '+' '-'
 %left '*' '/' '%'
-%left UMINUS
+%left UPLUS NEG UMINUS
 
 // The top-level rule.
 %start program
@@ -206,8 +209,8 @@ expr: '(' expr ')'			{$$=$2;}
 	|	expr '%' expr		{ieval=1;if ($3 == 0){validResult = 0; $$=0;}else{$$= $1 % $3;}}
 	|	func_left_side		{validResult = 0;}
 	|	ID					{}
-	|	'-' expr			{if(beval == 1){validResult = 0;}ieval=1;$$ = -1*$2;}
-	|	'+' expr			{if(beval == 1){validResult = 0;}ieval=1;$$ = $2;}
+	|	'-' expr %prec UMINUS		{if(beval == 1){validResult = 0;}ieval=1;$$ = -1*$2;}
+	|	'+' expr %prec UPLUS			{if(beval == 1){validResult = 0;}ieval=1;$$ = $2;}
 	|	array_assign		{validResult = 0;}
 	|	'{' struct_declare '}' '.' ID		{validResult = 0;}
 	|	ID array_elems		{validResult = 0;}
@@ -222,10 +225,10 @@ expr: '(' expr ')'			{$$=$2;}
 	| 	expr GT_EQ expr		{beval = 1;$$= $1 >= $3;}
 	|	expr '>' expr		{beval = 1;$$= $1 > $3;}
 	|	expr '<' expr		{beval = 1;$$= $1 < $3;}
-	| 	'!' expr			{beval = 1;$$= !$2;}
+	| 	'!' expr %prec 	NEG	{beval = 1;$$= !$2;}
 	|	STR					{}
 	|	NIL					{}
-
+ 
 array_elems: '[' expr ']' array_elems2
 
 array_elems2:

@@ -69,7 +69,9 @@ extern int yydebug;
     GT_EQ = 279,
     EQ = 280,
     NOT_EQ = 281,
-    UMINUS = 282
+    UPLUS = 282,
+    NEG = 283,
+    UMINUS = 284
   };
 #endif
 
@@ -78,13 +80,13 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 37 "parser.y" /* yacc.c:1909  */
+#line 38 "parser.y" /* yacc.c:1909  */
 
       int num;
       char* text;
       int boolean;
 
-#line 88 "parser.h" /* yacc.c:1909  */
+#line 90 "parser.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
