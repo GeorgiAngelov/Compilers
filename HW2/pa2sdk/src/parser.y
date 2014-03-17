@@ -91,37 +91,63 @@ program: stmtlist1
 
 stmtlist1: 
 	| decls_list stmtlist1
-	| stmt stmtlist1
+	| func_decl stmtlist1
 
 func_stmtlist: decls_list stmtlist
 
 stmtlist: 
 	| stmt stmtlist
 	
+decls_list:
+	| decls decls_list
 
-stmt:  FUNCTION ID '(' paramlist ')' func_right_side 	{
-	if (function_map.find($2) == function_map.end())
-		{
-			funData temp; 
-			temp.name = $2; 
-			function_name.push_back($2);
-			temp.parity = $4; 
-			temp.references = 0; 
-			temp.declared = 1;
-			function_map[$2] = temp;
-		}
-	  else
-	  	{
-	  		function_map[$2].declared++;
-	  		//check parity if function was called but not declared yet
-	  		if ($4 != function_map[$2].parity)
+func_right_side: ':' INT '{' func_stmtlist '}'
+	|	':' ID '{' func_stmtlist '}'
+	|	'{' func_stmtlist '}' 	
+
+func_decl:FUNCTION ID '(' paramlist ')' func_right_side 	{
+		if (function_map.find($2) == function_map.end())
 			{
-				function_map[$2].parity;
-				function_map[$2].parity_mismatch = 1;
+				funData temp; 
+				temp.name = $2; 
+				function_name.push_back($2);
+				temp.parity = $4; 
+				temp.references = 0; 
+				temp.declared = 1;
+				function_map[$2] = temp;
 			}
-	  	}
-	  }
-	| 	IF '(' expr ')' '{' stmtlist '}' else_statement
+		  else
+			{
+				function_map[$2].declared++;
+				//check parity if function was called but not declared yet
+				if ($4 != function_map[$2].parity)
+				{
+					function_map[$2].parity;
+					function_map[$2].parity_mismatch = 1;
+				}
+			}
+		  }
+	
+decls: VAR ID ':' DATA '=' expr ';' 
+	|	VAR ID ':' DATA '=' array_assign ';' 
+	|	VAR ID ':' '{' paramlist '}' ';'
+	|	VAR ID ':' DATA ';'		
+	|	VAR ID ':' ID '=' '{' struct_declare '}' ';'
+	|	VAR ID ':' '{' paramlist '}' '=' '{'struct_declare '}' ';'
+	|	TYPE ID ':' '{' struct_declare '}' ';'
+	|   TYPE ID ':' '[' DATA ']' ';'
+
+struct_declare: ID ':' INT struct_declare2
+	|	ID ':' ID struct_declare2
+	|	ID '=' expr struct_declare2
+	|	ID '='  '{'struct_declare '}' struct_declare2
+
+struct_declare2: 
+	|	',' ID ':' INT struct_declare2
+	|	',' ID ':' ID struct_declare2
+	|	',' ID '=' expr struct_declare2	
+
+stmt: 	IF '(' expr ')' '{' stmtlist '}' else_statement
 	| 	RETURN return_type ';'
 	| 	WHILE '(' expr ')' '{' stmtlist '}'
 	| 	FOR '(' ID '=' expr TO expr ')' '{' stmtlist '}'
@@ -133,24 +159,8 @@ stmt:  FUNCTION ID '(' paramlist ')' func_right_side 	{
 	|	ID '.' ID '=' expr ';'
 	|	PRINT '(' ID ')' ';'			
 
-func_right_side: ':' INT '{' func_stmtlist '}'
-	|	':' ID '{' func_stmtlist '}'
-	|	'{' func_stmtlist '}' 
-
 else_statement:
 	| ELSE '{' stmtlist '}'
-
-decls_list:
-	| decls decls_list 
-	
-decls: VAR ID ':' DATA '=' expr ';' 
-	|	VAR ID ':' DATA '=' array_assign ';' 
-	|	VAR ID ':' '{' paramlist '}' ';'
-	|	VAR ID ':' DATA ';'		
-	|	VAR ID ':' ID '=' '{' struct_declare '}' ';'
-	|	VAR ID ':' '{' paramlist '}' '=' '{'struct_declare '}' ';'
-	|	TYPE ID ':' '{' struct_declare '}' ';'
-	|   TYPE ID ':' '[' DATA ']' ';'
 
 func_left_side: ID '(' exprlist ')'	{
 	//if the function has not been previously encountered
@@ -178,17 +188,6 @@ func_left_side: ID '(' exprlist ')'	{
 func_right_side_assign:
 	|	'[' NUM ']' '=' expr 
 	|	'.' ID '=' expr			{validResult = 0;}
-
-struct_declare: ID ':' INT struct_declare2
-	|	ID ':' ID struct_declare2
-	|	ID '=' expr struct_declare2
-	|	ID '='  '{'struct_declare '}' struct_declare2
-
-struct_declare2: 
-	|	',' ID ':' INT struct_declare2
-	|	',' ID ':' ID struct_declare2
-	|	',' ID '=' expr struct_declare2
-	|	',' ID '=' '{' struct_declare '}' struct_declare2
 
 return_type:
 			| '(' expr ')'
