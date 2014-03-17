@@ -99,11 +99,9 @@ program: stmtlist
 stmtlist: 
 	| stmt stmtlist
 
-stmtlist_w_return : RETURN '(' expr ')' ';'				{
-															/*function_map[tempFuncName].returnCount++;*/$$=1;
-														}
-	| stmtlist RETURN '(' expr ')' ';'
-		
+func_stmtlist: 
+	| func_stmt func_stmtlist
+	
 stmt: decls
     |  FUNCTION ID '(' paramlist ')' func_right_side 	{
     																tempFuncName = $2;
@@ -128,29 +126,57 @@ stmt: decls
 																			}
     																  	}
     																  }
-	| IF '(' expr ')' '{' stmtlist '}' else_statement {/*printf ("IF statement\n");*/}
+	| IF '(' expr ')' '{' func_stmtlist '}' else_statement {/*printf ("IF statement\n");*/}
 	| RETURN return_type ';' {/*printf("return\n");*/}
-	| WHILE '(' expr ')' '{' stmtlist '}' {/*printf ("WHILE loop\n");*/}
-	| FOR '(' ID '=' expr TO expr ')' '{' stmtlist '}'
+	| WHILE '(' expr ')' '{' func_stmtlist '}' {/*printf ("WHILE loop\n");*/}
+	| FOR '(' ID '=' expr TO expr ')' '{' func_stmtlist '}'
 
-func_right_side: ':' INT '{' stmtlist_w_return '}'		{/*function_map[tempFuncName].returnReq = 1;*/}
-	|	'{' stmtlist '}'								{/*function_map[tempFuncName].returnReq = 0;*/}
-	
+func_stmt:  FUNCTION ID '(' paramlist ')' func_right_side 	{if (function_map.find($2) == function_map.end())
+    																	{
+    																		funData temp; 
+    																		temp.name = $2; 
+    																		temp.parity = $4; 
+    																		temp.references = 0; 
+    																		temp.declared = 1;
+    																		function_map[$2] = temp;
+    																	}
+    																  else
+    																  	{
+    																  		function_map[$2].declared++;
+    																  		//check parity if function was called but not declared yet
+    																  		if ($4 != function_map[$2].parity)
+																			{
+																				function_map[$2].parity_mismatch = 1;
+																			}
+    																  	}
+    																  }
+	| IF '(' expr ')' '{' func_stmtlist '}' else_statement {/*printf ("IF statement\n");*/}
+	| RETURN return_type ';' {/*printf("return\n");*/}
+	| WHILE '(' expr ')' '{' func_stmtlist '}' {/*printf ("WHILE loop\n");*/}
+	| FOR '(' ID '=' expr TO expr ')' '{' func_stmtlist '}'
+	| ID '=' expr ';'
+	|	'{' struct_declare '}' '.' ID '=' expr ';'					{validResult = 0;}
+	|	func_left_side func_right_side_assign ';'
+	|	array_assign '[' NUM ']' '=' expr ';'
+	|	PRINT '(' ID ')' ';'			{/*printf ("print\n");*/}
+
+func_right_side: ':' INT '{' decls_list func_stmtlist '}'  {/*function_map[tempFuncName].returnReq = 1;*/}
+	|	'{' decls_list func_stmtlist '}' {/*function_map[tempFuncName].returnReq = 0;*/}
+	|   '{' func_stmtlist '}' {/*function_map[tempFuncName].returnReq = 0;*/}
+
 else_statement:
-	| ELSE '{' stmtlist '}'
+	| ELSE '{' func_stmtlist '}'
 
+decls_list:
+	| decls decls_list 
+	
 decls: VAR ID ':' DATA '=' expr ';' {/*printf ("Assignment with data\n");*/} 
 	|	VAR ID ':' DATA '=' array_assign ';' {/*printf ("Assignment with ARRAY\n");*/}
-	|	PRINT '(' ID ')' ';'			{/*printf ("print\n");*/}
 	|	VAR ID ':' '{' paramlist '}' ';'	{/*printf ("Structure\n");*/}
 	|	VAR ID ':' DATA ';'			{/*printf ("Assignment without data\n");*/}
 	|	TYPE ID ':' '{' struct_declare '}' ';'
 	|	VAR ID ':' ID '=' '{' struct_declare '}' ';'
 	|	VAR ID ':' '{' paramlist '}' '=' '{'struct_declare '}' ';'
-	|	'{' struct_declare '}' '.' ID '=' expr ';'					{validResult = 0;}
-	|	func_left_side func_right_side ';'
-	|	array_assign '[' NUM ']' '=' expr ';'
-	|	ID '=' expr ';'
 
 func_left_side: ID '(' exprlist ')'	{
 					//if the function has not been previously encountered
@@ -173,11 +199,11 @@ func_left_side: ID '(' exprlist ')'	{
 							}
 						}
 					}
-	
-func_right_side:
+
+func_right_side_assign:
 	|	'[' NUM ']' '=' expr 
 	|	'.' ID '=' expr			{validResult = 0;}
-	
+
 struct_declare: ID ':' INT struct_declare2
 	|	ID '=' expr struct_declare2
 	|	ID '='  '{'struct_declare '}' struct_declare2
@@ -192,14 +218,14 @@ return_type:
 			|	expr
 
 returntype: ':' DATA
-			
+
 exprlist: exprList2 		{$$=$1;}
 exprList2: expr1 expr2		{$$= $1 + $2;}
 			|				{$$=0;}	
 expr1: expr 				{$$=1;}
 expr2: 						{$$=0;}
 		| ',' expr expr2	{$$=$3 + 1;}
-		
+
 expr: '(' expr ')'			{$$=$2;}
 	|	NUM 				{$$=$1;}
 	|	expr '+' expr 		{$$= $1 + $3;}
@@ -232,17 +258,17 @@ array_elems: '[' expr ']' array_elems2
 
 array_elems2:
 	|	array_elems
-	
+
 paramlist:	paramlist2
 
 paramlist2:	{$$=0;}
 			| P1 P2 {$$=$1 + $2;}
-	
+
 P1: ID ':' DATA {$$=1;}
 
 P2: {$$=0;}
 	| ','  ID ':' DATA P2 {$$= $5 + 1;}
-	
+
 DATA: INT
 	| ARRAY
 	| ID
