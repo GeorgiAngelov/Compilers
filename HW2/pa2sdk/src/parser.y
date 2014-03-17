@@ -121,6 +121,7 @@ stmt:  FUNCTION ID '(' paramlist ')' func_right_side 	{
 	|	'{' struct_declare '}' '.' ID '=' expr ';'				{validResult = 0;}
 	|	func_left_side func_right_side_assign ';'
 	|	array_assign '[' NUM ']' '=' expr ';'
+	|	ID '[' expr ']' '=' expr ';'
 	|	PRINT '(' ID ')' ';'			
 
 func_right_side: ':' INT '{' func_stmtlist '}'  
@@ -212,7 +213,7 @@ expr: '(' expr ')'			{$$=$2;}
 	|	expr '>' expr		{beval = 1;$$= $1 > $3;}
 	|	expr '<' expr		{beval = 1;$$= $1 < $3;}
 	| 	'!' expr			{beval = 1;$$= !$2;}
-
+	|	STR					{}
 
 array_elems: '[' expr ']' array_elems2
 
