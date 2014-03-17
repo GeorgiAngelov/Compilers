@@ -5,6 +5,7 @@
 #include "parser.h"
 #include <iostream>
 #include <map>
+#include <vector>
 using namespace std;
 
 typedef struct fundata {
@@ -22,9 +23,11 @@ extern int yylex(void);
 int result;
 int eval = 0;
 int beval = 0;
+int ieval = 0;
 int validResult = 1;
 
 std::map<std::string, funData> function_map;
+std::vector<std::string> function_name;
 
 static void yyerror(const char*);
 
@@ -98,6 +101,7 @@ stmt:  FUNCTION ID '(' paramlist ')' func_right_side 	{
 		{
 			funData temp; 
 			temp.name = $2; 
+			function_name.push_back($2);
 			temp.parity = $4; 
 			temp.references = 0; 
 			temp.declared = 1;
@@ -109,6 +113,7 @@ stmt:  FUNCTION ID '(' paramlist ')' func_right_side 	{
 	  		//check parity if function was called but not declared yet
 	  		if ($4 != function_map[$2].parity)
 			{
+				function_map[$2].parity;
 				function_map[$2].parity_mismatch = 1;
 			}
 	  	}
@@ -150,6 +155,7 @@ func_left_side: ID '(' exprlist ')'	{
 		{
 			funData temp; 
 			temp.name = $1; 
+			function_name.push_back($1);
 			temp.parity = $3; 
 			temp.references = 1; 
 			temp.declared = 0;
@@ -192,22 +198,22 @@ expr2: 						{$$=0;}
 	| ',' expr expr2		{$$=$3 + 1;}
 
 expr: '(' expr ')'			{$$=$2;}
-	|	NUM 				{$$=$1;}
-	|	expr '+' expr 		{$$= $1 + $3;}
-	|	expr '-' expr		{$$= $1 - $3;}
-	|	expr '*' expr		{$$= $1 * $3;}
-	|	expr '/' expr		{if ($3 == 0){validResult = 0; $$=0;}else{$$= $1 / $3;}}
-	|	expr '%' expr		{if ($3 == 0){validResult = 0; $$=0;}else{$$= $1 % $3;}}
-	|	func_left_side		{}
+	|	NUM 				{if(beval == 1){validResult = 0;}ieval=1;$$=$1;}
+	|	expr '+' expr 		{ieval=1;$$= $1 + $3;}
+	|	expr '-' expr		{ieval=1;$$= $1 - $3;}
+	|	expr '*' expr		{ieval=1;$$= $1 * $3;}
+	|	expr '/' expr		{ieval=1;if ($3 == 0){validResult = 0; $$=0;}else{$$= $1 / $3;}}
+	|	expr '%' expr		{ieval=1;if ($3 == 0){validResult = 0; $$=0;}else{$$= $1 % $3;}}
+	|	func_left_side		{validResult = 0;}
 	|	ID					{}
-	|	'-' expr			{$$ = -1*$2;}
-	|	'+' expr			{$$ = $2;}
-	|	array_assign		{}
+	|	'-' expr			{if(beval == 1){validResult = 0;}ieval=1;$$ = -1*$2;}
+	|	'+' expr			{if(beval == 1){validResult = 0;}ieval=1;$$ = $2;}
+	|	array_assign		{validResult = 0;}
 	|	'{' struct_declare '}' '.' ID		{validResult = 0;}
-	|	ID array_elems		{}
-	|	ID '.' ID			{}
-	| 	TRUE				{beval = 1;$$= 1;}
-	|	FALSE				{beval = 1;$$= 0;}
+	|	ID array_elems		{validResult = 0;}
+	|	ID '.' ID			{validResult = 0;}
+	| 	TRUE				{if(ieval == 1){validResult = 0;}beval = 1;$$= 1;}
+	|	FALSE				{if(ieval == 1){validResult = 0;}beval = 1;$$= 0;}
 	|	expr '&' expr		{beval = 1;$$= $1 && $3;}
 	|	expr '|' expr		{beval = 1;$$= $1 || $3;}
 	| 	expr EQ expr		{beval = 1;$$= $1 == $3;}

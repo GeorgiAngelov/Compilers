@@ -1,7 +1,6 @@
 #include "lexer.h" // yyin, yylex, etc.
 #include "parser.h" // yyparse, yylval, token enum, etc.
 #include <map>
-#include <algorithm>    // std::sort
 #include <vector>       // std::vector
 #include <iostream>
 
@@ -18,7 +17,9 @@ typedef struct fundata {
 extern int result;
 extern int eval;
 extern int beval;
+extern int ieval;
 extern int validResult;
+extern std::vector<std::string> function_name;
 extern std::map<std::string, funData> function_map;
 
 using namespace std;
@@ -41,7 +42,7 @@ int main(int argc, char** argv) {
 	yyrestart(f);
     check = yyparse();
     
-    
+    /*
     for (auto it = function_map.begin(); it != function_map.end(); ++it)
     {
     	if (it->second.returnReq && it->second.returnCount < 1)
@@ -49,7 +50,7 @@ int main(int argc, char** argv) {
     		validReturns = 0;	
     	}
     }
-    
+    */
     
     
     
@@ -86,30 +87,33 @@ int main(int argc, char** argv) {
 	    
 	    //sort(function_map.begin(), function_map.end());
 	    
-	    for (auto it = function_map.begin(); it != function_map.end(); ++it)
+	    if (eval == 0)
 	    {
-	    	cout << "Function " << it->second.name << ":\n";
-	    	if (it->second.parity_mismatch == 1)
-	    	{
-	    		cout << "   Arity mismatch!\n";
-	    	}
-	    	else
-	    	{
-	    		cout << "   Arity: " << it->second.parity << "\n";
-	    	}
-	    	if (it->second.declared > 1)
-	    	{
-	    		cout <<	"   Multiple definitions!\n";
-	    	}
-	    	else if (it->second.declared == 1)
-	    	{
-	    		cout << "   Defined: yes" << "\n";
-	    	}
-	    	else 
-	    	{
-	    		cout << "   Defined: no" << "\n";	
-	    	}
-	    	cout << "   Calls: " << it->second.references << "\n";
+		    for (int i = 0; i < function_name.size(); ++i)
+		    {
+		    	cout << "Function " << function_map[function_name[i]].name << ":\n";
+		    	if (function_map[function_name[i]].parity_mismatch == 1)
+		    	{
+		    		cout << "   Arity mismatch!\n";
+		    	}
+		    	else
+		    	{
+		    		cout << "   Arity: " << function_map[function_name[i]].parity << "\n";
+		    	}
+		    	if (function_map[function_name[i]].declared > 1)
+		    	{
+		    		cout <<	"   Multiple definitions!\n";
+		    	}
+		    	else if (function_map[function_name[i]].declared == 1)
+		    	{
+		    		cout << "   Defined: yes" << "\n";
+		    	}
+		    	else 
+		    	{
+		    		cout << "   Defined: no" << "\n";	
+		    	}
+		    	cout << "   Calls: " << function_map[function_name[i]].references << "\n";
+		    }
 	    }
     }
     
