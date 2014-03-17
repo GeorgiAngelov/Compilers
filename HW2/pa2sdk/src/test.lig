@@ -1,1 +1,1 @@
-eval( 10 / 10);
+eval(!false & true == false);

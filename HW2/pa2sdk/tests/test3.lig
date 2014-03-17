@@ -7,7 +7,7 @@ This program contains various examples of liger declaration syntax.
 var i1 : int; // Not initialized.
 var i2 : int = 5;
 var a1 : [int]; // Initialized to nil.
-var a2 : [int] = [1, 2, i1, i2]; //THIS IS WHERE WE ERROR OUT
+var a2 : [int] = [1, 2, i1, i2];
 var s1 : {x : int, y : int}; // initialized to nil. var s2 : {x : int, y : int} = {x = i1, y = i2};
 type my_struct : {x : int, y : int};
 var s3 : my_struct = {x = i1, y = i2};

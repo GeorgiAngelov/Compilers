@@ -98,6 +98,9 @@ stmtlist:
 stmtlist_w_return : RETURN '(' expr ')' ';'
 	| stmtlist RETURN '(' expr ')' ';'
 
+func_stmtlist: 
+	| func_stmt func_stmtlist
+	
 stmt: decls
     |  FUNCTION ID '(' paramlist ')' func_right_side 	{if (function_map.find($2) == function_map.end())
     																	{
@@ -118,29 +121,57 @@ stmt: decls
 																			}
     																  	}
     																  }
-	| IF '(' expr ')' '{' stmtlist '}' else_statement {/*printf ("IF statement\n");*/}
+	| IF '(' expr ')' '{' func_stmtlist '}' else_statement {/*printf ("IF statement\n");*/}
 	| RETURN return_type ';' {/*printf("return\n");*/}
-	| WHILE '(' expr ')' '{' stmtlist '}' {/*printf ("WHILE loop\n");*/}
-	| FOR '(' ID '=' expr TO expr ')' '{' stmtlist '}'
+	| WHILE '(' expr ')' '{' func_stmtlist '}' {/*printf ("WHILE loop\n");*/}
+	| FOR '(' ID '=' expr TO expr ')' '{' func_stmtlist '}'
 
-func_right_side: ':' INT '{' stmtlist '}'
-	|	'{' stmtlist '}'
+func_stmt:  FUNCTION ID '(' paramlist ')' func_right_side 	{if (function_map.find($2) == function_map.end())
+    																	{
+    																		funData temp; 
+    																		temp.name = $2; 
+    																		temp.parity = $4; 
+    																		temp.references = 0; 
+    																		temp.declared = 1;
+    																		function_map[$2] = temp;
+    																	}
+    																  else
+    																  	{
+    																  		function_map[$2].declared++;
+    																  		//check parity if function was called but not declared yet
+    																  		if ($4 != function_map[$2].parity)
+																			{
+																				function_map[$2].parity_mismatch = 1;
+																			}
+    																  	}
+    																  }
+	| IF '(' expr ')' '{' func_stmtlist '}' else_statement {/*printf ("IF statement\n");*/}
+	| RETURN return_type ';' {/*printf("return\n");*/}
+	| WHILE '(' expr ')' '{' func_stmtlist '}' {/*printf ("WHILE loop\n");*/}
+	| FOR '(' ID '=' expr TO expr ')' '{' func_stmtlist '}'
+	| ID '=' expr ';'
+	|	'{' struct_declare '}' '.' ID '=' expr ';'					{validResult = 0;}
+	|	func_left_side func_right_side_assign ';'
+	|	array_assign '[' NUM ']' '=' expr ';'
+	|	PRINT '(' ID ')' ';'			{/*printf ("print\n");*/}
+
+func_right_side: ':' INT '{' decls_list func_stmtlist '}' 
+	|	'{' decls_list func_stmtlist '}'
+	|   '{' func_stmtlist '}'
 
 else_statement:
-	| ELSE '{' stmtlist '}'
+	| ELSE '{' func_stmtlist '}'
 
+decls_list:
+	| decls decls_list 
+	
 decls: VAR ID ':' DATA '=' expr ';' {/*printf ("Assignment with data\n");*/} 
 	|	VAR ID ':' DATA '=' array_assign ';' {/*printf ("Assignment with ARRAY\n");*/}
-	|	PRINT '(' ID ')' ';'			{/*printf ("print\n");*/}
 	|	VAR ID ':' '{' paramlist '}' ';'	{/*printf ("Structure\n");*/}
 	|	VAR ID ':' DATA ';'			{/*printf ("Assignment without data\n");*/}
 	|	TYPE ID ':' '{' struct_declare '}' ';'
 	|	VAR ID ':' ID '=' '{' struct_declare '}' ';'
 	|	VAR ID ':' '{' paramlist '}' '=' '{'struct_declare '}' ';'
-	|	'{' struct_declare '}' '.' ID '=' expr ';'					{validResult = 0;}
-	|	func_left_side func_right_side_assign ';'
-	|	array_assign '[' NUM ']' '=' expr ';'
-	|	ID '=' expr ';'
 
 func_left_side: ID '(' exprlist ')'	{
 					//if the function has not been previously encountered
