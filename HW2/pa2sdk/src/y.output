@@ -5,17 +5,17 @@ Terminals unused in grammar
 
 
 State 35 conflicts: 1 shift/reduce
-State 78 conflicts: 1 reduce/reduce
-State 80 conflicts: 1 reduce/reduce
+State 77 conflicts: 1 reduce/reduce
+State 79 conflicts: 1 reduce/reduce
+State 112 conflicts: 1 shift/reduce
 State 113 conflicts: 1 shift/reduce
-State 114 conflicts: 1 shift/reduce
-State 116 conflicts: 1 shift/reduce
-State 120 conflicts: 1 shift/reduce
-State 156 conflicts: 1 shift/reduce
-State 174 conflicts: 1 shift/reduce
+State 115 conflicts: 1 shift/reduce
+State 119 conflicts: 1 shift/reduce
+State 155 conflicts: 1 shift/reduce
+State 173 conflicts: 1 shift/reduce
+State 197 conflicts: 1 shift/reduce
 State 198 conflicts: 1 shift/reduce
 State 199 conflicts: 1 shift/reduce
-State 200 conflicts: 1 shift/reduce
 
 
 Grammar
@@ -139,14 +139,12 @@ Grammar
    91   | ',' ID ':' DATA P2
 
    92 DATA: INT
-   93     | ARRAY
-   94     | ID
-   95     | struct_declare
-   96     | array_assign
+   93     | '[' DATA ']'
+   94     | struct_declare
+   95     | array_assign
+   96     | ID
 
-   97 ARRAY: '[' DATA ']'
-
-   98 array_assign: '[' exprlist ']'
+   97 array_assign: '[' exprlist ']'
 
 
 Terminals, with rules where they appear
@@ -168,8 +166,8 @@ $end (0) 0
 '<' (60) 80
 '=' (61) 15 16 19 20 25 26 30 34 35 36 38 39 40 46 47
 '>' (62) 79
-'[' (91) 22 38 39 46 84 97 98
-']' (93) 22 38 39 46 84 97 98
+'[' (91) 22 38 39 46 84 93 97
+']' (93) 22 38 39 46 84 93 97
 '{' (123) 11 12 13 17 19 20 21 26 31 33 34 36 43 68
 '|' (124) 74
 '}' (125) 11 12 13 17 19 20 21 26 31 33 34 36 43 68
@@ -189,7 +187,7 @@ FALSE (269) 72
 INT (270) 11 23 28 92
 BOOL (271)
 ID (272) 12 14 15 16 17 18 19 20 21 22 23 24 25 26 28 29 30 34 35 36
-    39 40 41 44 47 64 68 69 70 89 91 94
+    39 40 41 44 47 64 68 69 70 89 91 96
 STR (273) 82
 NUM (274) 38 46 57
 UNKNOWN (275)
@@ -225,7 +223,7 @@ func_decl (58)
 decls (59)
     on left: 15 16 17 18 19 20 21 22, on right: 4 10
 struct_declare (60)
-    on left: 23 24 25 26, on right: 19 20 21 26 36 68 95
+    on left: 23 24 25 26, on right: 19 20 21 26 36 68 94
 struct_declare2 (61)
     on left: 27 28 29 30, on right: 23 24 25 26 28 29 30
 stmt (62)
@@ -239,7 +237,7 @@ func_right_side_assign (65)
 return_type (66)
     on left: 48 49, on right: 32
 exprlist (67)
-    on left: 50, on right: 44 98
+    on left: 50, on right: 44 97
 exprList2 (68)
     on left: 51 52, on right: 50
 expr1 (69)
@@ -262,11 +260,9 @@ P1 (75)
 P2 (76)
     on left: 90 91, on right: 88 91
 DATA (77)
-    on left: 92 93 94 95 96, on right: 15 16 18 22 89 91 97
-ARRAY (78)
-    on left: 97, on right: 93
-array_assign (79)
-    on left: 98, on right: 16 38 67 96
+    on left: 92 93 94 95 96, on right: 15 16 18 22 89 91 93
+array_assign (78)
+    on left: 97, on right: 16 38 67 95
 
 
 State 0
@@ -450,8 +446,7 @@ State 16
 
     struct_declare  go to state 38
     DATA            go to state 39
-    ARRAY           go to state 40
-    array_assign    go to state 41
+    array_assign    go to state 40
 
 
 State 17
@@ -459,20 +454,20 @@ State 17
    21 decls: TYPE ID ':' . '{' struct_declare '}' ';'
    22      | TYPE ID ':' . '[' DATA ']' ';'
 
-    '{'  shift, and go to state 42
-    '['  shift, and go to state 43
+    '{'  shift, and go to state 41
+    '['  shift, and go to state 42
 
 
 State 18
 
    14 func_decl: FUNCTION ID '(' . paramlist ')' func_right_side
 
-    ID  shift, and go to state 44
+    ID  shift, and go to state 43
 
     $default  reduce using rule 87 (paramlist)
 
-    paramlist  go to state 45
-    P1         go to state 46
+    paramlist  go to state 44
+    P1         go to state 45
 
 
 State 19
@@ -503,13 +498,13 @@ State 22
    69     | ID . array_elems
    70     | ID . '.' ID
 
-    '('  shift, and go to state 47
-    '['  shift, and go to state 48
-    '.'  shift, and go to state 49
+    '('  shift, and go to state 46
+    '['  shift, and go to state 47
+    '.'  shift, and go to state 48
 
     $default  reduce using rule 64 (expr)
 
-    array_elems  go to state 50
+    array_elems  go to state 49
 
 
 State 23
@@ -544,7 +539,7 @@ State 25
     '!'    shift, and go to state 30
 
     func_left_side  go to state 31
-    expr            go to state 51
+    expr            go to state 50
     array_assign    go to state 33
 
 
@@ -566,7 +561,7 @@ State 26
     '!'    shift, and go to state 30
 
     func_left_side  go to state 31
-    expr            go to state 52
+    expr            go to state 51
     array_assign    go to state 33
 
 
@@ -588,7 +583,7 @@ State 27
     '!'    shift, and go to state 30
 
     func_left_side  go to state 31
-    expr            go to state 53
+    expr            go to state 52
     array_assign    go to state 33
 
 
@@ -596,14 +591,14 @@ State 28
 
    68 expr: '{' . struct_declare '}' '.' ID
 
-    ID  shift, and go to state 54
+    ID  shift, and go to state 53
 
-    struct_declare  go to state 55
+    struct_declare  go to state 54
 
 
 State 29
 
-   98 array_assign: '[' . exprlist ']'
+   97 array_assign: '[' . exprlist ']'
 
     NIL    shift, and go to state 19
     TRUE   shift, and go to state 20
@@ -621,10 +616,10 @@ State 29
     $default  reduce using rule 52 (exprList2)
 
     func_left_side  go to state 31
-    exprlist        go to state 56
-    exprList2       go to state 57
-    expr1           go to state 58
-    expr            go to state 59
+    exprlist        go to state 55
+    exprList2       go to state 56
+    expr1           go to state 57
+    expr            go to state 58
     array_assign    go to state 33
 
 
@@ -646,7 +641,7 @@ State 30
     '!'    shift, and go to state 30
 
     func_left_side  go to state 31
-    expr            go to state 60
+    expr            go to state 59
     array_assign    go to state 33
 
 
@@ -674,20 +669,20 @@ State 32
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '|'   shift, and go to state 65
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
-    ')'   shift, and go to state 74
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '|'   shift, and go to state 64
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
+    ')'   shift, and go to state 73
 
 
 State 33
@@ -711,13 +706,13 @@ State 35
    24               | ID . ':' ID struct_declare2
    25               | ID . '=' expr struct_declare2
    26               | ID . '=' '{' struct_declare '}' struct_declare2
-   94 DATA: ID .
+   96 DATA: ID .
 
-    ':'  shift, and go to state 75
-    '='  shift, and go to state 76
+    ':'  shift, and go to state 74
+    '='  shift, and go to state 75
 
-    '='       [reduce using rule 94 (DATA)]
-    $default  reduce using rule 94 (DATA)
+    '='       [reduce using rule 96 (DATA)]
+    $default  reduce using rule 96 (DATA)
 
 
 State 36
@@ -725,24 +720,24 @@ State 36
    17 decls: VAR ID ':' '{' . paramlist '}' ';'
    20      | VAR ID ':' '{' . paramlist '}' '=' '{' struct_declare '}' ';'
 
-    ID  shift, and go to state 44
+    ID  shift, and go to state 43
 
     $default  reduce using rule 87 (paramlist)
 
-    paramlist  go to state 77
-    P1         go to state 46
+    paramlist  go to state 76
+    P1         go to state 45
 
 
 State 37
 
-   97 ARRAY: '[' . DATA ']'
-   98 array_assign: '[' . exprlist ']'
+   93 DATA: '[' . DATA ']'
+   97 array_assign: '[' . exprlist ']'
 
     NIL    shift, and go to state 19
     TRUE   shift, and go to state 20
     FALSE  shift, and go to state 21
     INT    shift, and go to state 34
-    ID     shift, and go to state 78
+    ID     shift, and go to state 77
     STR    shift, and go to state 23
     NUM    shift, and go to state 24
     '+'    shift, and go to state 25
@@ -756,20 +751,19 @@ State 37
 
     struct_declare  go to state 38
     func_left_side  go to state 31
-    exprlist        go to state 56
-    exprList2       go to state 57
-    expr1           go to state 58
-    expr            go to state 59
-    DATA            go to state 79
-    ARRAY           go to state 40
-    array_assign    go to state 80
+    exprlist        go to state 55
+    exprList2       go to state 56
+    expr1           go to state 57
+    expr            go to state 58
+    DATA            go to state 78
+    array_assign    go to state 79
 
 
 State 38
 
-   95 DATA: struct_declare .
+   94 DATA: struct_declare .
 
-    $default  reduce using rule 95 (DATA)
+    $default  reduce using rule 94 (DATA)
 
 
 State 39
@@ -778,73 +772,65 @@ State 39
    16      | VAR ID ':' DATA . '=' array_assign ';'
    18      | VAR ID ':' DATA . ';'
 
-    ';'  shift, and go to state 81
-    '='  shift, and go to state 82
+    ';'  shift, and go to state 80
+    '='  shift, and go to state 81
 
 
 State 40
 
-   93 DATA: ARRAY .
+   95 DATA: array_assign .
 
-    $default  reduce using rule 93 (DATA)
+    $default  reduce using rule 95 (DATA)
 
 
 State 41
 
-   96 DATA: array_assign .
+   21 decls: TYPE ID ':' '{' . struct_declare '}' ';'
 
-    $default  reduce using rule 96 (DATA)
+    ID  shift, and go to state 53
+
+    struct_declare  go to state 82
 
 
 State 42
 
-   21 decls: TYPE ID ':' '{' . struct_declare '}' ';'
+   22 decls: TYPE ID ':' '[' . DATA ']' ';'
 
-    ID  shift, and go to state 54
+    INT  shift, and go to state 34
+    ID   shift, and go to state 83
+    '['  shift, and go to state 37
 
-    struct_declare  go to state 83
+    struct_declare  go to state 38
+    DATA            go to state 84
+    array_assign    go to state 40
 
 
 State 43
 
-   22 decls: TYPE ID ':' '[' . DATA ']' ';'
+   89 P1: ID . ':' DATA
 
-    INT  shift, and go to state 34
-    ID   shift, and go to state 84
-    '['  shift, and go to state 37
-
-    struct_declare  go to state 38
-    DATA            go to state 85
-    ARRAY           go to state 40
-    array_assign    go to state 41
+    ':'  shift, and go to state 85
 
 
 State 44
 
-   89 P1: ID . ':' DATA
+   14 func_decl: FUNCTION ID '(' paramlist . ')' func_right_side
 
-    ':'  shift, and go to state 86
+    ')'  shift, and go to state 86
 
 
 State 45
 
-   14 func_decl: FUNCTION ID '(' paramlist . ')' func_right_side
-
-    ')'  shift, and go to state 87
-
-
-State 46
-
    88 paramlist: P1 . P2
 
-    ','  shift, and go to state 88
+    ','  shift, and go to state 87
 
     $default  reduce using rule 90 (P2)
 
-    P2  go to state 89
+    P2  go to state 88
 
 
-State 47
+State 46
 
    44 func_left_side: ID '(' . exprlist ')'
 
@@ -864,14 +850,14 @@ State 47
     $default  reduce using rule 52 (exprList2)
 
     func_left_side  go to state 31
-    exprlist        go to state 90
-    exprList2       go to state 57
-    expr1           go to state 58
-    expr            go to state 59
+    exprlist        go to state 89
+    exprList2       go to state 56
+    expr1           go to state 57
+    expr            go to state 58
     array_assign    go to state 33
 
 
-State 48
+State 47
 
    84 array_elems: '[' . expr ']' array_elems2
 
@@ -889,25 +875,25 @@ State 48
     '!'    shift, and go to state 30
 
     func_left_side  go to state 31
-    expr            go to state 91
+    expr            go to state 90
     array_assign    go to state 33
 
 
-State 49
+State 48
 
    70 expr: ID '.' . ID
 
-    ID  shift, and go to state 92
+    ID  shift, and go to state 91
 
 
-State 50
+State 49
 
    69 expr: ID array_elems .
 
     $default  reduce using rule 69 (expr)
 
 
-State 51
+State 50
 
    58 expr: expr . '+' expr
    59     | expr . '-' expr
@@ -927,7 +913,7 @@ State 51
     $default  reduce using rule 66 (expr)
 
 
-State 52
+State 51
 
    58 expr: expr . '+' expr
    59     | expr . '-' expr
@@ -947,7 +933,7 @@ State 52
     $default  reduce using rule 65 (expr)
 
 
-State 53
+State 52
 
    56 expr: '(' expr . ')'
    58     | expr . '+' expr
@@ -964,66 +950,66 @@ State 53
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '|'   shift, and go to state 65
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
-    ')'   shift, and go to state 93
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '|'   shift, and go to state 64
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
+    ')'   shift, and go to state 92
 
 
-State 54
+State 53
 
    23 struct_declare: ID . ':' INT struct_declare2
    24               | ID . ':' ID struct_declare2
    25               | ID . '=' expr struct_declare2
    26               | ID . '=' '{' struct_declare '}' struct_declare2
 
-    ':'  shift, and go to state 75
-    '='  shift, and go to state 94
+    ':'  shift, and go to state 74
+    '='  shift, and go to state 93
+
+
+State 54
+
+   68 expr: '{' struct_declare . '}' '.' ID
+
+    '}'  shift, and go to state 94
 
 
 State 55
 
-   68 expr: '{' struct_declare . '}' '.' ID
+   97 array_assign: '[' exprlist . ']'
 
-    '}'  shift, and go to state 95
+    ']'  shift, and go to state 95
 
 
 State 56
-
-   98 array_assign: '[' exprlist . ']'
-
-    ']'  shift, and go to state 96
-
-
-State 57
 
    50 exprlist: exprList2 .
 
     $default  reduce using rule 50 (exprlist)
 
 
-State 58
+State 57
 
    51 exprList2: expr1 . expr2
 
-    ','  shift, and go to state 97
+    ','  shift, and go to state 96
 
     $default  reduce using rule 54 (expr2)
 
-    expr2  go to state 98
+    expr2  go to state 97
 
 
-State 59
+State 58
 
    53 expr1: expr .
    58 expr: expr . '+' expr
@@ -1040,24 +1026,24 @@ State 59
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '|'   shift, and go to state 65
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '|'   shift, and go to state 64
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
 
     $default  reduce using rule 53 (expr1)
 
 
-State 60
+State 59
 
    58 expr: expr . '+' expr
    59     | expr . '-' expr
@@ -1077,9 +1063,31 @@ State 60
     $default  reduce using rule 81 (expr)
 
 
-State 61
+State 60
 
    77 expr: expr "<=" . expr
+
+    NIL    shift, and go to state 19
+    TRUE   shift, and go to state 20
+    FALSE  shift, and go to state 21
+    ID     shift, and go to state 22
+    STR    shift, and go to state 23
+    NUM    shift, and go to state 24
+    '+'    shift, and go to state 25
+    '-'    shift, and go to state 26
+    '('    shift, and go to state 27
+    '{'    shift, and go to state 28
+    '['    shift, and go to state 29
+    '!'    shift, and go to state 30
+
+    func_left_side  go to state 31
+    expr            go to state 98
+    array_assign    go to state 33
+
+
+State 61
+
+   78 expr: expr ">=" . expr
 
     NIL    shift, and go to state 19
     TRUE   shift, and go to state 20
@@ -1101,7 +1109,7 @@ State 61
 
 State 62
 
-   78 expr: expr ">=" . expr
+   75 expr: expr "==" . expr
 
     NIL    shift, and go to state 19
     TRUE   shift, and go to state 20
@@ -1123,7 +1131,7 @@ State 62
 
 State 63
 
-   75 expr: expr "==" . expr
+   76 expr: expr "!=" . expr
 
     NIL    shift, and go to state 19
     TRUE   shift, and go to state 20
@@ -1145,7 +1153,7 @@ State 63
 
 State 64
 
-   76 expr: expr "!=" . expr
+   74 expr: expr '|' . expr
 
     NIL    shift, and go to state 19
     TRUE   shift, and go to state 20
@@ -1167,7 +1175,7 @@ State 64
 
 State 65
 
-   74 expr: expr '|' . expr
+   73 expr: expr '&' . expr
 
     NIL    shift, and go to state 19
     TRUE   shift, and go to state 20
@@ -1189,7 +1197,7 @@ State 65
 
 State 66
 
-   73 expr: expr '&' . expr
+   80 expr: expr '<' . expr
 
     NIL    shift, and go to state 19
     TRUE   shift, and go to state 20
@@ -1211,7 +1219,7 @@ State 66
 
 State 67
 
-   80 expr: expr '<' . expr
+   79 expr: expr '>' . expr
 
     NIL    shift, and go to state 19
     TRUE   shift, and go to state 20
@@ -1233,7 +1241,7 @@ State 67
 
 State 68
 
-   79 expr: expr '>' . expr
+   58 expr: expr '+' . expr
 
     NIL    shift, and go to state 19
     TRUE   shift, and go to state 20
@@ -1255,7 +1263,7 @@ State 68
 
 State 69
 
-   58 expr: expr '+' . expr
+   59 expr: expr '-' . expr
 
     NIL    shift, and go to state 19
     TRUE   shift, and go to state 20
@@ -1277,7 +1285,7 @@ State 69
 
 State 70
 
-   59 expr: expr '-' . expr
+   60 expr: expr '*' . expr
 
     NIL    shift, and go to state 19
     TRUE   shift, and go to state 20
@@ -1299,7 +1307,7 @@ State 70
 
 State 71
 
-   60 expr: expr '*' . expr
+   61 expr: expr '/' . expr
 
     NIL    shift, and go to state 19
     TRUE   shift, and go to state 20
@@ -1321,7 +1329,7 @@ State 71
 
 State 72
 
-   61 expr: expr '/' . expr
+   62 expr: expr '%' . expr
 
     NIL    shift, and go to state 19
     TRUE   shift, and go to state 20
@@ -1343,43 +1351,21 @@ State 72
 
 State 73
 
-   62 expr: expr '%' . expr
+    2 program: EVAL '(' expr ')' . ';'
 
-    NIL    shift, and go to state 19
-    TRUE   shift, and go to state 20
-    FALSE  shift, and go to state 21
-    ID     shift, and go to state 22
-    STR    shift, and go to state 23
-    NUM    shift, and go to state 24
-    '+'    shift, and go to state 25
-    '-'    shift, and go to state 26
-    '('    shift, and go to state 27
-    '{'    shift, and go to state 28
-    '['    shift, and go to state 29
-    '!'    shift, and go to state 30
-
-    func_left_side  go to state 31
-    expr            go to state 111
-    array_assign    go to state 33
+    ';'  shift, and go to state 111
 
 
 State 74
 
-    2 program: EVAL '(' expr ')' . ';'
-
-    ';'  shift, and go to state 112
-
-
-State 75
-
    23 struct_declare: ID ':' . INT struct_declare2
    24               | ID ':' . ID struct_declare2
 
-    INT  shift, and go to state 113
-    ID   shift, and go to state 114
+    INT  shift, and go to state 112
+    ID   shift, and go to state 113
 
 
-State 76
+State 75
 
    19 decls: VAR ID ':' ID '=' . '{' struct_declare '}' ';'
    25 struct_declare: ID '=' . expr struct_declare2
@@ -1394,24 +1380,24 @@ State 76
     '+'    shift, and go to state 25
     '-'    shift, and go to state 26
     '('    shift, and go to state 27
-    '{'    shift, and go to state 115
+    '{'    shift, and go to state 114
     '['    shift, and go to state 29
     '!'    shift, and go to state 30
 
     func_left_side  go to state 31
-    expr            go to state 116
+    expr            go to state 115
     array_assign    go to state 33
 
 
-State 77
+State 76
 
    17 decls: VAR ID ':' '{' paramlist . '}' ';'
    20      | VAR ID ':' '{' paramlist . '}' '=' '{' struct_declare '}' ';'
 
-    '}'  shift, and go to state 117
+    '}'  shift, and go to state 116
 
 
-State 78
+State 77
 
    23 struct_declare: ID . ':' INT struct_declare2
    24               | ID . ':' ID struct_declare2
@@ -1421,46 +1407,46 @@ State 78
    64 expr: ID .
    69     | ID . array_elems
    70     | ID . '.' ID
-   94 DATA: ID .
+   96 DATA: ID .
 
-    '('  shift, and go to state 47
-    ':'  shift, and go to state 75
-    '='  shift, and go to state 94
-    '['  shift, and go to state 48
-    '.'  shift, and go to state 49
+    '('  shift, and go to state 46
+    ':'  shift, and go to state 74
+    '='  shift, and go to state 93
+    '['  shift, and go to state 47
+    '.'  shift, and go to state 48
 
     ']'       reduce using rule 64 (expr)
-    ']'       [reduce using rule 94 (DATA)]
+    ']'       [reduce using rule 96 (DATA)]
     $default  reduce using rule 64 (expr)
 
-    array_elems  go to state 50
+    array_elems  go to state 49
+
+
+State 78
+
+   93 DATA: '[' DATA . ']'
+
+    ']'  shift, and go to state 117
 
 
 State 79
 
-   97 ARRAY: '[' DATA . ']'
-
-    ']'  shift, and go to state 118
-
-
-State 80
-
    67 expr: array_assign .
-   96 DATA: array_assign .
+   95 DATA: array_assign .
 
     ']'       reduce using rule 67 (expr)
-    ']'       [reduce using rule 96 (DATA)]
+    ']'       [reduce using rule 95 (DATA)]
     $default  reduce using rule 67 (expr)
 
 
-State 81
+State 80
 
    18 decls: VAR ID ':' DATA ';' .
 
     $default  reduce using rule 18 (decls)
 
 
-State 82
+State 81
 
    15 decls: VAR ID ':' DATA '=' . expr ';'
    16      | VAR ID ':' DATA '=' . array_assign ';'
@@ -1479,84 +1465,83 @@ State 82
     '!'    shift, and go to state 30
 
     func_left_side  go to state 31
-    expr            go to state 119
-    array_assign    go to state 120
+    expr            go to state 118
+    array_assign    go to state 119
 
 
-State 83
+State 82
 
    21 decls: TYPE ID ':' '{' struct_declare . '}' ';'
 
-    '}'  shift, and go to state 121
+    '}'  shift, and go to state 120
 
 
-State 84
+State 83
 
    23 struct_declare: ID . ':' INT struct_declare2
    24               | ID . ':' ID struct_declare2
    25               | ID . '=' expr struct_declare2
    26               | ID . '=' '{' struct_declare '}' struct_declare2
-   94 DATA: ID .
+   96 DATA: ID .
 
-    ':'  shift, and go to state 75
-    '='  shift, and go to state 94
+    ':'  shift, and go to state 74
+    '='  shift, and go to state 93
 
-    $default  reduce using rule 94 (DATA)
+    $default  reduce using rule 96 (DATA)
+
+
+State 84
+
+   22 decls: TYPE ID ':' '[' DATA . ']' ';'
+
+    ']'  shift, and go to state 121
 
 
 State 85
 
-   22 decls: TYPE ID ':' '[' DATA . ']' ';'
+   89 P1: ID ':' . DATA
 
-    ']'  shift, and go to state 122
+    INT  shift, and go to state 34
+    ID   shift, and go to state 83
+    '['  shift, and go to state 37
+
+    struct_declare  go to state 38
+    DATA            go to state 122
+    array_assign    go to state 40
 
 
 State 86
 
-   89 P1: ID ':' . DATA
+   14 func_decl: FUNCTION ID '(' paramlist ')' . func_right_side
 
-    INT  shift, and go to state 34
-    ID   shift, and go to state 84
-    '['  shift, and go to state 37
+    ':'  shift, and go to state 123
+    '{'  shift, and go to state 124
 
-    struct_declare  go to state 38
-    DATA            go to state 123
-    ARRAY           go to state 40
-    array_assign    go to state 41
+    func_right_side  go to state 125
 
 
 State 87
 
-   14 func_decl: FUNCTION ID '(' paramlist ')' . func_right_side
+   91 P2: ',' . ID ':' DATA P2
 
-    ':'  shift, and go to state 124
-    '{'  shift, and go to state 125
-
-    func_right_side  go to state 126
+    ID  shift, and go to state 126
 
 
 State 88
-
-   91 P2: ',' . ID ':' DATA P2
-
-    ID  shift, and go to state 127
-
-
-State 89
 
    88 paramlist: P1 P2 .
 
     $default  reduce using rule 88 (paramlist)
 
 
-State 90
+State 89
 
    44 func_left_side: ID '(' exprlist . ')'
 
-    ')'  shift, and go to state 128
+    ')'  shift, and go to state 127
 
 
-State 91
+State 90
 
    58 expr: expr . '+' expr
    59     | expr . '-' expr
@@ -1573,37 +1558,37 @@ State 91
    80     | expr . '<' expr
    84 array_elems: '[' expr . ']' array_elems2
 
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '|'   shift, and go to state 65
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
-    ']'   shift, and go to state 129
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '|'   shift, and go to state 64
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
+    ']'   shift, and go to state 128
 
 
-State 92
+State 91
 
    70 expr: ID '.' ID .
 
     $default  reduce using rule 70 (expr)
 
 
-State 93
+State 92
 
    56 expr: '(' expr ')' .
 
     $default  reduce using rule 56 (expr)
 
 
-State 94
+State 93
 
    25 struct_declare: ID '=' . expr struct_declare2
    26               | ID '=' . '{' struct_declare '}' struct_declare2
@@ -1617,30 +1602,30 @@ State 94
     '+'    shift, and go to state 25
     '-'    shift, and go to state 26
     '('    shift, and go to state 27
-    '{'    shift, and go to state 130
+    '{'    shift, and go to state 129
     '['    shift, and go to state 29
     '!'    shift, and go to state 30
 
     func_left_side  go to state 31
-    expr            go to state 116
+    expr            go to state 115
     array_assign    go to state 33
+
+
+State 94
+
+   68 expr: '{' struct_declare '}' . '.' ID
+
+    '.'  shift, and go to state 130
 
 
 State 95
 
-   68 expr: '{' struct_declare '}' . '.' ID
+   97 array_assign: '[' exprlist ']' .
 
-    '.'  shift, and go to state 131
+    $default  reduce using rule 97 (array_assign)
 
 
 State 96
-
-   98 array_assign: '[' exprlist ']' .
-
-    $default  reduce using rule 98 (array_assign)
-
-
-State 97
 
    55 expr2: ',' . expr expr2
 
@@ -1658,18 +1643,18 @@ State 97
     '!'    shift, and go to state 30
 
     func_left_side  go to state 31
-    expr            go to state 132
+    expr            go to state 131
     array_assign    go to state 33
 
 
-State 98
+State 97
 
    51 exprList2: expr1 expr2 .
 
     $default  reduce using rule 51 (exprList2)
 
 
-State 99
+State 98
 
    58 expr: expr . '+' expr
    59     | expr . '-' expr
@@ -1686,21 +1671,21 @@ State 99
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
 
     $default  reduce using rule 77 (expr)
 
 
-State 100
+State 99
 
    58 expr: expr . '+' expr
    59     | expr . '-' expr
@@ -1717,20 +1702,20 @@ State 100
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
 
     $default  reduce using rule 78 (expr)
 
 
-State 101
+State 100
 
    58 expr: expr . '+' expr
    59     | expr . '-' expr
@@ -1747,16 +1732,16 @@ State 101
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    '+'  shift, and go to state 69
-    '-'  shift, and go to state 70
-    '*'  shift, and go to state 71
-    '/'  shift, and go to state 72
-    '%'  shift, and go to state 73
+    '+'  shift, and go to state 68
+    '-'  shift, and go to state 69
+    '*'  shift, and go to state 70
+    '/'  shift, and go to state 71
+    '%'  shift, and go to state 72
 
     $default  reduce using rule 75 (expr)
 
 
-State 102
+State 101
 
    58 expr: expr . '+' expr
    59     | expr . '-' expr
@@ -1773,16 +1758,16 @@ State 102
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    '+'  shift, and go to state 69
-    '-'  shift, and go to state 70
-    '*'  shift, and go to state 71
-    '/'  shift, and go to state 72
-    '%'  shift, and go to state 73
+    '+'  shift, and go to state 68
+    '-'  shift, and go to state 69
+    '*'  shift, and go to state 70
+    '/'  shift, and go to state 71
+    '%'  shift, and go to state 72
 
     $default  reduce using rule 76 (expr)
 
 
-State 103
+State 102
 
    58 expr: expr . '+' expr
    59     | expr . '-' expr
@@ -1799,23 +1784,23 @@ State 103
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
 
     $default  reduce using rule 74 (expr)
 
 
-State 104
+State 103
 
    58 expr: expr . '+' expr
    59     | expr . '-' expr
@@ -1832,22 +1817,22 @@ State 104
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
 
     $default  reduce using rule 73 (expr)
 
 
-State 105
+State 104
 
    58 expr: expr . '+' expr
    59     | expr . '-' expr
@@ -1864,19 +1849,19 @@ State 105
    80     | expr . '<' expr
    80     | expr '<' expr .
 
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
 
     $default  reduce using rule 80 (expr)
 
 
-State 106
+State 105
 
    58 expr: expr . '+' expr
    59     | expr . '-' expr
@@ -1893,18 +1878,18 @@ State 106
    79     | expr '>' expr .
    80     | expr . '<' expr
 
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
 
     $default  reduce using rule 79 (expr)
 
 
-State 107
+State 106
 
    58 expr: expr . '+' expr
    58     | expr '+' expr .
@@ -1921,14 +1906,14 @@ State 107
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    '*'  shift, and go to state 71
-    '/'  shift, and go to state 72
-    '%'  shift, and go to state 73
+    '*'  shift, and go to state 70
+    '/'  shift, and go to state 71
+    '%'  shift, and go to state 72
 
     $default  reduce using rule 58 (expr)
 
 
-State 108
+State 107
 
    58 expr: expr . '+' expr
    59     | expr . '-' expr
@@ -1945,14 +1930,14 @@ State 108
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    '*'  shift, and go to state 71
-    '/'  shift, and go to state 72
-    '%'  shift, and go to state 73
+    '*'  shift, and go to state 70
+    '/'  shift, and go to state 71
+    '%'  shift, and go to state 72
 
     $default  reduce using rule 59 (expr)
 
 
-State 109
+State 108
 
    58 expr: expr . '+' expr
    59     | expr . '-' expr
@@ -1972,7 +1957,7 @@ State 109
     $default  reduce using rule 60 (expr)
 
 
-State 110
+State 109
 
    58 expr: expr . '+' expr
    59     | expr . '-' expr
@@ -1992,7 +1977,7 @@ State 110
     $default  reduce using rule 61 (expr)
 
 
-State 111
+State 110
 
    58 expr: expr . '+' expr
    59     | expr . '-' expr
@@ -2012,18 +1997,30 @@ State 111
     $default  reduce using rule 62 (expr)
 
 
-State 112
+State 111
 
     2 program: EVAL '(' expr ')' ';' .
 
     $default  reduce using rule 2 (program)
 
 
-State 113
+State 112
 
    23 struct_declare: ID ':' INT . struct_declare2
 
-    ','  shift, and go to state 133
+    ','  shift, and go to state 132
+
+    ','       [reduce using rule 27 (struct_declare2)]
+    $default  reduce using rule 27 (struct_declare2)
+
+    struct_declare2  go to state 133
+
+
+State 113
+
+   24 struct_declare: ID ':' ID . struct_declare2
+
+    ','  shift, and go to state 132
 
     ','       [reduce using rule 27 (struct_declare2)]
     $default  reduce using rule 27 (struct_declare2)
@@ -2033,28 +2030,16 @@ State 113
 
 State 114
 
-   24 struct_declare: ID ':' ID . struct_declare2
-
-    ','  shift, and go to state 133
-
-    ','       [reduce using rule 27 (struct_declare2)]
-    $default  reduce using rule 27 (struct_declare2)
-
-    struct_declare2  go to state 135
-
-
-State 115
-
    19 decls: VAR ID ':' ID '=' '{' . struct_declare '}' ';'
    26 struct_declare: ID '=' '{' . struct_declare '}' struct_declare2
    68 expr: '{' . struct_declare '}' '.' ID
 
-    ID  shift, and go to state 54
+    ID  shift, and go to state 53
 
-    struct_declare  go to state 136
+    struct_declare  go to state 135
 
 
-State 116
+State 115
 
    25 struct_declare: ID '=' expr . struct_declare2
    58 expr: expr . '+' expr
@@ -2071,44 +2056,44 @@ State 116
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '|'   shift, and go to state 65
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
-    ','   shift, and go to state 133
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '|'   shift, and go to state 64
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
+    ','   shift, and go to state 132
 
     ','       [reduce using rule 27 (struct_declare2)]
     $default  reduce using rule 27 (struct_declare2)
 
-    struct_declare2  go to state 137
+    struct_declare2  go to state 136
 
 
-State 117
+State 116
 
    17 decls: VAR ID ':' '{' paramlist '}' . ';'
    20      | VAR ID ':' '{' paramlist '}' . '=' '{' struct_declare '}' ';'
 
-    ';'  shift, and go to state 138
-    '='  shift, and go to state 139
+    ';'  shift, and go to state 137
+    '='  shift, and go to state 138
+
+
+State 117
+
+   93 DATA: '[' DATA ']' .
+
+    $default  reduce using rule 93 (DATA)
 
 
 State 118
-
-   97 ARRAY: '[' DATA ']' .
-
-    $default  reduce using rule 97 (ARRAY)
-
-
-State 119
 
    15 decls: VAR ID ':' DATA '=' expr . ';'
    58 expr: expr . '+' expr
@@ -2125,64 +2110,64 @@ State 119
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '|'   shift, and go to state 65
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
-    ';'   shift, and go to state 140
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '|'   shift, and go to state 64
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
+    ';'   shift, and go to state 139
 
 
-State 120
+State 119
 
    16 decls: VAR ID ':' DATA '=' array_assign . ';'
    67 expr: array_assign .
 
-    ';'  shift, and go to state 141
+    ';'  shift, and go to state 140
 
     ';'       [reduce using rule 67 (expr)]
     $default  reduce using rule 67 (expr)
 
 
-State 121
+State 120
 
    21 decls: TYPE ID ':' '{' struct_declare '}' . ';'
+
+    ';'  shift, and go to state 141
+
+
+State 121
+
+   22 decls: TYPE ID ':' '[' DATA ']' . ';'
 
     ';'  shift, and go to state 142
 
 
 State 122
 
-   22 decls: TYPE ID ':' '[' DATA ']' . ';'
-
-    ';'  shift, and go to state 143
-
-
-State 123
-
    89 P1: ID ':' DATA .
 
     $default  reduce using rule 89 (P1)
 
 
-State 124
+State 123
 
    11 func_right_side: ':' . INT '{' func_stmtlist '}'
    12                | ':' . ID '{' func_stmtlist '}'
 
-    INT  shift, and go to state 144
-    ID   shift, and go to state 145
+    INT  shift, and go to state 143
+    ID   shift, and go to state 144
 
 
-State 125
+State 124
 
    13 func_right_side: '{' . func_stmtlist '}'
 
@@ -2191,62 +2176,62 @@ State 125
 
     $default  reduce using rule 9 (decls_list)
 
-    func_stmtlist  go to state 146
-    decls_list     go to state 147
-    decls          go to state 148
+    func_stmtlist  go to state 145
+    decls_list     go to state 146
+    decls          go to state 147
 
 
-State 126
+State 125
 
    14 func_decl: FUNCTION ID '(' paramlist ')' func_right_side .
 
     $default  reduce using rule 14 (func_decl)
 
 
-State 127
+State 126
 
    91 P2: ',' ID . ':' DATA P2
 
-    ':'  shift, and go to state 149
+    ':'  shift, and go to state 148
 
 
-State 128
+State 127
 
    44 func_left_side: ID '(' exprlist ')' .
 
     $default  reduce using rule 44 (func_left_side)
 
 
-State 129
+State 128
 
    84 array_elems: '[' expr ']' . array_elems2
 
-    '['  shift, and go to state 48
+    '['  shift, and go to state 47
 
     $default  reduce using rule 85 (array_elems2)
 
-    array_elems   go to state 150
-    array_elems2  go to state 151
+    array_elems   go to state 149
+    array_elems2  go to state 150
 
 
-State 130
+State 129
 
    26 struct_declare: ID '=' '{' . struct_declare '}' struct_declare2
    68 expr: '{' . struct_declare '}' '.' ID
 
-    ID  shift, and go to state 54
+    ID  shift, and go to state 53
 
-    struct_declare  go to state 152
+    struct_declare  go to state 151
 
 
-State 131
+State 130
 
    68 expr: '{' struct_declare '}' '.' . ID
 
-    ID  shift, and go to state 153
+    ID  shift, and go to state 152
 
 
-State 132
+State 131
 
    55 expr2: ',' expr . expr2
    58 expr: expr . '+' expr
@@ -2263,150 +2248,150 @@ State 132
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '|'   shift, and go to state 65
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
-    ','   shift, and go to state 97
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '|'   shift, and go to state 64
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
+    ','   shift, and go to state 96
 
     $default  reduce using rule 54 (expr2)
 
-    expr2  go to state 154
+    expr2  go to state 153
 
 
-State 133
+State 132
 
    28 struct_declare2: ',' . ID ':' INT struct_declare2
    29                | ',' . ID ':' ID struct_declare2
    30                | ',' . ID '=' expr struct_declare2
 
-    ID  shift, and go to state 155
+    ID  shift, and go to state 154
 
 
-State 134
+State 133
 
    23 struct_declare: ID ':' INT struct_declare2 .
 
     $default  reduce using rule 23 (struct_declare)
 
 
-State 135
+State 134
 
    24 struct_declare: ID ':' ID struct_declare2 .
 
     $default  reduce using rule 24 (struct_declare)
 
 
-State 136
+State 135
 
    19 decls: VAR ID ':' ID '=' '{' struct_declare . '}' ';'
    26 struct_declare: ID '=' '{' struct_declare . '}' struct_declare2
    68 expr: '{' struct_declare . '}' '.' ID
 
-    '}'  shift, and go to state 156
+    '}'  shift, and go to state 155
 
 
-State 137
+State 136
 
    25 struct_declare: ID '=' expr struct_declare2 .
 
     $default  reduce using rule 25 (struct_declare)
 
 
-State 138
+State 137
 
    17 decls: VAR ID ':' '{' paramlist '}' ';' .
 
     $default  reduce using rule 17 (decls)
 
 
-State 139
+State 138
 
    20 decls: VAR ID ':' '{' paramlist '}' '=' . '{' struct_declare '}' ';'
 
-    '{'  shift, and go to state 157
+    '{'  shift, and go to state 156
 
 
-State 140
+State 139
 
    15 decls: VAR ID ':' DATA '=' expr ';' .
 
     $default  reduce using rule 15 (decls)
 
 
-State 141
+State 140
 
    16 decls: VAR ID ':' DATA '=' array_assign ';' .
 
     $default  reduce using rule 16 (decls)
 
 
-State 142
+State 141
 
    21 decls: TYPE ID ':' '{' struct_declare '}' ';' .
 
     $default  reduce using rule 21 (decls)
 
 
-State 143
+State 142
 
    22 decls: TYPE ID ':' '[' DATA ']' ';' .
 
     $default  reduce using rule 22 (decls)
 
 
-State 144
+State 143
 
    11 func_right_side: ':' INT . '{' func_stmtlist '}'
+
+    '{'  shift, and go to state 157
+
+
+State 144
+
+   12 func_right_side: ':' ID . '{' func_stmtlist '}'
 
     '{'  shift, and go to state 158
 
 
 State 145
 
-   12 func_right_side: ':' ID . '{' func_stmtlist '}'
+   13 func_right_side: '{' func_stmtlist . '}'
 
-    '{'  shift, and go to state 159
+    '}'  shift, and go to state 159
 
 
 State 146
 
-   13 func_right_side: '{' func_stmtlist . '}'
-
-    '}'  shift, and go to state 160
-
-
-State 147
-
     6 func_stmtlist: decls_list . stmtlist
 
-    FOR     shift, and go to state 161
-    WHILE   shift, and go to state 162
-    IF      shift, and go to state 163
-    RETURN  shift, and go to state 164
-    ID      shift, and go to state 165
-    PRINT   shift, and go to state 166
-    '{'     shift, and go to state 167
+    FOR     shift, and go to state 160
+    WHILE   shift, and go to state 161
+    IF      shift, and go to state 162
+    RETURN  shift, and go to state 163
+    ID      shift, and go to state 164
+    PRINT   shift, and go to state 165
+    '{'     shift, and go to state 166
     '['     shift, and go to state 29
 
     $default  reduce using rule 7 (stmtlist)
 
-    stmtlist        go to state 168
-    stmt            go to state 169
-    func_left_side  go to state 170
-    array_assign    go to state 171
+    stmtlist        go to state 167
+    stmt            go to state 168
+    func_left_side  go to state 169
+    array_assign    go to state 170
 
 
-State 148
+State 147
 
    10 decls_list: decls . decls_list
 
@@ -2415,96 +2400,95 @@ State 148
 
     $default  reduce using rule 9 (decls_list)
 
-    decls_list  go to state 172
-    decls       go to state 148
+    decls_list  go to state 171
+    decls       go to state 147
 
 
-State 149
+State 148
 
    91 P2: ',' ID ':' . DATA P2
 
     INT  shift, and go to state 34
-    ID   shift, and go to state 84
+    ID   shift, and go to state 83
     '['  shift, and go to state 37
 
     struct_declare  go to state 38
-    DATA            go to state 173
-    ARRAY           go to state 40
-    array_assign    go to state 41
+    DATA            go to state 172
+    array_assign    go to state 40
 
 
-State 150
+State 149
 
    86 array_elems2: array_elems .
 
     $default  reduce using rule 86 (array_elems2)
 
 
-State 151
+State 150
 
    84 array_elems: '[' expr ']' array_elems2 .
 
     $default  reduce using rule 84 (array_elems)
 
 
-State 152
+State 151
 
    26 struct_declare: ID '=' '{' struct_declare . '}' struct_declare2
    68 expr: '{' struct_declare . '}' '.' ID
 
-    '}'  shift, and go to state 174
+    '}'  shift, and go to state 173
 
 
-State 153
+State 152
 
    68 expr: '{' struct_declare '}' '.' ID .
 
     $default  reduce using rule 68 (expr)
 
 
-State 154
+State 153
 
    55 expr2: ',' expr expr2 .
 
     $default  reduce using rule 55 (expr2)
 
 
-State 155
+State 154
 
    28 struct_declare2: ',' ID . ':' INT struct_declare2
    29                | ',' ID . ':' ID struct_declare2
    30                | ',' ID . '=' expr struct_declare2
 
-    ':'  shift, and go to state 175
-    '='  shift, and go to state 176
+    ':'  shift, and go to state 174
+    '='  shift, and go to state 175
 
 
-State 156
+State 155
 
    19 decls: VAR ID ':' ID '=' '{' struct_declare '}' . ';'
    26 struct_declare: ID '=' '{' struct_declare '}' . struct_declare2
    68 expr: '{' struct_declare '}' . '.' ID
 
-    ';'  shift, and go to state 177
-    ','  shift, and go to state 133
-    '.'  shift, and go to state 131
+    ';'  shift, and go to state 176
+    ','  shift, and go to state 132
+    '.'  shift, and go to state 130
 
     ';'       [reduce using rule 27 (struct_declare2)]
     $default  reduce using rule 27 (struct_declare2)
 
-    struct_declare2  go to state 178
+    struct_declare2  go to state 177
 
 
-State 157
+State 156
 
    20 decls: VAR ID ':' '{' paramlist '}' '=' '{' . struct_declare '}' ';'
 
-    ID  shift, and go to state 54
+    ID  shift, and go to state 53
 
-    struct_declare  go to state 179
+    struct_declare  go to state 178
 
 
-State 158
+State 157
 
    11 func_right_side: ':' INT '{' . func_stmtlist '}'
 
@@ -2513,12 +2497,12 @@ State 158
 
     $default  reduce using rule 9 (decls_list)
 
-    func_stmtlist  go to state 180
-    decls_list     go to state 147
-    decls          go to state 148
+    func_stmtlist  go to state 179
+    decls_list     go to state 146
+    decls          go to state 147
 
 
-State 159
+State 158
 
    12 func_right_side: ':' ID '{' . func_stmtlist '}'
 
@@ -2527,168 +2511,168 @@ State 159
 
     $default  reduce using rule 9 (decls_list)
 
-    func_stmtlist  go to state 181
-    decls_list     go to state 147
-    decls          go to state 148
+    func_stmtlist  go to state 180
+    decls_list     go to state 146
+    decls          go to state 147
 
 
-State 160
+State 159
 
    13 func_right_side: '{' func_stmtlist '}' .
 
     $default  reduce using rule 13 (func_right_side)
 
 
-State 161
+State 160
 
    34 stmt: FOR . '(' ID '=' expr TO expr ')' '{' stmtlist '}'
+
+    '('  shift, and go to state 181
+
+
+State 161
+
+   33 stmt: WHILE . '(' expr ')' '{' stmtlist '}'
 
     '('  shift, and go to state 182
 
 
 State 162
 
-   33 stmt: WHILE . '(' expr ')' '{' stmtlist '}'
+   31 stmt: IF . '(' expr ')' '{' stmtlist '}' else_statement
 
     '('  shift, and go to state 183
 
 
 State 163
 
-   31 stmt: IF . '(' expr ')' '{' stmtlist '}' else_statement
+   32 stmt: RETURN . return_type ';'
 
     '('  shift, and go to state 184
 
-
-State 164
-
-   32 stmt: RETURN . return_type ';'
-
-    '('  shift, and go to state 185
-
     $default  reduce using rule 48 (return_type)
 
-    return_type  go to state 186
+    return_type  go to state 185
 
 
-State 165
+State 164
 
    35 stmt: ID . '=' expr ';'
    39     | ID . '[' expr ']' '=' expr ';'
    40     | ID . '.' ID '=' expr ';'
    44 func_left_side: ID . '(' exprlist ')'
 
-    '('  shift, and go to state 47
-    '='  shift, and go to state 187
-    '['  shift, and go to state 188
-    '.'  shift, and go to state 189
+    '('  shift, and go to state 46
+    '='  shift, and go to state 186
+    '['  shift, and go to state 187
+    '.'  shift, and go to state 188
+
+
+State 165
+
+   41 stmt: PRINT . '(' ID ')' ';'
+
+    '('  shift, and go to state 189
 
 
 State 166
 
-   41 stmt: PRINT . '(' ID ')' ';'
+   36 stmt: '{' . struct_declare '}' '.' ID '=' expr ';'
 
-    '('  shift, and go to state 190
+    ID  shift, and go to state 53
+
+    struct_declare  go to state 190
 
 
 State 167
-
-   36 stmt: '{' . struct_declare '}' '.' ID '=' expr ';'
-
-    ID  shift, and go to state 54
-
-    struct_declare  go to state 191
-
-
-State 168
 
     6 func_stmtlist: decls_list stmtlist .
 
     $default  reduce using rule 6 (func_stmtlist)
 
 
-State 169
+State 168
 
     8 stmtlist: stmt . stmtlist
 
-    FOR     shift, and go to state 161
-    WHILE   shift, and go to state 162
-    IF      shift, and go to state 163
-    RETURN  shift, and go to state 164
-    ID      shift, and go to state 165
-    PRINT   shift, and go to state 166
-    '{'     shift, and go to state 167
+    FOR     shift, and go to state 160
+    WHILE   shift, and go to state 161
+    IF      shift, and go to state 162
+    RETURN  shift, and go to state 163
+    ID      shift, and go to state 164
+    PRINT   shift, and go to state 165
+    '{'     shift, and go to state 166
     '['     shift, and go to state 29
 
     $default  reduce using rule 7 (stmtlist)
 
-    stmtlist        go to state 192
-    stmt            go to state 169
-    func_left_side  go to state 170
-    array_assign    go to state 171
+    stmtlist        go to state 191
+    stmt            go to state 168
+    func_left_side  go to state 169
+    array_assign    go to state 170
+
+
+State 169
+
+   37 stmt: func_left_side . func_right_side_assign ';'
+
+    '['  shift, and go to state 192
+    '.'  shift, and go to state 193
+
+    $default  reduce using rule 45 (func_right_side_assign)
+
+    func_right_side_assign  go to state 194
 
 
 State 170
 
-   37 stmt: func_left_side . func_right_side_assign ';'
+   38 stmt: array_assign . '[' NUM ']' '=' expr ';'
 
-    '['  shift, and go to state 193
-    '.'  shift, and go to state 194
-
-    $default  reduce using rule 45 (func_right_side_assign)
-
-    func_right_side_assign  go to state 195
+    '['  shift, and go to state 195
 
 
 State 171
-
-   38 stmt: array_assign . '[' NUM ']' '=' expr ';'
-
-    '['  shift, and go to state 196
-
-
-State 172
 
    10 decls_list: decls decls_list .
 
     $default  reduce using rule 10 (decls_list)
 
 
-State 173
+State 172
 
    91 P2: ',' ID ':' DATA . P2
 
-    ','  shift, and go to state 88
+    ','  shift, and go to state 87
 
     $default  reduce using rule 90 (P2)
 
-    P2  go to state 197
+    P2  go to state 196
 
 
-State 174
+State 173
 
    26 struct_declare: ID '=' '{' struct_declare '}' . struct_declare2
    68 expr: '{' struct_declare '}' . '.' ID
 
-    ','  shift, and go to state 133
-    '.'  shift, and go to state 131
+    ','  shift, and go to state 132
+    '.'  shift, and go to state 130
 
     ','       [reduce using rule 27 (struct_declare2)]
     $default  reduce using rule 27 (struct_declare2)
 
-    struct_declare2  go to state 178
+    struct_declare2  go to state 177
 
 
-State 175
+State 174
 
    28 struct_declare2: ',' ID ':' . INT struct_declare2
    29                | ',' ID ':' . ID struct_declare2
 
-    INT  shift, and go to state 198
-    ID   shift, and go to state 199
+    INT  shift, and go to state 197
+    ID   shift, and go to state 198
 
 
-State 176
+State 175
 
    30 struct_declare2: ',' ID '=' . expr struct_declare2
 
@@ -2706,55 +2690,77 @@ State 176
     '!'    shift, and go to state 30
 
     func_left_side  go to state 31
-    expr            go to state 200
+    expr            go to state 199
     array_assign    go to state 33
 
 
-State 177
+State 176
 
    19 decls: VAR ID ':' ID '=' '{' struct_declare '}' ';' .
 
     $default  reduce using rule 19 (decls)
 
 
-State 178
+State 177
 
    26 struct_declare: ID '=' '{' struct_declare '}' struct_declare2 .
 
     $default  reduce using rule 26 (struct_declare)
 
 
-State 179
+State 178
 
    20 decls: VAR ID ':' '{' paramlist '}' '=' '{' struct_declare . '}' ';'
+
+    '}'  shift, and go to state 200
+
+
+State 179
+
+   11 func_right_side: ':' INT '{' func_stmtlist . '}'
 
     '}'  shift, and go to state 201
 
 
 State 180
 
-   11 func_right_side: ':' INT '{' func_stmtlist . '}'
+   12 func_right_side: ':' ID '{' func_stmtlist . '}'
 
     '}'  shift, and go to state 202
 
 
 State 181
 
-   12 func_right_side: ':' ID '{' func_stmtlist . '}'
+   34 stmt: FOR '(' . ID '=' expr TO expr ')' '{' stmtlist '}'
 
-    '}'  shift, and go to state 203
+    ID  shift, and go to state 203
 
 
 State 182
 
-   34 stmt: FOR '(' . ID '=' expr TO expr ')' '{' stmtlist '}'
+   33 stmt: WHILE '(' . expr ')' '{' stmtlist '}'
 
-    ID  shift, and go to state 204
+    NIL    shift, and go to state 19
+    TRUE   shift, and go to state 20
+    FALSE  shift, and go to state 21
+    ID     shift, and go to state 22
+    STR    shift, and go to state 23
+    NUM    shift, and go to state 24
+    '+'    shift, and go to state 25
+    '-'    shift, and go to state 26
+    '('    shift, and go to state 27
+    '{'    shift, and go to state 28
+    '['    shift, and go to state 29
+    '!'    shift, and go to state 30
+
+    func_left_side  go to state 31
+    expr            go to state 204
+    array_assign    go to state 33
 
 
 State 183
 
-   33 stmt: WHILE '(' . expr ')' '{' stmtlist '}'
+   31 stmt: IF '(' . expr ')' '{' stmtlist '}' else_statement
 
     NIL    shift, and go to state 19
     TRUE   shift, and go to state 20
@@ -2776,7 +2782,7 @@ State 183
 
 State 184
 
-   31 stmt: IF '(' . expr ')' '{' stmtlist '}' else_statement
+   49 return_type: '(' . expr ')'
 
     NIL    shift, and go to state 19
     TRUE   shift, and go to state 20
@@ -2798,7 +2804,14 @@ State 184
 
 State 185
 
-   49 return_type: '(' . expr ')'
+   32 stmt: RETURN return_type . ';'
+
+    ';'  shift, and go to state 207
+
+
+State 186
+
+   35 stmt: ID '=' . expr ';'
 
     NIL    shift, and go to state 19
     TRUE   shift, and go to state 20
@@ -2814,20 +2827,13 @@ State 185
     '!'    shift, and go to state 30
 
     func_left_side  go to state 31
-    expr            go to state 207
+    expr            go to state 208
     array_assign    go to state 33
-
-
-State 186
-
-   32 stmt: RETURN return_type . ';'
-
-    ';'  shift, and go to state 208
 
 
 State 187
 
-   35 stmt: ID '=' . expr ';'
+   39 stmt: ID '[' . expr ']' '=' expr ';'
 
     NIL    shift, and go to state 19
     TRUE   shift, and go to state 20
@@ -2849,94 +2855,84 @@ State 187
 
 State 188
 
-   39 stmt: ID '[' . expr ']' '=' expr ';'
+   40 stmt: ID '.' . ID '=' expr ';'
 
-    NIL    shift, and go to state 19
-    TRUE   shift, and go to state 20
-    FALSE  shift, and go to state 21
-    ID     shift, and go to state 22
-    STR    shift, and go to state 23
-    NUM    shift, and go to state 24
-    '+'    shift, and go to state 25
-    '-'    shift, and go to state 26
-    '('    shift, and go to state 27
-    '{'    shift, and go to state 28
-    '['    shift, and go to state 29
-    '!'    shift, and go to state 30
-
-    func_left_side  go to state 31
-    expr            go to state 210
-    array_assign    go to state 33
+    ID  shift, and go to state 210
 
 
 State 189
 
-   40 stmt: ID '.' . ID '=' expr ';'
+   41 stmt: PRINT '(' . ID ')' ';'
 
     ID  shift, and go to state 211
 
 
 State 190
 
-   41 stmt: PRINT '(' . ID ')' ';'
+   36 stmt: '{' struct_declare . '}' '.' ID '=' expr ';'
 
-    ID  shift, and go to state 212
+    '}'  shift, and go to state 212
 
 
 State 191
-
-   36 stmt: '{' struct_declare . '}' '.' ID '=' expr ';'
-
-    '}'  shift, and go to state 213
-
-
-State 192
 
     8 stmtlist: stmt stmtlist .
 
     $default  reduce using rule 8 (stmtlist)
 
 
-State 193
+State 192
 
    46 func_right_side_assign: '[' . NUM ']' '=' expr
 
-    NUM  shift, and go to state 214
+    NUM  shift, and go to state 213
+
+
+State 193
+
+   47 func_right_side_assign: '.' . ID '=' expr
+
+    ID  shift, and go to state 214
 
 
 State 194
 
-   47 func_right_side_assign: '.' . ID '=' expr
+   37 stmt: func_left_side func_right_side_assign . ';'
 
-    ID  shift, and go to state 215
+    ';'  shift, and go to state 215
 
 
 State 195
 
-   37 stmt: func_left_side func_right_side_assign . ';'
+   38 stmt: array_assign '[' . NUM ']' '=' expr ';'
 
-    ';'  shift, and go to state 216
+    NUM  shift, and go to state 216
 
 
 State 196
-
-   38 stmt: array_assign '[' . NUM ']' '=' expr ';'
-
-    NUM  shift, and go to state 217
-
-
-State 197
 
    91 P2: ',' ID ':' DATA P2 .
 
     $default  reduce using rule 91 (P2)
 
 
-State 198
+State 197
 
    28 struct_declare2: ',' ID ':' INT . struct_declare2
 
-    ','  shift, and go to state 133
+    ','  shift, and go to state 132
+
+    ','       [reduce using rule 27 (struct_declare2)]
+    $default  reduce using rule 27 (struct_declare2)
+
+    struct_declare2  go to state 217
+
+
+State 198
+
+   29 struct_declare2: ',' ID ':' ID . struct_declare2
+
+    ','  shift, and go to state 132
 
     ','       [reduce using rule 27 (struct_declare2)]
     $default  reduce using rule 27 (struct_declare2)
@@ -2945,18 +2941,6 @@ State 198
 
 
 State 199
-
-   29 struct_declare2: ',' ID ':' ID . struct_declare2
-
-    ','  shift, and go to state 133
-
-    ','       [reduce using rule 27 (struct_declare2)]
-    $default  reduce using rule 27 (struct_declare2)
-
-    struct_declare2  go to state 219
-
-
-State 200
 
    30 struct_declare2: ',' ID '=' expr . struct_declare2
    58 expr: expr . '+' expr
@@ -2973,56 +2957,56 @@ State 200
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '|'   shift, and go to state 65
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
-    ','   shift, and go to state 133
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '|'   shift, and go to state 64
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
+    ','   shift, and go to state 132
 
     ','       [reduce using rule 27 (struct_declare2)]
     $default  reduce using rule 27 (struct_declare2)
 
-    struct_declare2  go to state 220
+    struct_declare2  go to state 219
 
 
-State 201
+State 200
 
    20 decls: VAR ID ':' '{' paramlist '}' '=' '{' struct_declare '}' . ';'
 
-    ';'  shift, and go to state 221
+    ';'  shift, and go to state 220
 
 
-State 202
+State 201
 
    11 func_right_side: ':' INT '{' func_stmtlist '}' .
 
     $default  reduce using rule 11 (func_right_side)
 
 
-State 203
+State 202
 
    12 func_right_side: ':' ID '{' func_stmtlist '}' .
 
     $default  reduce using rule 12 (func_right_side)
 
 
-State 204
+State 203
 
    34 stmt: FOR '(' ID . '=' expr TO expr ')' '{' stmtlist '}'
 
-    '='  shift, and go to state 222
+    '='  shift, and go to state 221
 
 
-State 205
+State 204
 
    33 stmt: WHILE '(' expr . ')' '{' stmtlist '}'
    58 expr: expr . '+' expr
@@ -3039,23 +3023,23 @@ State 205
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '|'   shift, and go to state 65
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
-    ')'   shift, and go to state 223
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '|'   shift, and go to state 64
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
+    ')'   shift, and go to state 222
 
 
-State 206
+State 205
 
    31 stmt: IF '(' expr . ')' '{' stmtlist '}' else_statement
    58 expr: expr . '+' expr
@@ -3072,23 +3056,23 @@ State 206
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '|'   shift, and go to state 65
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
-    ')'   shift, and go to state 224
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '|'   shift, and go to state 64
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
+    ')'   shift, and go to state 223
 
 
-State 207
+State 206
 
    49 return_type: '(' expr . ')'
    58 expr: expr . '+' expr
@@ -3105,30 +3089,30 @@ State 207
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '|'   shift, and go to state 65
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
-    ')'   shift, and go to state 225
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '|'   shift, and go to state 64
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
+    ')'   shift, and go to state 224
 
 
-State 208
+State 207
 
    32 stmt: RETURN return_type ';' .
 
     $default  reduce using rule 32 (stmt)
 
 
-State 209
+State 208
 
    35 stmt: ID '=' expr . ';'
    58 expr: expr . '+' expr
@@ -3145,23 +3129,23 @@ State 209
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '|'   shift, and go to state 65
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
-    ';'   shift, and go to state 226
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '|'   shift, and go to state 64
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
+    ';'   shift, and go to state 225
 
 
-State 210
+State 209
 
    39 stmt: ID '[' expr . ']' '=' expr ';'
    58 expr: expr . '+' expr
@@ -3178,100 +3162,100 @@ State 210
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '|'   shift, and go to state 65
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
-    ']'   shift, and go to state 227
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '|'   shift, and go to state 64
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
+    ']'   shift, and go to state 226
+
+
+State 210
+
+   40 stmt: ID '.' ID . '=' expr ';'
+
+    '='  shift, and go to state 227
 
 
 State 211
 
-   40 stmt: ID '.' ID . '=' expr ';'
+   41 stmt: PRINT '(' ID . ')' ';'
 
-    '='  shift, and go to state 228
+    ')'  shift, and go to state 228
 
 
 State 212
 
-   41 stmt: PRINT '(' ID . ')' ';'
+   36 stmt: '{' struct_declare '}' . '.' ID '=' expr ';'
 
-    ')'  shift, and go to state 229
+    '.'  shift, and go to state 229
 
 
 State 213
 
-   36 stmt: '{' struct_declare '}' . '.' ID '=' expr ';'
+   46 func_right_side_assign: '[' NUM . ']' '=' expr
 
-    '.'  shift, and go to state 230
+    ']'  shift, and go to state 230
 
 
 State 214
 
-   46 func_right_side_assign: '[' NUM . ']' '=' expr
+   47 func_right_side_assign: '.' ID . '=' expr
 
-    ']'  shift, and go to state 231
+    '='  shift, and go to state 231
 
 
 State 215
-
-   47 func_right_side_assign: '.' ID . '=' expr
-
-    '='  shift, and go to state 232
-
-
-State 216
 
    37 stmt: func_left_side func_right_side_assign ';' .
 
     $default  reduce using rule 37 (stmt)
 
 
-State 217
+State 216
 
    38 stmt: array_assign '[' NUM . ']' '=' expr ';'
 
-    ']'  shift, and go to state 233
+    ']'  shift, and go to state 232
 
 
-State 218
+State 217
 
    28 struct_declare2: ',' ID ':' INT struct_declare2 .
 
     $default  reduce using rule 28 (struct_declare2)
 
 
-State 219
+State 218
 
    29 struct_declare2: ',' ID ':' ID struct_declare2 .
 
     $default  reduce using rule 29 (struct_declare2)
 
 
-State 220
+State 219
 
    30 struct_declare2: ',' ID '=' expr struct_declare2 .
 
     $default  reduce using rule 30 (struct_declare2)
 
 
-State 221
+State 220
 
    20 decls: VAR ID ':' '{' paramlist '}' '=' '{' struct_declare '}' ';' .
 
     $default  reduce using rule 20 (decls)
 
 
-State 222
+State 221
 
    34 stmt: FOR '(' ID '=' . expr TO expr ')' '{' stmtlist '}'
 
@@ -3289,46 +3273,46 @@ State 222
     '!'    shift, and go to state 30
 
     func_left_side  go to state 31
-    expr            go to state 234
+    expr            go to state 233
     array_assign    go to state 33
+
+
+State 222
+
+   33 stmt: WHILE '(' expr ')' . '{' stmtlist '}'
+
+    '{'  shift, and go to state 234
 
 
 State 223
 
-   33 stmt: WHILE '(' expr ')' . '{' stmtlist '}'
+   31 stmt: IF '(' expr ')' . '{' stmtlist '}' else_statement
 
     '{'  shift, and go to state 235
 
 
 State 224
 
-   31 stmt: IF '(' expr ')' . '{' stmtlist '}' else_statement
-
-    '{'  shift, and go to state 236
-
-
-State 225
-
    49 return_type: '(' expr ')' .
 
     $default  reduce using rule 49 (return_type)
 
 
-State 226
+State 225
 
    35 stmt: ID '=' expr ';' .
 
     $default  reduce using rule 35 (stmt)
 
 
-State 227
+State 226
 
    39 stmt: ID '[' expr ']' . '=' expr ';'
 
-    '='  shift, and go to state 237
+    '='  shift, and go to state 236
 
 
-State 228
+State 227
 
    40 stmt: ID '.' ID '=' . expr ';'
 
@@ -3346,32 +3330,32 @@ State 228
     '!'    shift, and go to state 30
 
     func_left_side  go to state 31
-    expr            go to state 238
+    expr            go to state 237
     array_assign    go to state 33
+
+
+State 228
+
+   41 stmt: PRINT '(' ID ')' . ';'
+
+    ';'  shift, and go to state 238
 
 
 State 229
 
-   41 stmt: PRINT '(' ID ')' . ';'
+   36 stmt: '{' struct_declare '}' '.' . ID '=' expr ';'
 
-    ';'  shift, and go to state 239
+    ID  shift, and go to state 239
 
 
 State 230
 
-   36 stmt: '{' struct_declare '}' '.' . ID '=' expr ';'
+   46 func_right_side_assign: '[' NUM ']' . '=' expr
 
-    ID  shift, and go to state 240
+    '='  shift, and go to state 240
 
 
 State 231
-
-   46 func_right_side_assign: '[' NUM ']' . '=' expr
-
-    '='  shift, and go to state 241
-
-
-State 232
 
    47 func_right_side_assign: '.' ID '=' . expr
 
@@ -3389,18 +3373,18 @@ State 232
     '!'    shift, and go to state 30
 
     func_left_side  go to state 31
-    expr            go to state 242
+    expr            go to state 241
     array_assign    go to state 33
 
 
-State 233
+State 232
 
    38 stmt: array_assign '[' NUM ']' . '=' expr ';'
 
-    '='  shift, and go to state 243
+    '='  shift, and go to state 242
 
 
-State 234
+State 233
 
    34 stmt: FOR '(' ID '=' expr . TO expr ')' '{' stmtlist '}'
    58 expr: expr . '+' expr
@@ -3417,65 +3401,65 @@ State 234
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    TO    shift, and go to state 244
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '|'   shift, and go to state 65
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
+    TO    shift, and go to state 243
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '|'   shift, and go to state 64
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
+
+
+State 234
+
+   33 stmt: WHILE '(' expr ')' '{' . stmtlist '}'
+
+    FOR     shift, and go to state 160
+    WHILE   shift, and go to state 161
+    IF      shift, and go to state 162
+    RETURN  shift, and go to state 163
+    ID      shift, and go to state 164
+    PRINT   shift, and go to state 165
+    '{'     shift, and go to state 166
+    '['     shift, and go to state 29
+
+    $default  reduce using rule 7 (stmtlist)
+
+    stmtlist        go to state 244
+    stmt            go to state 168
+    func_left_side  go to state 169
+    array_assign    go to state 170
 
 
 State 235
 
-   33 stmt: WHILE '(' expr ')' '{' . stmtlist '}'
+   31 stmt: IF '(' expr ')' '{' . stmtlist '}' else_statement
 
-    FOR     shift, and go to state 161
-    WHILE   shift, and go to state 162
-    IF      shift, and go to state 163
-    RETURN  shift, and go to state 164
-    ID      shift, and go to state 165
-    PRINT   shift, and go to state 166
-    '{'     shift, and go to state 167
+    FOR     shift, and go to state 160
+    WHILE   shift, and go to state 161
+    IF      shift, and go to state 162
+    RETURN  shift, and go to state 163
+    ID      shift, and go to state 164
+    PRINT   shift, and go to state 165
+    '{'     shift, and go to state 166
     '['     shift, and go to state 29
 
     $default  reduce using rule 7 (stmtlist)
 
     stmtlist        go to state 245
-    stmt            go to state 169
-    func_left_side  go to state 170
-    array_assign    go to state 171
+    stmt            go to state 168
+    func_left_side  go to state 169
+    array_assign    go to state 170
 
 
 State 236
-
-   31 stmt: IF '(' expr ')' '{' . stmtlist '}' else_statement
-
-    FOR     shift, and go to state 161
-    WHILE   shift, and go to state 162
-    IF      shift, and go to state 163
-    RETURN  shift, and go to state 164
-    ID      shift, and go to state 165
-    PRINT   shift, and go to state 166
-    '{'     shift, and go to state 167
-    '['     shift, and go to state 29
-
-    $default  reduce using rule 7 (stmtlist)
-
-    stmtlist        go to state 246
-    stmt            go to state 169
-    func_left_side  go to state 170
-    array_assign    go to state 171
-
-
-State 237
 
    39 stmt: ID '[' expr ']' '=' . expr ';'
 
@@ -3493,11 +3477,11 @@ State 237
     '!'    shift, and go to state 30
 
     func_left_side  go to state 31
-    expr            go to state 247
+    expr            go to state 246
     array_assign    go to state 33
 
 
-State 238
+State 237
 
    40 stmt: ID '.' ID '=' expr . ';'
    58 expr: expr . '+' expr
@@ -3514,39 +3498,95 @@ State 238
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '|'   shift, and go to state 65
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
-    ';'   shift, and go to state 248
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '|'   shift, and go to state 64
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
+    ';'   shift, and go to state 247
 
 
-State 239
+State 238
 
    41 stmt: PRINT '(' ID ')' ';' .
 
     $default  reduce using rule 41 (stmt)
 
 
-State 240
+State 239
 
    36 stmt: '{' struct_declare '}' '.' ID . '=' expr ';'
 
-    '='  shift, and go to state 249
+    '='  shift, and go to state 248
+
+
+State 240
+
+   46 func_right_side_assign: '[' NUM ']' '=' . expr
+
+    NIL    shift, and go to state 19
+    TRUE   shift, and go to state 20
+    FALSE  shift, and go to state 21
+    ID     shift, and go to state 22
+    STR    shift, and go to state 23
+    NUM    shift, and go to state 24
+    '+'    shift, and go to state 25
+    '-'    shift, and go to state 26
+    '('    shift, and go to state 27
+    '{'    shift, and go to state 28
+    '['    shift, and go to state 29
+    '!'    shift, and go to state 30
+
+    func_left_side  go to state 31
+    expr            go to state 249
+    array_assign    go to state 33
 
 
 State 241
 
-   46 func_right_side_assign: '[' NUM ']' '=' . expr
+   47 func_right_side_assign: '.' ID '=' expr .
+   58 expr: expr . '+' expr
+   59     | expr . '-' expr
+   60     | expr . '*' expr
+   61     | expr . '/' expr
+   62     | expr . '%' expr
+   73     | expr . '&' expr
+   74     | expr . '|' expr
+   75     | expr . "==" expr
+   76     | expr . "!=" expr
+   77     | expr . "<=" expr
+   78     | expr . ">=" expr
+   79     | expr . '>' expr
+   80     | expr . '<' expr
+
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '|'   shift, and go to state 64
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
+
+    $default  reduce using rule 47 (func_right_side_assign)
+
+
+State 242
+
+   38 stmt: array_assign '[' NUM ']' '=' . expr ';'
 
     NIL    shift, and go to state 19
     TRUE   shift, and go to state 20
@@ -3566,43 +3606,9 @@ State 241
     array_assign    go to state 33
 
 
-State 242
-
-   47 func_right_side_assign: '.' ID '=' expr .
-   58 expr: expr . '+' expr
-   59     | expr . '-' expr
-   60     | expr . '*' expr
-   61     | expr . '/' expr
-   62     | expr . '%' expr
-   73     | expr . '&' expr
-   74     | expr . '|' expr
-   75     | expr . "==" expr
-   76     | expr . "!=" expr
-   77     | expr . "<=" expr
-   78     | expr . ">=" expr
-   79     | expr . '>' expr
-   80     | expr . '<' expr
-
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '|'   shift, and go to state 65
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
-
-    $default  reduce using rule 47 (func_right_side_assign)
-
-
 State 243
 
-   38 stmt: array_assign '[' NUM ']' '=' . expr ';'
+   34 stmt: FOR '(' ID '=' expr TO . expr ')' '{' stmtlist '}'
 
     NIL    shift, and go to state 19
     TRUE   shift, and go to state 20
@@ -3624,41 +3630,19 @@ State 243
 
 State 244
 
-   34 stmt: FOR '(' ID '=' expr TO . expr ')' '{' stmtlist '}'
+   33 stmt: WHILE '(' expr ')' '{' stmtlist . '}'
 
-    NIL    shift, and go to state 19
-    TRUE   shift, and go to state 20
-    FALSE  shift, and go to state 21
-    ID     shift, and go to state 22
-    STR    shift, and go to state 23
-    NUM    shift, and go to state 24
-    '+'    shift, and go to state 25
-    '-'    shift, and go to state 26
-    '('    shift, and go to state 27
-    '{'    shift, and go to state 28
-    '['    shift, and go to state 29
-    '!'    shift, and go to state 30
-
-    func_left_side  go to state 31
-    expr            go to state 252
-    array_assign    go to state 33
+    '}'  shift, and go to state 252
 
 
 State 245
 
-   33 stmt: WHILE '(' expr ')' '{' stmtlist . '}'
+   31 stmt: IF '(' expr ')' '{' stmtlist . '}' else_statement
 
     '}'  shift, and go to state 253
 
 
 State 246
-
-   31 stmt: IF '(' expr ')' '{' stmtlist . '}' else_statement
-
-    '}'  shift, and go to state 254
-
-
-State 247
 
    39 stmt: ID '[' expr ']' '=' expr . ';'
    58 expr: expr . '+' expr
@@ -3675,30 +3659,30 @@ State 247
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '|'   shift, and go to state 65
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
-    ';'   shift, and go to state 255
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '|'   shift, and go to state 64
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
+    ';'   shift, and go to state 254
 
 
-State 248
+State 247
 
    40 stmt: ID '.' ID '=' expr ';' .
 
     $default  reduce using rule 40 (stmt)
 
 
-State 249
+State 248
 
    36 stmt: '{' struct_declare '}' '.' ID '=' . expr ';'
 
@@ -3716,11 +3700,11 @@ State 249
     '!'    shift, and go to state 30
 
     func_left_side  go to state 31
-    expr            go to state 256
+    expr            go to state 255
     array_assign    go to state 33
 
 
-State 250
+State 249
 
    46 func_right_side_assign: '[' NUM ']' '=' expr .
    58 expr: expr . '+' expr
@@ -3737,24 +3721,24 @@ State 250
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '|'   shift, and go to state 65
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '|'   shift, and go to state 64
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
 
     $default  reduce using rule 46 (func_right_side_assign)
 
 
-State 251
+State 250
 
    38 stmt: array_assign '[' NUM ']' '=' expr . ';'
    58 expr: expr . '+' expr
@@ -3771,23 +3755,23 @@ State 251
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '|'   shift, and go to state 65
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
-    ';'   shift, and go to state 257
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '|'   shift, and go to state 64
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
+    ';'   shift, and go to state 256
 
 
-State 252
+State 251
 
    34 stmt: FOR '(' ID '=' expr TO expr . ')' '{' stmtlist '}'
    58 expr: expr . '+' expr
@@ -3804,48 +3788,48 @@ State 252
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '|'   shift, and go to state 65
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
-    ')'   shift, and go to state 258
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '|'   shift, and go to state 64
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
+    ')'   shift, and go to state 257
 
 
-State 253
+State 252
 
    33 stmt: WHILE '(' expr ')' '{' stmtlist '}' .
 
     $default  reduce using rule 33 (stmt)
 
 
-State 254
+State 253
 
    31 stmt: IF '(' expr ')' '{' stmtlist '}' . else_statement
 
-    ELSE  shift, and go to state 259
+    ELSE  shift, and go to state 258
 
     $default  reduce using rule 42 (else_statement)
 
-    else_statement  go to state 260
+    else_statement  go to state 259
 
 
-State 255
+State 254
 
    39 stmt: ID '[' expr ']' '=' expr ';' .
 
     $default  reduce using rule 39 (stmt)
 
 
-State 256
+State 255
 
    36 stmt: '{' struct_declare '}' '.' ID '=' expr . ';'
    58 expr: expr . '+' expr
@@ -3862,121 +3846,121 @@ State 256
    79     | expr . '>' expr
    80     | expr . '<' expr
 
-    "<="  shift, and go to state 61
-    ">="  shift, and go to state 62
-    "=="  shift, and go to state 63
-    "!="  shift, and go to state 64
-    '|'   shift, and go to state 65
-    '&'   shift, and go to state 66
-    '<'   shift, and go to state 67
-    '>'   shift, and go to state 68
-    '+'   shift, and go to state 69
-    '-'   shift, and go to state 70
-    '*'   shift, and go to state 71
-    '/'   shift, and go to state 72
-    '%'   shift, and go to state 73
-    ';'   shift, and go to state 261
+    "<="  shift, and go to state 60
+    ">="  shift, and go to state 61
+    "=="  shift, and go to state 62
+    "!="  shift, and go to state 63
+    '|'   shift, and go to state 64
+    '&'   shift, and go to state 65
+    '<'   shift, and go to state 66
+    '>'   shift, and go to state 67
+    '+'   shift, and go to state 68
+    '-'   shift, and go to state 69
+    '*'   shift, and go to state 70
+    '/'   shift, and go to state 71
+    '%'   shift, and go to state 72
+    ';'   shift, and go to state 260
 
 
-State 257
+State 256
 
    38 stmt: array_assign '[' NUM ']' '=' expr ';' .
 
     $default  reduce using rule 38 (stmt)
 
 
-State 258
+State 257
 
    34 stmt: FOR '(' ID '=' expr TO expr ')' . '{' stmtlist '}'
+
+    '{'  shift, and go to state 261
+
+
+State 258
+
+   43 else_statement: ELSE . '{' stmtlist '}'
 
     '{'  shift, and go to state 262
 
 
 State 259
 
-   43 else_statement: ELSE . '{' stmtlist '}'
-
-    '{'  shift, and go to state 263
-
-
-State 260
-
    31 stmt: IF '(' expr ')' '{' stmtlist '}' else_statement .
 
     $default  reduce using rule 31 (stmt)
 
 
-State 261
+State 260
 
    36 stmt: '{' struct_declare '}' '.' ID '=' expr ';' .
 
     $default  reduce using rule 36 (stmt)
 
 
-State 262
+State 261
 
    34 stmt: FOR '(' ID '=' expr TO expr ')' '{' . stmtlist '}'
 
-    FOR     shift, and go to state 161
-    WHILE   shift, and go to state 162
-    IF      shift, and go to state 163
-    RETURN  shift, and go to state 164
-    ID      shift, and go to state 165
-    PRINT   shift, and go to state 166
-    '{'     shift, and go to state 167
+    FOR     shift, and go to state 160
+    WHILE   shift, and go to state 161
+    IF      shift, and go to state 162
+    RETURN  shift, and go to state 163
+    ID      shift, and go to state 164
+    PRINT   shift, and go to state 165
+    '{'     shift, and go to state 166
+    '['     shift, and go to state 29
+
+    $default  reduce using rule 7 (stmtlist)
+
+    stmtlist        go to state 263
+    stmt            go to state 168
+    func_left_side  go to state 169
+    array_assign    go to state 170
+
+
+State 262
+
+   43 else_statement: ELSE '{' . stmtlist '}'
+
+    FOR     shift, and go to state 160
+    WHILE   shift, and go to state 161
+    IF      shift, and go to state 162
+    RETURN  shift, and go to state 163
+    ID      shift, and go to state 164
+    PRINT   shift, and go to state 165
+    '{'     shift, and go to state 166
     '['     shift, and go to state 29
 
     $default  reduce using rule 7 (stmtlist)
 
     stmtlist        go to state 264
-    stmt            go to state 169
-    func_left_side  go to state 170
-    array_assign    go to state 171
+    stmt            go to state 168
+    func_left_side  go to state 169
+    array_assign    go to state 170
 
 
 State 263
 
-   43 else_statement: ELSE '{' . stmtlist '}'
+   34 stmt: FOR '(' ID '=' expr TO expr ')' '{' stmtlist . '}'
 
-    FOR     shift, and go to state 161
-    WHILE   shift, and go to state 162
-    IF      shift, and go to state 163
-    RETURN  shift, and go to state 164
-    ID      shift, and go to state 165
-    PRINT   shift, and go to state 166
-    '{'     shift, and go to state 167
-    '['     shift, and go to state 29
-
-    $default  reduce using rule 7 (stmtlist)
-
-    stmtlist        go to state 265
-    stmt            go to state 169
-    func_left_side  go to state 170
-    array_assign    go to state 171
+    '}'  shift, and go to state 265
 
 
 State 264
 
-   34 stmt: FOR '(' ID '=' expr TO expr ')' '{' stmtlist . '}'
+   43 else_statement: ELSE '{' stmtlist . '}'
 
     '}'  shift, and go to state 266
 
 
 State 265
 
-   43 else_statement: ELSE '{' stmtlist . '}'
-
-    '}'  shift, and go to state 267
-
-
-State 266
-
    34 stmt: FOR '(' ID '=' expr TO expr ')' '{' stmtlist '}' .
 
     $default  reduce using rule 34 (stmt)
 
 
-State 267
+State 266
 
    43 else_statement: ELSE '{' stmtlist '}' .
 

@@ -242,13 +242,11 @@ P2: {$$=0;}
 	| ','  ID ':' DATA P2 {$$= $5 + 1;}
 
 DATA: INT
-	| ARRAY
-	| ID
+	| '[' DATA ']'
 	| struct_declare
 	| array_assign
-
-ARRAY: '[' DATA ']'
-
+	| ID
+	
 array_assign: '[' exprlist ']'
 
 %%
