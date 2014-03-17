@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
     
     cout << "Genuine Liger: ";
     
-    if (check == 1 && validReturns)
+    if (check == 1)
     {
     	cout << "no\n"; 
     }

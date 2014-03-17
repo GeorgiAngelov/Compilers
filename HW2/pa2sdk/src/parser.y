@@ -68,6 +68,7 @@ static void yyerror(const char*);
 %type <num> expr2
 %type <num> paramlist
 %type <num> paramlist2
+%type <num> stmtlist_w_return
 %type <num> exprlist
 %type <num> exprList2
 %type <num> P1
