@@ -244,7 +244,6 @@ P2: {$$=0;}
 DATA: INT
 	| '[' DATA ']'
 	| struct_declare
-	| array_assign
 	| ID
 	
 array_assign: '[' exprlist ']'
