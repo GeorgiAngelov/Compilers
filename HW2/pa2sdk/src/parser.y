@@ -179,8 +179,6 @@ struct_declare2:
 return_type:
 			| '(' expr ')'
 
-returntype: ':' DATA
-
 exprlist: exprList2 		{$$=$1;}
 exprList2: expr1 expr2		{$$= $1 + $2;}
 	|						{$$=0;}	
@@ -195,14 +193,14 @@ expr: '(' expr ')'			{$$=$2;}
 	|	expr '*' expr		{$$= $1 * $3;}
 	|	expr '/' expr		{if ($3 == 0){validResult = 0; $$=0;}else{$$= $1 / $3;}}
 	|	expr '%' expr		{if ($3 == 0){validResult = 0; $$=0;}else{$$= $1 % $3;}}
-	|	func_left_side
-	|	ID					
+	|	func_left_side		{}
+	|	ID					{}
 	|	'-' expr			{$$ = -1*$2;}
 	|	'+' expr			{$$ = $2;}
-	|	array_assign		
+	|	array_assign		{}
 	|	'{' struct_declare '}' '.' ID		{validResult = 0;}
-	|	ID array_elems
-	|	ID '.' ID
+	|	ID array_elems		{}
+	|	ID '.' ID			{}
 	| 	TRUE				{beval = 1;$$= 1;}
 	|	FALSE				{beval = 1;$$= 0;}
 	|	expr '&' expr		{beval = 1;$$= $1 && $3;}
