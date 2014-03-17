@@ -90,7 +90,7 @@ program: stmtlist1
       | EVAL '(' expr ')' ';'	{eval = 1;result = $3;}
 
 stmtlist1: 
-	| decls_list stmtlist1
+	| decls stmtlist1
 	| func_decl stmtlist1
 
 func_stmtlist: decls_list stmtlist
