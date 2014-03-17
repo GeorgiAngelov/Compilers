@@ -98,6 +98,7 @@ program: stmtlist
 
 stmtlist: 
 	| stmt stmtlist
+	| func_stmtlist
 
 func_stmtlist: 
 	| func_stmt func_stmtlist
@@ -175,6 +176,7 @@ decls: VAR ID ':' DATA '=' expr ';' {/*printf ("Assignment with data\n");*/}
 	|	VAR ID ':' '{' paramlist '}' ';'	{/*printf ("Structure\n");*/}
 	|	VAR ID ':' DATA ';'			{/*printf ("Assignment without data\n");*/}
 	|	TYPE ID ':' '{' struct_declare '}' ';'
+	|   TYPE ID ':' '[' DATA ']' ';'
 	|	VAR ID ':' ID '=' '{' struct_declare '}' ';'
 	|	VAR ID ':' '{' paramlist '}' '=' '{'struct_declare '}' ';'
 
