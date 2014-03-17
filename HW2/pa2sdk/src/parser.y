@@ -122,9 +122,11 @@ stmt:  FUNCTION ID '(' paramlist ')' func_right_side 	{
 	|	func_left_side func_right_side_assign ';'
 	|	array_assign '[' NUM ']' '=' expr ';'
 	|	ID '[' expr ']' '=' expr ';'
+	|	ID '.' ID '=' expr ';'
 	|	PRINT '(' ID ')' ';'			
 
-func_right_side: ':' INT '{' func_stmtlist '}'  
+func_right_side: ':' INT '{' func_stmtlist '}'
+	|	':' ID '{' func_stmtlist '}'
 	|	'{' func_stmtlist '}' 
 
 else_statement:
@@ -169,11 +171,13 @@ func_right_side_assign:
 	|	'.' ID '=' expr			{validResult = 0;}
 
 struct_declare: ID ':' INT struct_declare2
+	|	ID ':' ID struct_declare2
 	|	ID '=' expr struct_declare2
 	|	ID '='  '{'struct_declare '}' struct_declare2
 
 struct_declare2: 
 	|	',' ID ':' INT struct_declare2
+	|	',' ID ':' ID struct_declare2
 	|	',' ID '=' expr struct_declare2
 	|	',' ID '=' '{' struct_declare '}' struct_declare2
 
@@ -214,6 +218,7 @@ expr: '(' expr ')'			{$$=$2;}
 	|	expr '<' expr		{beval = 1;$$= $1 < $3;}
 	| 	'!' expr			{beval = 1;$$= !$2;}
 	|	STR					{}
+	|	NIL					{}
 
 array_elems: '[' expr ']' array_elems2
 
