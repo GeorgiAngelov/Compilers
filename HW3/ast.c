@@ -117,9 +117,10 @@ struct exp* exp_not_new(struct exp* right) {
 }
 
 struct exp* exp_num_new(int num) {
-      struct exp* this = exp_new(AST_EXP_NUM);
-      this->num = num;
-      return this;
+	printf("Creating new exp_num_new %d\n\n",num);
+	struct exp* this = exp_new(AST_EXP_NUM);
+	this->num = num;
+	return this;
 }
 
 struct exp* exp_str_new(char* str) {

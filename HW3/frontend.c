@@ -13,6 +13,7 @@ int yyparse(void);
 
 void done_parsing(GList* parse_result) {
       /* Save the AST root. */
+	  printf("Hello there!!\n");
 }
 
 int main(int argc, char** argv) {

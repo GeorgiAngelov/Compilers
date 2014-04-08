@@ -9,6 +9,14 @@
 #include <stdio.h>
 #include <string.h>
 
+struct fun_info {
+      char* name;
+      int arity_mismatch;
+      int arity;
+      int ndefs;
+      int ncalls;
+};
+
 extern int yylex(void);
 extern int yyerror(const char*);
 
@@ -52,14 +60,16 @@ extern int yyerror(const char*);
 %left '*' '/' '%'
 %left T_UMINUS T_UPLUS '!'
 
+%type <struct* expr> aexp
+
 %start program
 
 %%
 
 program:
       decls {
-            // done_parsing($1);
-      }
+        //done_parsing($1);
+	  }
 
 decls:
       | decls decl
@@ -109,14 +119,20 @@ exp:
       | '(' exp ')'
 
 aexp: 
-      T_NUM
-      | '+' exp %prec T_UPLUS
-      | '-' exp %prec T_UMINUS
-      | exp '+' exp
-      | exp '-' exp
-      | exp '/' exp
-      | exp '%' exp
-      | exp '*' exp
+      T_NUM {
+		struct expr* tmp = exp_num_new($1);
+	  }
+      | '+' exp %prec T_UPLUS {
+		struct expr* tmp = exp_new(AST_EXP_PLUS);
+	  }
+      | '-' exp %prec T_UMINUS {
+		struct expr* tmp = exp_new(AST_EXP_MINUS);
+	  }
+      | exp '+' exp {struct expr* tmp = exp_new(AST_EXP_PLUS);}
+      | exp '-' exp {struct expr* tmp = exp_new(AST_EXP_MINUS);}
+      | exp '/' exp {struct expr* tmp = exp_new(AST_EXP_DIV);}
+      | exp '%' exp {struct expr* tmp = exp_new(AST_EXP_MOD);}
+      | exp '*' exp {struct expr* tmp = exp_new(AST_EXP_MUL);}
 
 bexp: 
       T_TRUE
@@ -177,13 +193,12 @@ stmt:
       | T_RETURN '(' exp ')' ';'
       | T_RETURN ';'
 
-block: 
+block:
       '{' stmts '}'
 
 %%
 
-int yyerror(const char *p) { 
+int yyerror(const char *p) {
       fprintf(stderr, "Error: %s\n", p);
       return 0;
 }
-
