@@ -1,0 +1,58 @@
+(decls
+   (decl-var:ok (id N) (type-int) (num:int 8))
+   (decl-type:ok (id intArray) (type-array (type-int)))
+   (decl-var:ok (id row) (type-id intArray) (fun-call:[int] (id new_array) (exps (id:int N))))
+   (decl-var:ok (id col) (type-id intArray) (fun-call:[int] (id new_array) (exps (id:int N))))
+   (decl-var:ok (id diag1) (type-id intArray) (fun-call:[int] (id new_array) (exps (-:int (+:int (id:int N) (id:int N)) (num:int 1)))))
+   (decl-var:ok (id diag2) (type-id intArray) (fun-call:[int] (id new_array) (exps (-:int (+:int (id:int N) (id:int N)) (num:int 1)))))
+   (decl-fun:ok (id new_array) (type-fun (params (typed-id (id n) (type-int))) (type-array (type-int)))
+      (decls
+         (decl-var:ok (id arr) (type-array (type-int)) (nil:nil))
+         (decl-var:ok (id i) (type-int)))
+      (stmts
+         (assign:ok (id:[int] arr) (fun-call:[int] (id resize) (exps (id:[int] arr) (id:int n))))
+         (for:ok (id:int i) (num:int 0) (id:int n)
+            (stmts
+               (assign:ok (array-idx:int (id:[int] arr) (id:int i)) (num:int 0))))))
+   (decl-fun:ok (id printboard) (type-fun (params) (type-void))
+      (decls
+         (decl-var:ok (id i) (type-int))
+         (decl-var:ok (id j) (type-int)))
+      (stmts
+         (for:ok (id:int i) (num:int 0) (-:int (id:int N) (num:int 1))
+            (stmts
+               (for:ok (id:int j) (num:int 0) (-:int (id:int N) (num:int 1))
+                  (stmts
+                     (if:ok (==:bool (array-idx:int (id:intArray col) (id:int i)) (array-idx:int (id:intArray col) (id:int j)))
+                        (stmts
+                           (exp-stmt:ok (fun-call:void (id print) (exps (str:[int] " O")))))
+                        (stmts
+                           (exp-stmt:ok (fun-call:void (id print) (exps (str:[int] " ."))))))))
+               (exp-stmt:ok (fun-call:void (id print) (exps (array-lit:[int] (exps (num:int 10))))))))
+         (exp-stmt:ok (fun-call:void (id print) (exps (array-lit:[int] (exps (num:int 10))))))))
+   (decl-fun:ok (id try) (type-fun (params (typed-id (id c) (type-int))) (type-void))
+      (decls
+         (decl-var:ok (id r) (type-int)))
+      (stmts
+         (if:ok (==:bool (id:int c) (id:int N))
+            (stmts
+               (exp-stmt:ok (fun-call:void (id printboard) (exps))))
+            (stmts
+               (for:ok (id:int r) (num:int 0) (-:int (id:int N) (num:int 1))
+                  (stmts
+                     (if:ok (&:bool (&:bool (==:bool (array-idx:int (id:intArray row) (id:int r)) (num:int 0)) (==:bool (array-idx:int (id:intArray diag1) (+:int (id:int r) (id:int c))) (num:int 0))) (==:bool (array-idx:int (id:intArray diag2) (-:int (+:int (id:int r) (num:int 7)) (id:int c))) (num:int 0)))
+                        (stmts
+                           (assign:ok (array-idx:int (id:intArray row) (id:int r)) (num:int 1))
+                           (assign:ok (array-idx:int (id:intArray diag1) (+:int (id:int r) (id:int c))) (num:int 1))
+                           (assign:ok (array-idx:int (id:intArray diag2) (-:int (+:int (id:int r) (num:int 7)) (id:int c))) (num:int 1))
+                           (assign:ok (array-idx:int (id:intArray col) (id:int c)) (id:int r))
+                           (exp-stmt:ok (fun-call:void (id try) (exps (+:int (id:int c) (num:int 1)))))
+                           (assign:ok (array-idx:int (id:intArray row) (id:int r)) (num:int 0))
+                           (assign:ok (array-idx:int (id:intArray diag1) (+:int (id:int r) (id:int c))) (num:int 0))
+                           (assign:ok (array-idx:int (id:intArray diag2) (-:int (+:int (id:int r) (num:int 7)) (id:int c))) (num:int 0)))
+                        (stmts))))))))
+   (decl-fun:ok (id main) (type-fun (params (typed-id (id argv) (type-array (type-array (type-int))))) (type-int))
+      (decls)
+      (stmts
+         (exp-stmt:ok (fun-call:void (id try) (exps (num:int 0))))
+         (return:ok (num:int 0)))))

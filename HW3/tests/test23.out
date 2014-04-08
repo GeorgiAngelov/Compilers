@@ -1,0 +1,100 @@
+(decls
+   (decl-type:ok (id string) (type-array (type-int)))
+   (decl-type:ok (id any) (type-struct (typed-id (id any) (type-bool))))
+   (decl-var:ok (id buffer) (type-int) (fun-call:int (id getchar) (exps)))
+   (decl-fun:ok (id chr) (type-fun (params (typed-id (id c) (type-int))) (type-array (type-int))))
+   (decl-fun:ok (id ord) (type-fun (params (typed-id (id c) (type-array (type-int)))) (type-int)))
+   (decl-fun:ok (id isdigit) (type-fun (params (typed-id (id s) (type-int))) (type-bool))
+      (decls)
+      (stmts
+         (return:ok (&:bool (>=:bool (id:int buffer) (fun-call:int (id ord) (exps (str:[int] "0")))) (<=:bool (id:int buffer) (fun-call:int (id ord) (exps (str:[int] "9"))))))))
+   (decl-fun:ok (id skipto) (type-fun (params) (type-void))
+      (decls)
+      (stmts
+         (while:ok (|:bool (==:bool (id:int buffer) (fun-call:int (id ord) (exps (str:[int] " ")))) (==:bool (id:int buffer) (num:int 10)))
+            (stmts
+               (assign:ok (id:int buffer) (fun-call:int (id getchar) (exps)))))))
+   (decl-fun:ok (id readint) (type-fun (params (typed-id (id any) (type-id any))) (type-int))
+      (decls
+         (decl-var:ok (id i) (type-int) (num:int 0)))
+      (stmts
+         (exp-stmt:ok (fun-call:void (id skipto) (exps)))
+         (assign:ok (field-lkup:bool (id:any any) (id any)) (fun-call:bool (id isdigit) (exps (id:int buffer))))
+         (while:ok (fun-call:bool (id isdigit) (exps (id:int buffer)))
+            (stmts
+               (assign:ok (id:int i) (+:int (*:int (id:int i) (num:int 10)) (-:int (id:int buffer) (fun-call:int (id ord) (exps (str:[int] "0"))))))
+               (assign:ok (id:int buffer) (fun-call:int (id getchar) (exps)))))
+         (return:ok (id:int i))))
+   (decl-type:ok (id list) (type-struct (typed-id (id first) (type-int)) (typed-id (id rest) (type-id list))))
+   (decl-fun:ok (id readlist) (type-fun (params) (type-id list))
+      (decls
+         (decl-var:ok (id any) (type-id any))
+         (decl-var:ok (id i) (type-int) (fun-call:int (id readint) (exps (id:any any))))
+         (decl-var:ok (id newlist) (type-id list)))
+      (stmts
+         (if:ok (field-lkup:bool (id:any any) (id any))
+            (stmts
+               (assign:ok (field-lkup:int (id:list newlist) (id first)) (id:int i))
+               (assign:ok (field-lkup:list (id:list newlist) (id rest)) (fun-call:list (id readlist) (exps)))
+               (return:ok (id:list newlist)))
+            (stmts
+               (return:ok (nil:nil))))))
+   (decl-fun:ok (id merge) (type-fun (params (typed-id (id a) (type-id list)) (typed-id (id b) (type-id list))) (type-id list))
+      (decls
+         (decl-var:ok (id newlist) (type-id list)))
+      (stmts
+         (if:ok (==:bool (id:list a) (nil:nil))
+            (stmts
+               (return:ok (id:list b)))
+            (stmts
+               (if:ok (==:bool (id:list b) (nil:nil))
+                  (stmts
+                     (return:ok (id:list a)))
+                  (stmts
+                     (if:ok (<:bool (field-lkup:int (id:list a) (id first)) (field-lkup:int (id:list b) (id first)))
+                        (stmts
+                           (assign:ok (field-lkup:int (id:list newlist) (id first)) (field-lkup:int (id:list a) (id first)))
+                           (assign:ok (field-lkup:list (id:list newlist) (id rest)) (fun-call:list (id merge) (exps (field-lkup:list (id:list a) (id rest)) (id:list b))))
+                           (return:ok (id:list newlist)))
+                        (stmts
+                           (assign:ok (field-lkup:int (id:list newlist) (id first)) (field-lkup:int (id:list b) (id first)))
+                           (assign:ok (field-lkup:list (id:list newlist) (id rest)) (fun-call:list (id merge) (exps (id:list a) (field-lkup:list (id:list b) (id rest)))))
+                           (return:ok (id:list newlist))))))))))
+   (decl-fun:ok (id f) (type-fun (params (typed-id (id i) (type-int))) (type-void))
+      (decls)
+      (stmts
+         (if:ok (>:bool (id:int i) (num:int 0))
+            (stmts
+               (exp-stmt:ok (fun-call:void (id f) (exps (/:int (id:int i) (num:int 10)))))
+               (exp-stmt:ok (fun-call:void (id print) (exps (fun-call:[int] (id chr) (exps (+:int (-:int (id:int i) (*:int (/:int (id:int i) (num:int 10)) (num:int 10))) (fun-call:int (id ord) (exps (str:[int] "0"))))))))))
+            (stmts))))
+   (decl-fun:ok (id printint) (type-fun (params (typed-id (id i) (type-int))) (type-void))
+      (decls)
+      (stmts
+         (if:ok (<:bool (id:int i) (num:int 0))
+            (stmts
+               (exp-stmt:ok (fun-call:void (id print) (exps (str:[int] "-"))))
+               (exp-stmt:ok (fun-call:void (id f) (exps (-:int (num:int 0) (id:int i))))))
+            (stmts
+               (if:ok (>:bool (id:int i) (num:int 0))
+                  (stmts
+                     (exp-stmt:ok (fun-call:void (id f) (exps (id:int i)))))
+                  (stmts
+                     (exp-stmt:ok (fun-call:void (id print) (exps (str:[int] "0"))))))))))
+   (decl-fun:ok (id printlist) (type-fun (params (typed-id (id l) (type-id list))) (type-void))
+      (decls
+         (decl-var:ok (id list1) (type-id list))
+         (decl-var:ok (id list2) (type-id list)))
+      (stmts
+         (if:ok (==:bool (id:list l) (nil:nil))
+            (stmts
+               (exp-stmt:ok (fun-call:void (id print) (exps (array-lit:[int] (exps (num:int 10)))))))
+            (stmts
+               (exp-stmt:ok (fun-call:void (id printint) (exps (field-lkup:int (id:list l) (id first)))))
+               (exp-stmt:ok (fun-call:void (id print) (exps (str:[int] " "))))
+               (exp-stmt:ok (fun-call:void (id printlist) (exps (field-lkup:list (id:list l) (id rest)))))))
+         (assign:ok (id:list list1) (fun-call:list (id readlist) (exps)))
+         (assign:ok (id:int buffer) (fun-call:int (id getchar) (exps)))
+         (assign:ok (id:list list2) (fun-call:list (id readlist) (exps)))
+         (exp-stmt:ok (fun-call:void (id printlist) (exps (fun-call:list (id merge) (exps (id:list list1) (id:list list2))))))))
+   (decl-fun:ok (id main) (type-fun (params (typed-id (id argv) (type-array (type-array (type-int))))) (type-int))))

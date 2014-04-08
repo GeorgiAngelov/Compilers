@@ -1,0 +1,7 @@
+(decls
+   (decl-type:ok (id list1) (type-struct (typed-id (id head) (type-int)) (typed-id (id tail) (type-id list1))))
+   (decl-type:ok (id list2) (type-struct (typed-id (id head) (type-int)) (typed-id (id tail) (type-id list2))))
+   (decl-var:ok (id x) (type-id list1))
+   (decl-var:NONE (id y) (type-id list2) (id:list1 x)))
+Function main() not defined or has wrong type!
+Typechecking failed!

@@ -1,0 +1,6 @@
+type a : [[a]];
+type b : [[b]];
+
+var x : a;
+var y : b = [x];
+

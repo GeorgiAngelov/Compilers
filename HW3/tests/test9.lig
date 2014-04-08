@@ -1,0 +1,14 @@
+function f(a : int, b : bool, c : int) { }
+
+function main(args : [[int]]) : int {
+      f(1, true, 3);
+      f(1);
+      f(1, true);
+      f(1, true, true);
+      f();
+
+      return (main());
+
+      // Returning something with a void type.
+      return (f(1, true, 3));
+}

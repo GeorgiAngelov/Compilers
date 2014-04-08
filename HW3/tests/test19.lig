@@ -1,0 +1,5 @@
+type list1 : {head : int, tail : list1 };
+type list2 : {head : int, tail : list2 };
+
+var x : list1;
+var y : list2 = x;

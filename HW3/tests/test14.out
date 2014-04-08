@@ -1,0 +1,16 @@
+(decls
+   (decl-fun:ok (id f) (type-fun (params (typed-id (id a) (type-int)) (typed-id (id b) (type-int)) (typed-id (id c) (type-bool))) (type-bool))
+      (decls)
+      (stmts
+         (return:ok (fun-call:bool (id f) (exps (num:int 1) (fun-call:int (id g) (exps)) (fun-call:bool (id f) (exps (num:int 1) (num:int 2) (fun-call:bool (id f) (exps (num:int 1) (num:int 2) (true:bool))))))))))
+   (decl-fun:ok (id g) (type-fun (params) (type-int))
+      (decls)
+      (stmts
+         (return:ok (fun-call:int (id g) (exps)))))
+   (decl-var:ok (id x) (type-array (type-array (type-int))) (array-lit:[[int]] (exps (array-lit:[int] (exps (num:int 1) (fun-call:int (id g) (exps)) (num:int 3))) (array-lit:[int] (exps (-:int (num:int 0) (num:int 1)) (fun-call:int (id g) (exps)))))))
+   (decl-fun:ok (id main) (type-fun (params (typed-id (id argv) (type-array (type-array (type-int))))) (type-void))
+      (decls)
+      (stmts
+         (exp-stmt:ok (fun-call:void (id main) (exps (id:[[int]] x))))
+         (return:ok))))
+Function main() not defined or has wrong type!

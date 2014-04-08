@@ -1,0 +1,9 @@
+(decls
+   (decl-fun:ok (id main) (type-fun (params (typed-id (id args) (type-array (type-array (type-int))))) (type-int))
+      (decls
+         (decl-var:ok (id i) (type-int)))
+      (stmts
+         (for:ok (id:int i) (num:int 0) (fun-call:int (id sizeof) (exps (id:[[int]] args)))
+            (stmts
+               (exp-stmt:ok (fun-call:void (id print) (exps (array-idx:[int] (id:[[int]] args) (id:int i)))))))
+         (return:ok (num:int 0)))))

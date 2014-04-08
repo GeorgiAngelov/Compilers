@@ -1,0 +1,7 @@
+(decls
+   (decl-type:ok (id a) (type-array (type-array (type-id a))))
+   (decl-type:ok (id b) (type-array (type-array (type-id b))))
+   (decl-var:ok (id x) (type-id a))
+   (decl-var:NONE (id y) (type-id b) (array-lit:[a] (exps (id:a x)))))
+Function main() not defined or has wrong type!
+Typechecking failed!

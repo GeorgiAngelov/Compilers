@@ -1,0 +1,6 @@
+(decls
+   (decl-type:ok (id a) (type-struct (typed-id (id b1) (type-id b))))
+   (decl-type:ok (id b) (type-struct (typed-id (id c1) (type-id c))))
+   (decl-type:ok (id c) (type-struct (typed-id (id a1) (type-id a))))
+   (decl-var:ok (id x) (type-id a) (struct-lit:{b1 : {c1 : {a1 : {b1 : nil}}}} (field-inits (field-init (id b1) (struct-lit:{c1 : {a1 : {b1 : nil}}} (field-inits (field-init (id c1) (struct-lit:{a1 : {b1 : nil}} (field-inits (field-init (id a1) (struct-lit:{b1 : nil} (field-inits (field-init (id b1) (nil:nil)))))))))))))))
+Function main() not defined or has wrong type!

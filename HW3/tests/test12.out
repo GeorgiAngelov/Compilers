@@ -1,0 +1,9 @@
+(decls
+   (decl-type:ok (id a) (type-array (type-array (type-int))))
+   (decl-type:ok (id b) (type-struct (typed-id (id head) (type-id a)) (typed-id (id rest) (type-id b))))
+   (decl-type:ok (id c) (type-array (type-id b)))
+   (decl-var:ok (id x) (type-id a) (array-lit:[[int]] (exps (nil:nil) (nil:nil) (array-lit:[int] (exps (num:int 1))))))
+   (decl-var:ok (id y) (type-id a) (array-lit:[[int]] (exps (nil:nil) (array-lit:[int] (exps (num:int 2))) (nil:nil))))
+   (decl-var:ok (id z) (type-id b) (struct-lit:{head : [nil], rest : {head : [[int]], rest : nil}} (field-inits (field-init (id head) (array-lit:[nil] (exps (nil:nil)))) (field-init (id rest) (struct-lit:{head : [[int]], rest : nil} (field-inits (field-init (id head) (array-lit:[[int]] (exps (array-lit:[int] (exps (num:int 1))) (nil:nil)))) (field-init (id rest) (nil:nil))))))))
+   (decl-var:ok (id w) (type-id c) (array-lit:[{head : [[int]], rest : {head : nil, rest : nil}}] (exps (struct-lit:{head : nil, rest : nil} (field-inits (field-init (id head) (nil:nil)) (field-init (id rest) (nil:nil)))) (struct-lit:{head : [[int]], rest : {head : nil, rest : nil}} (field-inits (field-init (id head) (array-lit:[[int]] (exps (array-lit:[int] (exps (num:int 1)))))) (field-init (id rest) (struct-lit:{head : nil, rest : nil} (field-inits (field-init (id head) (nil:nil)) (field-init (id rest) (nil:nil)))))))))))
+Function main() not defined or has wrong type!

@@ -1,0 +1,13 @@
+function f(a : int, b : int, c : bool) : bool { 
+      return (f(1, g(), f(1,2, f(1,2,true))));
+}
+
+function g() : int { return (g()); }
+
+var x : [[int]] = [[1,g(),3], [-1,g()]];
+
+function main(argv : [[int]]) {
+      main(x);
+      return ;
+}
+

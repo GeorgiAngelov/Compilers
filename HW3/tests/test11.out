@@ -1,0 +1,5 @@
+(decls
+   (decl-fun:ok (id main) (type-fun (params (typed-id (id argv) (type-array (type-array (type-int))))) (type-int))
+      (decls)
+      (stmts
+         (return:ok (num:int 0)))))

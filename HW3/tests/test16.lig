@@ -1,0 +1,11 @@
+
+// Creates a new array of n elements and initializes it to zero.
+function new_array(n : int) : [int] {
+      var arr : [int] = nil;
+      var i : int;
+      arr = resize(arr, n);
+      for (i = 0 to n) {
+            arr[i] = 0; 
+      }
+}
+

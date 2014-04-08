@@ -1,0 +1,4 @@
+function main(myargs : [[int]]) : int {
+      var myargs : int = 0;
+      return (myargs);
+}

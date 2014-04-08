@@ -1,0 +1,14 @@
+(decls
+   (decl-var:ok (id i1) (type-int))
+   (decl-var:ok (id i2) (type-int) (num:int 5))
+   (decl-var:ok (id a1) (type-array (type-int)))
+   (decl-var:ok (id a2) (type-array (type-int)) (array-lit:[int] (exps (num:int 1) (num:int 2) (id:int i1) (id:int i2))))
+   (decl-var:ok (id s1) (type-struct (typed-id (id x) (type-int)) (typed-id (id y) (type-int))))
+   (decl-type:ok (id my_struct) (type-struct (typed-id (id x) (type-int)) (typed-id (id y) (type-int))))
+   (decl-var:ok (id s3) (type-id my_struct) (struct-lit:{x : int, y : int} (field-inits (field-init (id x) (id:int i1)) (field-init (id y) (id:int i2)))))
+   (decl-var:ok (id a3) (type-array (type-array (type-int))) (array-lit:[[int]] (exps (id:[int] a1) (id:[int] a2) (array-lit:[int] (exps (num:int 1) (num:int 2) (num:int 3))))))
+   (decl-var:ok (id s4) (type-struct (typed-id (id x) (type-id my_struct)) (typed-id (id y) (type-array (type-array (type-int)))) (typed-id (id z) (type-array (type-int)))) (struct-lit:{x : {x : int, y : int}, y : [[int]], z : [int]} (field-inits (field-init (id x) (struct-lit:{x : int, y : int} (field-inits (field-init (id x) (num:int 1)) (field-init (id y) (num:int 2))))) (field-init (id y) (id:[[int]] a3)) (field-init (id z) (array-lit:[int] (exps (num:int 1) (num:int 2) (num:int 3)))))))
+   (decl-fun:ok (id main) (type-fun (params (typed-id (id argv) (type-array (type-array (type-int))))) (type-int))
+      (decls)
+      (stmts
+         (return:ok (num:int 0)))))

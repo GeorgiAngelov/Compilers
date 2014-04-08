@@ -1,0 +1,47 @@
+var x : int = 4;
+
+var b : bool;
+
+function f(y : int) : bool {
+      // Allowed.
+      return (x == y);
+      return (x != y);
+      return (b == true);
+      return (b != false);
+
+      // Verboten.
+      return (x == b);
+      return (x != b);
+
+      // Allowed.
+      return ([1,2,3] == [1,2,3]);
+      return ([1,2,3] != [1,2,3]);
+      return ([1,2,3] == nil);
+      return ([1,2,3] != nil);
+
+      // Verboten.
+      return ([1,2,3] > nil);
+      return ([1,2,3] >= nil);
+      return ([1,2,3] < nil);
+      return ([1,2,3] <= nil);
+      return (nil > nil);
+      return (nil >= nil);
+      return (nil < nil);
+      return (nil <= nil);
+
+      // Allowed.
+      return ({a=nil} == {a=nil});
+      return ({a=nil} != {a=nil});
+      return ({a=nil} == nil);
+      return ({a=nil} != nil);
+      return ([1,2,3] == {a=nil});
+      return ([1,2,3] != {a=nil});
+      return (nil == nil);
+      return (nil != nil);
+
+      // Verboten.
+      return ([1,2,3] == x);
+      return ([1,2,3] != x);
+      return ([1,2,3] == b);
+      return ([1,2,3] != b);
+}

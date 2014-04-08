@@ -1,0 +1,5 @@
+(decls
+   (decl-type:ok (id a) (type-array (type-id a)))
+   (decl-var:ok (id x) (type-id a))
+   (decl-var:ok (id y) (type-id a) (array-lit:[a] (exps (id:a x))))
+   (decl-fun:ok (id main) (type-fun (params (typed-id (id argv) (type-array (type-array (type-int))))) (type-int))))

@@ -1,0 +1,11 @@
+(decls
+   (decl-var:ok (id x) (type-int))
+   (decl-var:NONE (id x) (type-int))
+   (decl-type:NONE (id x) (type-id x))
+   (decl-type:NONE (id x) (type-int))
+   (decl-type:ok (id x) (type-array (type-int)))
+   (decl-fun:ok (id f) (type-fun (params (typed-id (id x) (type-int))) (type-void)))
+   (decl-fun:NONE (id f) (type-fun (params (typed-id (id x) (type-bool))) (type-int)))
+   (decl-fun:ok (id x) (type-fun (params (typed-id (id x) (type-id x))) (type-id x))))
+Function main() not defined or has wrong type!
+Typechecking failed!

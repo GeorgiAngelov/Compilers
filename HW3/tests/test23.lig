@@ -1,0 +1,113 @@
+type string : [int];
+type any : {any : bool};
+var buffer : int = getchar();
+
+// TODO
+function chr(c : int) : [int] { }
+function ord(c : [int]) : int { }
+
+function isdigit(s : int) : bool { 
+      return (buffer >= ord("0") & buffer <= ord("9"));
+}
+
+function skipto() {
+      // 10 == '\n'
+      while (buffer == ord(" ") | buffer == 10) {
+            buffer = getchar();
+      }
+}
+
+function readint(any : any) : int {
+      var i : int = 0;
+
+      skipto();
+
+      any.any = isdigit(buffer);
+
+      while (isdigit(buffer)) {
+            i = i * 10 + (buffer - ord("0"));
+            buffer = getchar(); 
+      }
+
+     return (i);
+}
+
+type list : {first : int, rest : list};
+
+function readlist() : list {
+      var any : any;
+      var i : int = readint(any);
+      var newlist : list;
+
+      if (any.any) {
+            newlist.first = i;
+            newlist.rest = readlist();
+            return (newlist);
+      } else {
+            return (nil);
+      }
+}
+
+function merge(a : list, b : list) : list {
+      var newlist : list;
+
+      if (a == nil) { 
+            return (b);
+      } else { 
+            if (b == nil) { 
+                  return (a);
+            } else {
+                  if (a.first < b.first) {
+                        newlist.first = a.first;
+                        newlist.rest = merge(a.rest, b);
+                        return (newlist);
+                  } else {
+                        newlist.first = b.first;
+                        newlist.rest = merge(a, b.rest);
+                        return (newlist);
+                  }
+            }
+      }
+}
+
+function f(i : int) { 
+      if (i > 0) { 
+            f(i/10); 
+            print(chr(i - i/10*10 + ord("0")));
+      }
+}
+
+function printint(i : int) {
+      if (i < 0) { 
+            print("-"); 
+            f(-i);
+      } else { 
+            if (i > 0) { 
+                  f(i); 
+            } else { 
+                  print("0"); 
+            }
+      }
+}
+  
+function printlist(l : list) {
+      var list1 : list;
+      var list2 : list;
+
+      if (l == nil) { 
+            // 10 == '\n'
+            print([10]); 
+      } else {
+            printint(l.first); 
+            print(" "); 
+            printlist(l.rest);
+      }
+
+      list1 = readlist();
+      buffer = getchar();
+      list2 = readlist();
+
+      printlist(merge(list1, list2));
+}
+
+function main(argv : [[int]]) : int { }

@@ -1,0 +1,3 @@
+var x : int = y;
+var y : int = y;
+var z : [int] = [x, y, z];

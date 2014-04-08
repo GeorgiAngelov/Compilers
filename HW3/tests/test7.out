@@ -1,0 +1,38 @@
+(decls
+   (decl-fun:ok (id f) (type-fun (params (typed-id (id b) (type-bool))) (type-int))
+      (decls)
+      (stmts
+         (if:ok (==:bool (id:bool b) (true:bool))
+            (stmts
+               (return:ok (num:int 1)))
+            (stmts))
+         (if:ok (==:bool (id:bool b) (false:bool))
+            (stmts
+               (return:ok (num:int 0)))
+            (stmts))))
+   (decl-fun:ok (id main) (type-fun (params (typed-id (id args) (type-array (type-array (type-int))))) (type-int))
+      (decls
+         (decl-var:ok (id arr) (type-array (type-int)))
+         (decl-var:ok (id str) (type-struct (typed-id (id fst) (type-int))))
+         (decl-var:ok (id b) (type-bool)))
+      (stmts
+         (return:ok (fun-call:int (id main) (exps (id:[[int]] args))))
+         (return:ok (-:int (num:int 0) (fun-call:int (id main) (exps (id:[[int]] args)))))
+         (return:ok (+:int (fun-call:int (id main) (exps (id:[[int]] args))) (fun-call:int (id main) (exps (id:[[int]] args)))))
+         (return:ok (-:int (fun-call:int (id main) (exps (id:[[int]] args))) (fun-call:int (id main) (exps (id:[[int]] args)))))
+         (return:ok (*:int (fun-call:int (id main) (exps (id:[[int]] args))) (fun-call:int (id main) (exps (id:[[int]] args)))))
+         (return:ok (/:int (fun-call:int (id main) (exps (id:[[int]] args))) (fun-call:int (id main) (exps (id:[[int]] args)))))
+         (return:ok (%:int (fun-call:int (id main) (exps (id:[[int]] args))) (fun-call:int (id main) (exps (id:[[int]] args)))))
+         (return:ok (fun-call:int (id f) (exps (>:bool (fun-call:int (id main) (exps (id:[[int]] args))) (fun-call:int (id main) (exps (id:[[int]] args)))))))
+         (return:ok (fun-call:int (id f) (exps (<:bool (fun-call:int (id main) (exps (id:[[int]] args))) (fun-call:int (id main) (exps (id:[[int]] args)))))))
+         (return:ok (fun-call:int (id f) (exps (<=:bool (fun-call:int (id main) (exps (id:[[int]] args))) (fun-call:int (id main) (exps (id:[[int]] args)))))))
+         (return:ok (fun-call:int (id f) (exps (>=:bool (fun-call:int (id main) (exps (id:[[int]] args))) (fun-call:int (id main) (exps (id:[[int]] args)))))))
+         (return:ok (fun-call:int (id f) (exps (==:bool (fun-call:int (id main) (exps (id:[[int]] args))) (fun-call:int (id main) (exps (id:[[int]] args)))))))
+         (return:ok (fun-call:int (id f) (exps (!=:bool (fun-call:int (id main) (exps (id:[[int]] args))) (fun-call:int (id main) (exps (id:[[int]] args)))))))
+         (return:ok (array-idx:int (id:[int] arr) (fun-call:int (id main) (exps (id:[[int]] args)))))
+         (assign:ok (field-lkup:int (id:{fst : int} str) (id fst)) (fun-call:int (id main) (exps (id:[[int]] args))))
+         (return:ok (field-lkup:int (id:{fst : int} str) (id fst)))
+         (return:ok (fun-call:int (id f) (exps (!:bool(id:bool b)))))
+         (return:ok (fun-call:int (id f) (exps (&:bool (id:bool b) (id:bool b)))))
+         (return:ok (fun-call:int (id f) (exps (|:bool (id:bool b) (id:bool b)))))
+         (return:ok (fun-call:int (id f) (exps (==:bool (fun-call:int (id f) (exps (&:bool (id:bool b) (id:bool b)))) (fun-call:int (id f) (exps (|:bool (id:bool b) (id:bool b)))))))))))

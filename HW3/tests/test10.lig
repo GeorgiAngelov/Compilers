@@ -1,0 +1,20 @@
+function f() {
+      var x : [int] = [y, y, y];
+      var y : int = sizeof(x);
+}
+
+function main(args : [[int]]) : int {
+      var new_args : [[int]];
+      var other_stuff : [bool];
+
+      // Resize is polymorphic.
+      new_args = resize(args, 10);
+      // but doesn't accept nil.
+      other_stuff = resize(nil, sizeof(args));
+      
+      new_args[0][0] = getchar();
+
+      print(new_args[0]);
+
+      return (new_args[0][0]);
+}

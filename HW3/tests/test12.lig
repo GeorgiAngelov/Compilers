@@ -1,0 +1,13 @@
+type a : [[int]];
+
+type b : {head : a, rest : b};
+
+type c : [b];
+
+var x : a = [nil, nil, [1]];
+
+var y : a = [nil, [2], nil];
+
+var z : b = {head = [nil], rest = {head = [[1], nil], rest = nil}};
+
+var w : c = [{head=nil, rest=nil}, {head=[[1]], rest={head=nil, rest=nil}}];

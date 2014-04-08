@@ -1,0 +1,17 @@
+function main(args : [[int]]) : int {
+      var i : int;
+      var b : bool;
+
+      if (i) { }
+      if (b) { }
+      if (i) { } else { }
+      if (b) { } else { }
+      while (i) { }
+      while (b) { }
+      for (i = b to i) { }
+      for (i = i to b) { }
+      for (i = i to i) { }
+      return;
+      return (b);
+      return (i);
+}

@@ -1,0 +1,14 @@
+var x : int;
+var x : int;
+
+// Both of these can be totally ignored for type checking purposes, even if
+// that means missing the clash with the next typename.
+type x : x;
+type x : int;
+
+type x : [int];
+
+function f (x : int) { }
+function f (x : bool) : int { }
+
+function x (x : x) : x { }

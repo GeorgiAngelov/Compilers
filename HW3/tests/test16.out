@@ -1,0 +1,11 @@
+(decls
+   (decl-fun:ok (id new_array) (type-fun (params (typed-id (id n) (type-int))) (type-array (type-int)))
+      (decls
+         (decl-var:ok (id arr) (type-array (type-int)) (nil:nil))
+         (decl-var:ok (id i) (type-int)))
+      (stmts
+         (assign:ok (id:[int] arr) (fun-call:[int] (id resize) (exps (id:[int] arr) (id:int n))))
+         (for:ok (id:int i) (num:int 0) (id:int n)
+            (stmts
+               (assign:ok (array-idx:int (id:[int] arr) (id:int i)) (num:int 0)))))))
+Function main() not defined or has wrong type!

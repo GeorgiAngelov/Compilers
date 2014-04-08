@@ -1,0 +1,6 @@
+(decls
+   (decl-var:ok (id x) (type-int) (id:int y))
+   (decl-var:ok (id y) (type-int) (id:int y))
+   (decl-var:NONE (id z) (type-array (type-int)) (array-lit:[NONE] (exps (id:int x) (id:int y) (id:[int] z)))))
+Function main() not defined or has wrong type!
+Typechecking failed!

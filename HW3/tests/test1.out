@@ -1,0 +1,10 @@
+(decls
+   (decl-fun:ok (id fib) (type-fun (params (typed-id (id n) (type-int))) (type-int))
+      (decls)
+      (stmts
+         (if:ok (<=:bool (id:int n) (num:int 1))
+            (stmts
+               (return:ok (num:int 1)))
+            (stmts
+               (return:ok (+:int (fun-call:int (id fib) (exps (-:int (id:int n) (num:int 1)))) (fun-call:int (id fib) (exps (-:int (id:int n) (num:int 2)))))))))))
+Function main() not defined or has wrong type!

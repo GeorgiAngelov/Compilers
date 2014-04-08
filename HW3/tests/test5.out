@@ -1,0 +1,8 @@
+(decls
+   (decl-fun:NONE (id main) (type-fun (params (typed-id (id args) (type-array (type-array (type-int))))) (type-int))
+      (decls
+         (decl-var:ok (id x) (type-int))
+         (decl-var:NONE (id x) (type-int)))
+      (stmts
+         (return:ok (id:int x)))))
+Typechecking failed!

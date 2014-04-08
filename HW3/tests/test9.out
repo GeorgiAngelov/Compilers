@@ -1,0 +1,13 @@
+(decls
+   (decl-fun:ok (id f) (type-fun (params (typed-id (id a) (type-int)) (typed-id (id b) (type-bool)) (typed-id (id c) (type-int))) (type-void)))
+   (decl-fun:NONE (id main) (type-fun (params (typed-id (id args) (type-array (type-array (type-int))))) (type-int))
+      (decls)
+      (stmts
+         (exp-stmt:ok (fun-call:void (id f) (exps (num:int 1) (true:bool) (num:int 3))))
+         (exp-stmt:NONE (fun-call:NONE (id f) (exps (num:int 1))))
+         (exp-stmt:NONE (fun-call:NONE (id f) (exps (num:int 1) (true:bool))))
+         (exp-stmt:NONE (fun-call:NONE (id f) (exps (num:int 1) (true:bool) (true:bool))))
+         (exp-stmt:NONE (fun-call:NONE (id f) (exps)))
+         (return:NONE (fun-call:NONE (id main) (exps)))
+         (return:NONE (fun-call:void (id f) (exps (num:int 1) (true:bool) (num:int 3)))))))
+Typechecking failed!

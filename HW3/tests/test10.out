@@ -1,0 +1,17 @@
+(decls
+   (decl-fun:ok (id f) (type-fun (params) (type-void))
+      (decls
+         (decl-var:ok (id x) (type-array (type-int)) (array-lit:[int] (exps (id:int y) (id:int y) (id:int y))))
+         (decl-var:ok (id y) (type-int) (fun-call:int (id sizeof) (exps (id:[int] x)))))
+      (stmts))
+   (decl-fun:NONE (id main) (type-fun (params (typed-id (id args) (type-array (type-array (type-int))))) (type-int))
+      (decls
+         (decl-var:ok (id new_args) (type-array (type-array (type-int))))
+         (decl-var:ok (id other_stuff) (type-array (type-bool))))
+      (stmts
+         (assign:ok (id:[[int]] new_args) (fun-call:[[int]] (id resize) (exps (id:[[int]] args) (num:int 10))))
+         (assign:NONE (id:[bool] other_stuff) (fun-call:NONE (id resize) (exps (nil:nil) (fun-call:int (id sizeof) (exps (id:[[int]] args))))))
+         (assign:ok (array-idx:int (array-idx:[int] (id:[[int]] new_args) (num:int 0)) (num:int 0)) (fun-call:int (id getchar) (exps)))
+         (exp-stmt:ok (fun-call:void (id print) (exps (array-idx:[int] (id:[[int]] new_args) (num:int 0)))))
+         (return:ok (array-idx:int (array-idx:[int] (id:[[int]] new_args) (num:int 0)) (num:int 0))))))
+Typechecking failed!

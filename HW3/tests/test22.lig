@@ -1,0 +1,5 @@
+type a : {b1: b};
+type b : {c1: c};
+type c : {a1: a};
+
+var x : a = {b1 = {c1 = {a1 = {b1 = nil}}}};

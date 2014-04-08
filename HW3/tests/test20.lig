@@ -1,0 +1,7 @@
+type a : [a];
+
+var x : a;
+
+var y : a = [x];
+
+function main(argv : [[int]]) : int { }

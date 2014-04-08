@@ -1,0 +1,36 @@
+function f(b : bool) : int {
+      if (b == true) { return (1); }
+      if (b == false) { return (0); }
+}
+
+function main(args : [[int]]) : int {
+      var arr : [int];
+      var str : {fst : int};
+      var b : bool;
+
+      return (+ main(args));
+      return (- main(args));
+      return (main(args) + main(args));
+      return (main(args) - main(args));
+      return (main(args) * main(args));
+      return (main(args) / main(args));
+      return (main(args) % main(args));
+
+      return (f(main(args) > main(args)));
+      return (f(main(args) < main(args)));
+      return (f(main(args) <= main(args)));
+      return (f(main(args) >= main(args)));
+      return (f(main(args) == main(args)));
+      return (f(main(args) != main(args)));
+
+      return (arr[main(args)]);
+
+      str.fst = main(args);
+
+      return (str.fst);
+
+      return (f(!b));
+      return (f(b & b));
+      return (f(b | b));
+      return (f(f(b & b) == f(b | b)));
+}
