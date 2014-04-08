@@ -60,7 +60,7 @@ extern int yyerror(const char*);
 %left '*' '/' '%'
 %left T_UMINUS T_UPLUS '!'
 
-%type <struct* expr> aexp
+%type <struct exp*> aexp exp bexp
 
 %start program
 
@@ -120,19 +120,25 @@ exp:
 
 aexp: 
       T_NUM {
-		struct expr* tmp = exp_num_new($1);
+		struct exp* tmp = exp_num_new($1);
 	  }
       | '+' exp %prec T_UPLUS {
-		struct expr* tmp = exp_new(AST_EXP_PLUS);
+		struct exp* tmp = exp_new(AST_EXP_PLUS);
 	  }
       | '-' exp %prec T_UMINUS {
-		struct expr* tmp = exp_new(AST_EXP_MINUS);
+		struct exp* tmp = exp_new(AST_EXP_MINUS);
 	  }
-      | exp '+' exp {struct expr* tmp = exp_new(AST_EXP_PLUS);}
-      | exp '-' exp {struct expr* tmp = exp_new(AST_EXP_MINUS);}
-      | exp '/' exp {struct expr* tmp = exp_new(AST_EXP_DIV);}
-      | exp '%' exp {struct expr* tmp = exp_new(AST_EXP_MOD);}
-      | exp '*' exp {struct expr* tmp = exp_new(AST_EXP_MUL);}
+      | exp '+' exp {struct exp* tmp = exp_new(AST_EXP_PLUS);}
+      | exp '-' exp {struct exp* tmp = exp_new(AST_EXP_MINUS);}
+      | exp '/' exp {struct exp* tmp = exp_new(AST_EXP_DIV);}
+      | exp '%' exp {struct exp* tmp = exp_new(AST_EXP_MOD);}
+      | exp '*' exp {
+		struct exp* tmp = exp_new(AST_EXP_MUL);
+		exp_print(tmp);
+		/*tmp->left = $1;
+		tmp->right = $3;
+		$$ = tmp;*/
+		}
 
 bexp: 
       T_TRUE
