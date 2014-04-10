@@ -67,7 +67,7 @@ extern int yyerror(const char*);
 %type <exp> aexp exp bexp fun_call obj_lit
 %type <stmt> stmt
 %type <exp> lvalue
-%type <GList> block stmts
+%type <GList> block stmts exps
 
 %start program
 
@@ -87,8 +87,8 @@ var_decls:
       | var_decls var_decl
 
 var_decl: 
-      T_VAR T_ID ':' type ';'
-      | T_VAR T_ID ':' type '=' exp ';'
+      T_VAR T_ID ':' type ';'				{}
+      | T_VAR T_ID ':' type '=' exp ';'		{}
 
 type_decl: 
       T_TYPE T_ID ':' type ';'
@@ -115,10 +115,10 @@ type:
       | '{' field_decls '}'
 
 fun_decl: 
-      T_FUNCTION T_ID '(' param_decls ')' ':' type '{' var_decls stmts '}'
-      | T_FUNCTION T_ID '(' param_decls ')' '{' var_decls stmts '}'
-      | T_FUNCTION T_ID '(' ')' ':' type '{' var_decls stmts '}'
-      | T_FUNCTION T_ID '(' ')' '{' var_decls stmts '}'
+      T_FUNCTION T_ID '(' param_decls ')' ':' type '{' var_decls stmts '}'		{}
+      | T_FUNCTION T_ID '(' param_decls ')' '{' var_decls stmts '}'				{}
+      | T_FUNCTION T_ID '(' ')' ':' type '{' var_decls stmts '}'				{}
+      | T_FUNCTION T_ID '(' ')' '{' var_decls stmts '}'							{}
 
 exp:
       aexp | bexp						{$$=$1;}
@@ -126,41 +126,49 @@ exp:
       | '(' exp ')'						{$$=$2;}
 
 aexp: 
-      T_NUM {/*
-		struct exp* tmp = exp_num_new($1);
-	  */}
-      | '+' exp %prec T_UPLUS {
-		struct exp* temp = exp_new(AST_EXP_PLUS);
-		$$= temp;
-	  }
-      | '-' exp %prec T_UMINUS {
-		struct exp* temp = exp_new(AST_EXP_MINUS);
-		$$= temp;
-	  }
-      | exp '+' exp {struct exp* temp = exp_new(AST_EXP_PLUS);$$= temp;}
-      | exp '-' exp {struct exp* temp = exp_new(AST_EXP_MINUS);$$= temp;}
-      | exp '/' exp {struct exp* temp = exp_new(AST_EXP_DIV);$$= temp;}
-      | exp '%' exp {struct exp* temp = exp_new(AST_EXP_MOD);$$= temp;}
-      | exp '*' exp {
-		struct exp* temp = exp_new(AST_EXP_MUL);
-		exp_print(temp);
-		temp->left = $1;
-		temp->right = $3;
-		$$ = temp;
-		}
+      T_NUM 						{struct exp* temp = exp_num_new($1);
+      								$$=temp;}
+      | '+' exp %prec T_UPLUS 		{struct exp* temp = exp_new(AST_EXP_PLUS);
+      								$$= temp;}
+      | '-' exp %prec T_UMINUS 		{struct exp* temp = exp_new(AST_EXP_MINUS);
+      								$$= temp;}
+      | exp '+' exp 				{struct exp* temp = exp_new(AST_EXP_PLUS);
+      								$$= temp;}
+      | exp '-' exp 				{struct exp* temp = exp_new(AST_EXP_MINUS);
+      								$$= temp;}
+      | exp '/' exp 				{struct exp* temp = exp_new(AST_EXP_DIV);
+      								$$= temp;}
+      | exp '%' exp 				{struct exp* temp = exp_new(AST_EXP_MOD);
+      								$$= temp;}
+      | exp '*' exp 				{struct exp* temp = exp_new(AST_EXP_MUL);
+      								exp_print(temp);
+      								temp->left = $1;
+      								temp->right = $3;
+									$$ = temp;}
 
 bexp: 
-      T_TRUE			{struct exp * temp = exp_binop_new(AST_EXP_TRUE, NULL, NULL); $$= temp;}
-      | T_FALSE			{struct exp * temp = exp_binop_new(AST_EXP_FALSE, NULL, NULL); $$= temp;}
-      | '!' exp			{struct exp * temp = exp_binop_new(AST_EXP_NOT, NULL, $2); $$=temp;}
-      | exp '|' exp		{struct exp * temp = exp_binop_new(AST_EXP_OR, $1, $3); $$=temp;}
-      | exp '&' exp		{struct exp * temp = exp_binop_new(AST_EXP_AND, $1, $3); $$=temp;}
-      | exp '<' exp		{struct exp * temp = exp_binop_new(AST_EXP_LT, $1, $3); $$=temp;}
-      | exp "<=" exp	{struct exp * temp = exp_binop_new(AST_EXP_LT_EQ, $1, $3); $$=temp;}
-      | exp '>' exp		{struct exp * temp = exp_binop_new(AST_EXP_GT, $1, $3); $$=temp;}
-      | exp ">=" exp	{struct exp * temp = exp_binop_new(AST_EXP_GT_EQ, $1, $3); $$=temp;}
-      | exp "==" exp	{struct exp * temp = exp_binop_new(AST_EXP_EQ, $1, $3); $$=temp;}
-      | exp "!=" exp	{struct exp * temp = exp_binop_new(AST_EXP_NOT_EQ, $1, $3); $$=temp;}
+      T_TRUE			{struct exp * temp = exp_binop_new(AST_EXP_TRUE, NULL, NULL); 
+      					$$= temp;}
+      | T_FALSE			{struct exp * temp = exp_binop_new(AST_EXP_FALSE, NULL, NULL); 
+      					$$= temp;}
+      | '!' exp			{struct exp * temp = exp_binop_new(AST_EXP_NOT, NULL, $2); 
+      					$$=temp;}
+      | exp '|' exp		{struct exp * temp = exp_binop_new(AST_EXP_OR, $1, $3); 
+      					$$=temp;}
+      | exp '&' exp		{struct exp * temp = exp_binop_new(AST_EXP_AND, $1, $3); 
+      					$$=temp;}
+      | exp '<' exp		{struct exp * temp = exp_binop_new(AST_EXP_LT, $1, $3); 
+      					$$=temp;}
+      | exp "<=" exp	{struct exp * temp = exp_binop_new(AST_EXP_LT_EQ, $1, $3); 
+      					$$=temp;}
+      | exp '>' exp		{struct exp * temp = exp_binop_new(AST_EXP_GT, $1, $3); 
+      					$$=temp;}
+      | exp ">=" exp	{struct exp * temp = exp_binop_new(AST_EXP_GT_EQ, $1, $3); 
+      					$$=temp;}
+      | exp "==" exp	{struct exp * temp = exp_binop_new(AST_EXP_EQ, $1, $3); 
+      					$$=temp;}
+      | exp "!=" exp	{struct exp * temp = exp_binop_new(AST_EXP_NOT_EQ, $1, $3); 
+      					$$=temp;}
 
 obj_lit: array_lit | struct_lit
       | T_NIL
@@ -170,8 +178,8 @@ array_lit:
       | T_STR
 
 exps: 
-      exp
-      | exps ',' exp
+      exp					{GList temp; g_list_append(&temp, $1); exps_print(&temp); $$=&temp;}
+      | exps ',' exp		{GList * temp = g_list_append($1, $3); exps_print(temp); $$=temp;}
 
 struct_lit:
       '{' field_inits '}'
