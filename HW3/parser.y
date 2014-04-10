@@ -34,6 +34,8 @@ extern int yyerror(const char*);
       char* id;
       char* str;
       int num;
+      Type * Type;
+      struct decl* decl;
       struct stmt* stmt;
       struct exp* exp;
       GList* GList;
@@ -64,10 +66,11 @@ extern int yyerror(const char*);
 %left '*' '/' '%'
 %left T_UMINUS T_UPLUS '!'
 
-%type <exp> aexp exp bexp fun_call obj_lit
+%type <decl> fun_decl
+%type <exp> aexp exp bexp fun_call obj_lit lvalue
 %type <stmt> stmt
-%type <exp> lvalue
-%type <GList> block stmts exps
+%type <GList> var_decls field_decls decls decl block stmts exps
+%type <Type> type field_decl
 
 %start program
 
@@ -76,18 +79,19 @@ extern int yyerror(const char*);
 program:
       decls {
         //done_parsing($1);
+        decls_print($1);
 	  }
 
 decls:
-      | decls decl
+      | decls decl						{GList * temp = g_list_append($1, $2); $$=temp;}
 
 decl: var_decl | fun_decl | type_decl
 
 var_decls: 
-      | var_decls var_decl
+      | var_decls var_decl		{/*GList * temp = g_list_append($1, $2); $$=temp;*/$$=NULL;}
 
 var_decl: 
-      T_VAR T_ID ':' type ';'				{}
+      T_VAR T_ID ':' type ';'				{/*GList t; g_list_append(&t, $4); $$=&t;*/}
       | T_VAR T_ID ':' type '=' exp ';'		{}
 
 type_decl: 
@@ -101,24 +105,33 @@ param_decls:
       | param_decls ',' param_decl
 
 field_decl: 
-      T_ID ':' type
+      T_ID ':' type			{$$=type_new(*$3);}
 
 field_decls: 
-      field_decl
-      | field_decls ',' field_decl
+      field_decl						{GList t; g_list_append(&t, $1); $$=&t;}
+      | field_decls ',' field_decl		{GList * temp = g_list_append($1, $3);$$=temp;}
 
 type: 
-      T_INT
-      | T_BOOL
-      | T_ID
-      | '[' type ']'
-      | '{' field_decls '}'
+      T_INT						{/*Type temp = type_int();*/
+      							$$=NULL;}
+      | T_BOOL					{/*Type temp = type_bool();*/
+      							$$=NULL;}
+      | T_ID					{/*Type temp = type_id_new();*/
+      							$$=NULL;}
+      | '[' type ']'			{/*Type temp = type_array($2);*/
+      							$$=NULL;}
+      | '{' field_decls '}'		{/*Type temp = type_struct($2);*/
+      							$$=NULL;}
 
 fun_decl: 
-      T_FUNCTION T_ID '(' param_decls ')' ':' type '{' var_decls stmts '}'		{}
-      | T_FUNCTION T_ID '(' param_decls ')' '{' var_decls stmts '}'				{}
-      | T_FUNCTION T_ID '(' ')' ':' type '{' var_decls stmts '}'				{}
-      | T_FUNCTION T_ID '(' ')' '{' var_decls stmts '}'							{}
+      T_FUNCTION T_ID '(' param_decls ')' ':' type '{' var_decls stmts '}'		{struct decl * temp = decl_new(symbol_fun($2), $7, NULL, $9, $10);
+      																			$$=temp;}
+      | T_FUNCTION T_ID '(' param_decls ')' '{' var_decls stmts '}'				{struct decl * temp = decl_new(symbol_fun($2), NULL, NULL, $7, $8);
+      																			$$=temp;}
+      | T_FUNCTION T_ID '(' ')' ':' type '{' var_decls stmts '}'				{struct decl * temp = decl_new(symbol_fun($2), $6, NULL, $8, $9);
+      																			$$=temp;}
+      | T_FUNCTION T_ID '(' ')' '{' var_decls stmts '}'							{struct decl * temp = decl_new(symbol_fun($2), NULL, NULL, $6, $7);
+      																			$$=temp;}
 
 exp:
       aexp | bexp						{$$=$1;}

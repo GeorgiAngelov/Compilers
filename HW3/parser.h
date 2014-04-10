@@ -92,8 +92,13 @@ union YYSTYPE
       char* id;
       char* str;
       int num;
+      Type * Type;
+      struct decl* decl;
+      struct stmt* stmt;
+      struct exp* exp;
+      GList* GList;
 
-#line 97 "parser.h" /* yacc.c:1909  */
+#line 102 "parser.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
