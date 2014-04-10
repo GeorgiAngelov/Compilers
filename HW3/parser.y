@@ -34,7 +34,11 @@ extern int yyerror(const char*);
       char* id;
       char* str;
       int num;
+      struct stmt* stmt;
+      struct exp* exp;
+      GList* GList;
 };
+
 
 /* Ids could be types or exps. */
 %token <id> T_ID
@@ -60,7 +64,10 @@ extern int yyerror(const char*);
 %left '*' '/' '%'
 %left T_UMINUS T_UPLUS '!'
 
-%type <struct exp*> aexp exp bexp
+%type <exp> aexp exp bexp fun_call obj_lit
+%type <stmt> stmt
+%type <exp> lvalue
+%type <GList> block stmts
 
 %start program
 
@@ -114,44 +121,46 @@ fun_decl:
       | T_FUNCTION T_ID '(' ')' '{' var_decls stmts '}'
 
 exp:
-      aexp | bexp
-      | obj_lit | fun_call | lvalue
-      | '(' exp ')'
+      aexp | bexp						{$$=$1;}
+      | obj_lit | fun_call | lvalue		{$$=$1;}
+      | '(' exp ')'						{$$=$2;}
 
 aexp: 
-      T_NUM {
+      T_NUM {/*
 		struct exp* tmp = exp_num_new($1);
-	  }
+	  */}
       | '+' exp %prec T_UPLUS {
-		struct exp* tmp = exp_new(AST_EXP_PLUS);
+		struct exp* temp = exp_new(AST_EXP_PLUS);
+		$$= temp;
 	  }
       | '-' exp %prec T_UMINUS {
-		struct exp* tmp = exp_new(AST_EXP_MINUS);
+		struct exp* temp = exp_new(AST_EXP_MINUS);
+		$$= temp;
 	  }
-      | exp '+' exp {struct exp* tmp = exp_new(AST_EXP_PLUS);}
-      | exp '-' exp {struct exp* tmp = exp_new(AST_EXP_MINUS);}
-      | exp '/' exp {struct exp* tmp = exp_new(AST_EXP_DIV);}
-      | exp '%' exp {struct exp* tmp = exp_new(AST_EXP_MOD);}
+      | exp '+' exp {struct exp* temp = exp_new(AST_EXP_PLUS);$$= temp;}
+      | exp '-' exp {struct exp* temp = exp_new(AST_EXP_MINUS);$$= temp;}
+      | exp '/' exp {struct exp* temp = exp_new(AST_EXP_DIV);$$= temp;}
+      | exp '%' exp {struct exp* temp = exp_new(AST_EXP_MOD);$$= temp;}
       | exp '*' exp {
-		struct exp* tmp = exp_new(AST_EXP_MUL);
-		exp_print(tmp);
-		/*tmp->left = $1;
-		tmp->right = $3;
-		$$ = tmp;*/
+		struct exp* temp = exp_new(AST_EXP_MUL);
+		exp_print(temp);
+		temp->left = $1;
+		temp->right = $3;
+		$$ = temp;
 		}
 
 bexp: 
-      T_TRUE
-      | T_FALSE
-      | '!' exp
-      | exp '|' exp
-      | exp '&' exp
-      | exp '<' exp
-      | exp "<=" exp
-      | exp '>' exp
-      | exp ">=" exp
-      | exp "==" exp
-      | exp "!=" exp
+      T_TRUE			{struct exp * temp = exp_binop_new(AST_EXP_TRUE, NULL, NULL); $$= temp;}
+      | T_FALSE			{struct exp * temp = exp_binop_new(AST_EXP_FALSE, NULL, NULL); $$= temp;}
+      | '!' exp			{struct exp * temp = exp_binop_new(AST_EXP_NOT, NULL, $2); $$=temp;}
+      | exp '|' exp		{struct exp * temp = exp_binop_new(AST_EXP_OR, $1, $3); $$=temp;}
+      | exp '&' exp		{struct exp * temp = exp_binop_new(AST_EXP_AND, $1, $3); $$=temp;}
+      | exp '<' exp		{struct exp * temp = exp_binop_new(AST_EXP_LT, $1, $3); $$=temp;}
+      | exp "<=" exp	{struct exp * temp = exp_binop_new(AST_EXP_LT_EQ, $1, $3); $$=temp;}
+      | exp '>' exp		{struct exp * temp = exp_binop_new(AST_EXP_GT, $1, $3); $$=temp;}
+      | exp ">=" exp	{struct exp * temp = exp_binop_new(AST_EXP_GT_EQ, $1, $3); $$=temp;}
+      | exp "==" exp	{struct exp * temp = exp_binop_new(AST_EXP_EQ, $1, $3); $$=temp;}
+      | exp "!=" exp	{struct exp * temp = exp_binop_new(AST_EXP_NOT_EQ, $1, $3); $$=temp;}
 
 obj_lit: array_lit | struct_lit
       | T_NIL
@@ -187,20 +196,20 @@ array_exp: array_lit | fun_call | lvalue
 struct_exp: struct_lit | fun_call | lvalue
 
 stmts: 
-      | stmts stmt
+      | stmts stmt										{GList * temp = g_list_append($1, $2); $$=temp;}
 
 stmt: 
-      exp ';'
-      | lvalue '=' exp ';'
-      | T_IF '(' exp ')' block T_ELSE block
-      | T_IF '(' exp ')' block
-      | T_WHILE '(' exp ')' block
-      | T_FOR '(' lvalue '=' exp T_TO exp ')' block
-      | T_RETURN '(' exp ')' ';'
-      | T_RETURN ';'
+      exp ';'											{struct stmt * temp = stmt_exp_new($1); $$=temp;}
+      | lvalue '=' exp ';'								{struct stmt * temp = stmt_assign_new($1, $3); $$=temp;}
+      | T_IF '(' exp ')' block T_ELSE block				{struct stmt * temp = stmt_if_new($3, $5, $7); $$=temp;}
+      | T_IF '(' exp ')' block							{struct stmt * temp = stmt_if_new($3, $5, NULL); $$=temp;}
+      | T_WHILE '(' exp ')' block						{struct stmt * temp = stmt_while_new($3, $5);}
+      | T_FOR '(' lvalue '=' exp T_TO exp ')' block		{struct stmt * temp = stmt_for_new($3, $5, $7, $9); $$=temp;}
+      | T_RETURN '(' exp ')' ';'						{struct stmt * temp = stmt_return_new($3); $$=temp;}
+      | T_RETURN ';'									{struct stmt * temp = stmt_return_new(NULL); $$=temp;}
 
 block:
-      '{' stmts '}'
+      '{' stmts '}'										{$$=$2;}
 
 %%
 
