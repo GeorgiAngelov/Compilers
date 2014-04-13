@@ -39,8 +39,12 @@ extern int yyerror(const char*);
       struct stmt* stmt;
       struct exp* exp;
       GList* GList;
+      
+      struct TypedId* typed_id;
+      struct field_init* field_init;
+      Type* type;
+      
 };
-
 
 /* Ids could be types or exps. */
 %token <id> T_ID
