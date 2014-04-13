@@ -43,7 +43,6 @@ extern int yyerror(const char*);
       struct TypedId* typed_id;
       struct field_init* field_init;
       Type* type;
-      
 };
 
 /* Ids could be types or exps. */
@@ -73,8 +72,9 @@ extern int yyerror(const char*);
 %type <decl> fun_decl
 %type <exp> aexp exp bexp fun_call obj_lit lvalue
 %type <stmt> stmt
-%type <GList> var_decls field_decls decls decl block stmts exps
+%type <GList> var_decls field_decls param_decls decls decl block stmts exps
 %type <Type> type field_decl
+%type <typed_id> param_decl
 
 %start program
 
@@ -95,25 +95,40 @@ var_decls:
       | var_decls var_decl		{/*GList * temp = g_list_append($1, $2); $$=temp;*/$$=NULL;}
 
 var_decl: 
-      T_VAR T_ID ':' type ';'				{/*GList t; g_list_append(&t, $4); $$=&t;*/}
-      | T_VAR T_ID ':' type '=' exp ';'		{}
+      T_VAR T_ID ':' type ';'				{/*GList t; g_list_append(&t, $4); $$=&t;*/
+      										TypeId temp;
+      										temp.id = symbol_var($2);
+      										temp.type = $4;
+      										$$= &temp;
+      										}
+      										
+      | T_VAR T_ID ':' type '=' exp ';'		{
+      										TypeId temp;
+      										temp.id = symbol_var($2);
+      										temp.type = $4;
+      										$$= &temp;
+      										}
+      										/* NEED TO FINISH THE PART WITH THE XPRESSION */
 
 type_decl: 
       T_TYPE T_ID ':' type ';'
 
 param_decl: 
-      T_ID ':' type
+      T_ID ':' type							{TypedId temp;
+      										temp.id = symbol_field($1);//symbol
+      										temp.type = $3;
+      										$$= &temp;}
 
 param_decls: 
-      param_decl
-      | param_decls ',' param_decl
+      param_decl							{GList t; g_list_append(&t, $1); $$=&t;}
+      | param_decls ',' param_decl			{GList * temp = g_list_append($1, $3); $$=temp;}
 
 field_decl: 
-      T_ID ':' type			{$$=type_new(*$3);}
+      T_ID ':' type							{$$=type_new(*$3);}
 
 field_decls: 
-      field_decl						{GList t; g_list_append(&t, $1); $$=&t;}
-      | field_decls ',' field_decl		{GList * temp = g_list_append($1, $3);$$=temp;}
+      field_decl							{GList t; g_list_append(&t, $1); $$=&t;}
+      | field_decls ',' field_decl			{GList * temp = g_list_append($1, $3);$$=temp;}
 
 type: 
       T_INT						{/*Type temp = type_int();*/
