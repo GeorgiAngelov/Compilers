@@ -127,20 +127,15 @@ field_decl:
       T_ID ':' type							{$$=type_new(*$3);}
 
 field_decls: 
-      field_decl							{GList t; g_list_append(&t, $1); $$=&t;}
-      | field_decls ',' field_decl			{GList * temp = g_list_append($1, $3);$$=temp;}
+      field_decl						{GList t; $$=g_list_append(&t, $1);}
+      | field_decls ',' field_decl		{GList * temp = g_list_append($1, $3);$$=temp;}
 
 type: 
-      T_INT						{/*Type temp = type_int();*/
-      							$$=NULL;}
-      | T_BOOL					{/*Type temp = type_bool();*/
-      							$$=NULL;}
-      | T_ID					{/*Type temp = type_id_new();*/
-      							$$=NULL;}
-      | '[' type ']'			{/*Type temp = type_array($2);*/
-      							$$=NULL;}
-      | '{' field_decls '}'		{/*Type temp = type_struct($2);*/
-      							$$=NULL;}
+      T_INT						{/*Type * temp = type_int($1); $$=temp;*/}
+      | T_BOOL					{/*Type * temp = type_bool($1); $$=temp;*/}
+  	  | T_ID					{/*TypedId temp = type_id_new($1); $$=&temp;*/}
+      | '[' type ']'			{Type temp = type_array($2); $$=&temp;}
+      | '{' field_decls '}'		{Type temp = type_struct($2); $$=&temp;}
 
 fun_decl: 
       T_FUNCTION T_ID '(' param_decls ')' ':' type '{' var_decls stmts '}'		{struct decl * temp = decl_new(symbol_fun($2), $7, NULL, $9, $10);
@@ -210,7 +205,7 @@ array_lit:
       | T_STR
 
 exps: 
-      exp					{GList temp; g_list_append(&temp, $1); exps_print(&temp); $$=&temp;}
+      exp					{GList temp = *g_list_append(&temp, $1); exps_print(&temp); $$=&temp;}
       | exps ',' exp		{GList * temp = g_list_append($1, $3); exps_print(temp); $$=temp;}
 
 struct_lit:
@@ -243,7 +238,7 @@ stmt:
       | lvalue '=' exp ';'								{struct stmt * temp = stmt_assign_new($1, $3); $$=temp;}
       | T_IF '(' exp ')' block T_ELSE block				{struct stmt * temp = stmt_if_new($3, $5, $7); $$=temp;}
       | T_IF '(' exp ')' block							{struct stmt * temp = stmt_if_new($3, $5, NULL); $$=temp;}
-      | T_WHILE '(' exp ')' block						{struct stmt * temp = stmt_while_new($3, $5);}
+      | T_WHILE '(' exp ')' block						{struct stmt * temp = stmt_while_new($3, $5); $$=temp;}
       | T_FOR '(' lvalue '=' exp T_TO exp ')' block		{struct stmt * temp = stmt_for_new($3, $5, $7, $9); $$=temp;}
       | T_RETURN '(' exp ')' ';'						{struct stmt * temp = stmt_return_new($3); $$=temp;}
       | T_RETURN ';'									{struct stmt * temp = stmt_return_new(NULL); $$=temp;}
