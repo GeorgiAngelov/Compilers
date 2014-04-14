@@ -84,7 +84,7 @@ extern int yyerror(const char*);
 program:
       decls {
         //done_parsing($1);
-        decls_print($1);
+        //decls_print($1);
 	  }
 
 decls:										{GList temp; $$=&temp;}
@@ -130,7 +130,7 @@ param_decls:
       | param_decls ',' param_decl			{GList * temp = g_list_append($1, $3); $$=temp;}
 
 field_decl: 
-      T_ID ':' type							{$$=type_new(*$3);}
+      T_ID ':' type							{Type * temp = $3; $$=type_new(*temp);}
 
 field_decls: 
       field_decl							{GList t; $$=g_list_append(&t, $1);}
