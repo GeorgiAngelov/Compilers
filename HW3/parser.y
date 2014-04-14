@@ -84,15 +84,15 @@ extern int yyerror(const char*);
 program:
       decls {
         //done_parsing($1);
-        //decls_print($1);
+        decls_print($1);
 	  }
 
-decls:										{GList temp; $$=&temp;}
+decls:										{$$=NULL;}
       | decls decl							{GList * temp = g_list_append($1, $2); $$=temp;}
 
 decl: var_decl | fun_decl | type_decl		{$$=$1;}
 
-var_decls: 									{GList temp; $$=&temp;}
+var_decls: 									{GList temp; GList * tempP = &temp; $$=NULL;}
       | var_decls var_decl					{GList * temp = g_list_append($1, $2); 
       										$$=temp;}
 
@@ -126,14 +126,14 @@ param_decl:
       										}
 
 param_decls: 
-      param_decl							{GList t; $$ = g_list_append(&t, $1);}
+      param_decl							{GList t; $$ = g_list_append(NULL, $1);}
       | param_decls ',' param_decl			{GList * temp = g_list_append($1, $3); $$=temp;}
 
 field_decl: 
       T_ID ':' type							{Type * temp = $3; $$=type_new(*temp);}
 
 field_decls: 
-      field_decl							{GList t; $$=g_list_append(&t, $1);}
+      field_decl							{GList t; $$=g_list_append(NULL, $1);}
       | field_decls ',' field_decl			{GList * temp = g_list_append($1, $3);$$=temp;}
 
 type: 
@@ -225,7 +225,7 @@ array_lit:
       | T_STR								{$$= exp_str_new($1);}
 	
 exps: 	
-      exp									{GList t; $$ = g_list_append(&t, $1);}
+      exp									{GList t; $$ = g_list_append(NULL, $1);}
       | exps ',' exp						{GList * temp = g_list_append($1, $3);$$=temp;}
 	
 struct_lit:									
@@ -235,7 +235,7 @@ field_init:
       T_ID '=' exp							{$$= field_init_new(symbol_field($1), $3);}
 	
 field_inits: 								
-      field_init							{GList t; $$ = g_list_append(&t, $1);}
+      field_init							{GList t; $$ = g_list_append(NULL, $1);}
       | field_inits ',' field_init			{GList * temp = g_list_append($1, $3); $$=temp;}
 	
 fun_call:	
@@ -250,7 +250,7 @@ lvalue: //returns an expr *
 array_exp: array_lit | fun_call | lvalue				{$$=$1;}
 struct_exp: struct_lit | fun_call | lvalue				{$$=$1;}
 
-stmts: 													{GList temp; $$=&temp;}
+stmts: 													{$$=NULL;}
       | stmts stmt										{GList * temp = g_list_append($1, $2); $$=temp;}
 
 stmt: 
