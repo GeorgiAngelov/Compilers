@@ -29,6 +29,9 @@ int main(int argc, char** argv) {
 
       if (yyin != stdin) fclose(yyin);
       yylex_destroy();
+      
+      printf("\n");
+      
       exit(EXIT_SUCCESS);
 }
 
