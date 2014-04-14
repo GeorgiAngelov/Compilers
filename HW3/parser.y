@@ -70,11 +70,12 @@ extern int yyerror(const char*);
 %left T_UMINUS T_UPLUS '!'
 
 %type <decl> decl fun_decl type_decl var_decl
-%type <exp> aexp exp bexp fun_call obj_lit lvalue
+%type <exp> aexp exp bexp fun_call obj_lit lvalue struct_exp array_exp struct_lit array_lit
 %type <stmt> stmt
-%type <GList> var_decls field_decls param_decls decls block stmts exps
+%type <GList> var_decls field_decls param_decls decls block stmts exps field_inits
 %type <type> type field_decl
 %type <typed_id> param_decl
+%type <field_init> field_init
 
 %start program
 
@@ -215,38 +216,38 @@ bexp:
       | exp "!=" exp	{struct exp * temp = exp_binop_new(AST_EXP_NOT_EQ, $1, $3); 
       					$$=temp;}
 
-obj_lit: array_lit | struct_lit
-      | T_NIL
+obj_lit: array_lit | struct_lit			{$$=$1;}
+      | T_NIL							{$$= exp_new(AST_EXP_NIL);}
 
-array_lit:
-      '[' exps ']'
-      | T_STR
+array_lit:								
+      '[' exps ']'						{$$= exp_array_lit_new($2);}
+      | T_STR							{$$= exp_str_new($1);}
 
 exps: 
-      exp					{GList temp = *g_list_append(&temp, $1);$$=&temp;}
-      | exps ',' exp		{GList * temp = g_list_append($1, $3);$$=temp;}
+      exp								{GList temp = *g_list_append(&temp, $1);$$=&temp;}
+      | exps ',' exp					{GList * temp = g_list_append($1, $3);$$=temp;}
 
-struct_lit:
-      '{' field_inits '}'
+struct_lit:								
+      '{' field_inits '}'				{$$= exp_struct_lit_new($2);}
 
-field_init: 
-      T_ID '=' exp
+field_init: 							
+      T_ID '=' exp						{$$= field_init_new(symbol_field($1), $3);}
 
-field_inits: 
-      field_init
-      | field_inits ',' field_init
+field_inits: 							
+      field_init						{GList temp = *g_list_append(&temp, $1); $$=&temp;}
+      | field_inits ',' field_init		{GList * temp = g_list_append($1, $3); $$=temp;}
 
 fun_call:
-      T_ID '(' exps ')'
-      | T_ID '(' ')'
+      T_ID '(' exps ')'					{$$= exp_fun_call_new(symbol_fun($1) ,$3);}
+      | T_ID '(' ')'					{$$= exp_fun_call_new(symbol_fun($1), NULL);}
 
-lvalue: 
-      T_ID
-      | struct_exp '.' T_ID
-      | array_exp '[' exp ']'
+lvalue: //returns an expr *
+      T_ID								{$$= exp_id_new(symbol_var($1));}
+      | struct_exp '.' T_ID				{$$= exp_field_lookup_new($1, symbol_field($3));}
+      | array_exp '[' exp ']'			{$$= exp_array_index_new($1, $3);}
 
-array_exp: array_lit | fun_call | lvalue
-struct_exp: struct_lit | fun_call | lvalue
+array_exp: array_lit | fun_call | lvalue				{$$=$1;}
+struct_exp: struct_lit | fun_call | lvalue				{$$=$1;}
 
 stmts: 													{GList temp; $$=&temp;}
       | stmts stmt										{GList * temp = g_list_append($1, $2); $$=temp;}
