@@ -164,19 +164,29 @@ aexp:
       T_NUM 						{struct exp* temp = exp_num_new($1);
       								$$=temp;}
       | '+' exp %prec T_UPLUS 		{struct exp* temp = exp_new(AST_EXP_PLUS);
+      								temp->right = $2;
       								$$= temp;}
       | '-' exp %prec T_UMINUS 		{struct exp* temp = exp_new(AST_EXP_MINUS);
+      								temp->right = $2;
       								$$= temp;}
       | exp '+' exp 				{struct exp* temp = exp_new(AST_EXP_PLUS);
+      								temp->left = $1;
+      								temp->right = $3;
       								$$= temp;}
       | exp '-' exp 				{struct exp* temp = exp_new(AST_EXP_MINUS);
+      								temp->left = $1;
+      								temp->right = $3;
       								$$= temp;}
       | exp '/' exp 				{struct exp* temp = exp_new(AST_EXP_DIV);
+      								temp->left = $1;
+      								temp->right = $3;
       								$$= temp;}
       | exp '%' exp 				{struct exp* temp = exp_new(AST_EXP_MOD);
+      								temp->left = $1;
+      								temp->right = $3;
       								$$= temp;}
       | exp '*' exp 				{struct exp* temp = exp_new(AST_EXP_MUL);
-      								exp_print(temp);
+      								//exp_print(temp);
       								temp->left = $1;
       								temp->right = $3;
 									$$ = temp;}
@@ -213,8 +223,8 @@ array_lit:
       | T_STR
 
 exps: 
-      exp					{GList temp = *g_list_append(&temp, $1); exps_print(&temp); $$=&temp;}
-      | exps ',' exp		{GList * temp = g_list_append($1, $3); exps_print(temp); $$=temp;}
+      exp					{GList temp = *g_list_append(&temp, $1);$$=&temp;}
+      | exps ',' exp		{GList * temp = g_list_append($1, $3);$$=temp;}
 
 struct_lit:
       '{' field_inits '}'
