@@ -40,7 +40,7 @@ extern int yyerror(const char*);
       struct exp* exp;
       GList* GList;
       
-      struct TypedId* typed_id;
+      TypedId* typed_id;
       struct field_init* field_init;
       Type* type;
 };
@@ -49,8 +49,6 @@ extern int yyerror(const char*);
 %token <id> T_ID
 %token <str> T_STR
 %token <num> T_NUM
-%token <num> T_INT
-%token <num> T_BOOL
 
 %token T_LT_EQ "<="
 %token T_GT_EQ ">="
@@ -71,12 +69,12 @@ extern int yyerror(const char*);
 %left '*' '/' '%'
 %left T_UMINUS T_UPLUS '!'
 
-%type <decl> fun_decl
+%type <decl> decl fun_decl type_decl var_decl
 %type <exp> aexp exp bexp fun_call obj_lit lvalue
 %type <stmt> stmt
-%type <GList> var_decls field_decls param_decls decls decl block stmts exps
+%type <GList> var_decls field_decls param_decls decls block stmts exps
 %type <type> type field_decl
-%type <typed_id> param_decl var_decl type_decl
+%type <typed_id> param_decl
 
 %start program
 
@@ -88,32 +86,36 @@ program:
         //decls_print($1);
 	  }
 
-decls:
+decls:									{GList temp; $$=&temp;}
       | decls decl						{GList * temp = g_list_append($1, $2); $$=temp;}
 
-decl: var_decl | fun_decl | type_decl
+decl: var_decl | fun_decl | type_decl	{$$=$1;}
 
-var_decls: 
-      | var_decls var_decl		{GList * temp = g_list_append($1, $2); $$=temp;}
+var_decls: 						{GList temp; $$=&temp;}
+      | var_decls var_decl		{GList * temp = g_list_append($1, $2); 
+      							$$=temp;}
 
 var_decl: 
-      T_VAR T_ID ':' type ';'				{/*GList t; g_list_append(&t, $4); $$=&t;*/
-      										TypedId temp;
-      										temp.id = symbol_var($2);
-      										temp.type = $4;
-      										$$= &temp;
+      T_VAR T_ID ':' type ';'				{
+      										Symbol tempSym = symbol_var($2);
+      										Type tempType = type_id(tempSym);
+      										struct decl * temp = decl_new(tempSym, &tempType, NULL, NULL, NULL);
+      										$$=temp;
       										}
       										
       | T_VAR T_ID ':' type '=' exp ';'		{
-      										TypedId temp;
-      										temp.id = symbol_var($2);
-      										temp.type = $4;
-      										$$= &temp;
+      										Symbol tempSym = symbol_var($2);
+      										Type tempType = type_id(tempSym);
+      										struct decl * temp = decl_new(tempSym, &tempType, $6, NULL, NULL);
+      										$$=temp;
       										}
-      										/* NEED TO FINISH THE PART WITH THE XPRESSION */
 
 type_decl: 
-      T_TYPE T_ID ':' type ';'					{TypedId temp = typed_id(symbol_typename($2), $4); $$=&temp;}
+      T_TYPE T_ID ':' type ';'				{
+      											Symbol tempSym = symbol_typename($2);
+      											struct decl * temp = decl_new(tempSym, $4, NULL, NULL, NULL);
+      											$$= temp;
+      										}
 
 param_decl: 
       T_ID ':' type							{TypedId temp;
@@ -122,7 +124,7 @@ param_decl:
       										$$= &temp;}
 
 param_decls: 
-      param_decl							{GList t; g_list_append(&t, $1); $$=&t;}
+      param_decl							{GList t; $$ = g_list_append(&t, $1);}
       | param_decls ',' param_decl			{GList * temp = g_list_append($1, $3); $$=temp;}
 
 field_decl: 
@@ -140,13 +142,17 @@ type:
       | '{' field_decls '}'		{Type temp = type_struct($2); $$=&temp;}
 
 fun_decl: 
-      T_FUNCTION T_ID '(' param_decls ')' ':' type '{' var_decls stmts '}'		{struct decl * temp = decl_new(symbol_fun($2), $7, NULL, $9, $10);
+      T_FUNCTION T_ID '(' param_decls ')' ':' type '{' var_decls stmts '}'		{Type tempType = type_fun($4, $7);
+      																			struct decl * temp = decl_new(symbol_fun($2), &tempType, NULL, $9, $10);
       																			$$=temp;}
-      | T_FUNCTION T_ID '(' param_decls ')' '{' var_decls stmts '}'				{struct decl * temp = decl_new(symbol_fun($2), NULL, NULL, $7, $8);
+      | T_FUNCTION T_ID '(' param_decls ')' '{' var_decls stmts '}'				{Type tempType = type_fun($4, NULL);
+      																			struct decl * temp = decl_new(symbol_fun($2),&tempType, NULL, $7, $8);
       																			$$=temp;}
-      | T_FUNCTION T_ID '(' ')' ':' type '{' var_decls stmts '}'				{struct decl * temp = decl_new(symbol_fun($2), $6, NULL, $8, $9);
+      | T_FUNCTION T_ID '(' ')' ':' type '{' var_decls stmts '}'				{Type tempType = type_fun(NULL, $6);
+      																			struct decl * temp = decl_new(symbol_fun($2),&tempType, NULL, $8, $9);
       																			$$=temp;}
-      | T_FUNCTION T_ID '(' ')' '{' var_decls stmts '}'							{struct decl * temp = decl_new(symbol_fun($2), NULL, NULL, $6, $7);
+      | T_FUNCTION T_ID '(' ')' '{' var_decls stmts '}'							{Type tempType = type_fun(NULL, NULL);
+      																			struct decl * temp = decl_new(symbol_fun($2), &tempType, NULL, $6, $7);
       																			$$=temp;}
 
 exp:
@@ -232,7 +238,7 @@ lvalue:
 array_exp: array_lit | fun_call | lvalue
 struct_exp: struct_lit | fun_call | lvalue
 
-stmts: 
+stmts: 													{GList temp; $$=&temp;}
       | stmts stmt										{GList * temp = g_list_append($1, $2); $$=temp;}
 
 stmt: 
