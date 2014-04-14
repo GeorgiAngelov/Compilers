@@ -49,6 +49,8 @@ extern int yyerror(const char*);
 %token <id> T_ID
 %token <str> T_STR
 %token <num> T_NUM
+%token <num> T_INT
+%token <num> T_BOOL
 
 %token T_LT_EQ "<="
 %token T_GT_EQ ">="
@@ -73,8 +75,8 @@ extern int yyerror(const char*);
 %type <exp> aexp exp bexp fun_call obj_lit lvalue
 %type <stmt> stmt
 %type <GList> var_decls field_decls param_decls decls decl block stmts exps
-%type <Type> type field_decl
-%type <typed_id> param_decl
+%type <type> type field_decl
+%type <typed_id> param_decl var_decl type_decl
 
 %start program
 
@@ -83,7 +85,7 @@ extern int yyerror(const char*);
 program:
       decls {
         //done_parsing($1);
-        decls_print($1);
+        //decls_print($1);
 	  }
 
 decls:
@@ -92,18 +94,18 @@ decls:
 decl: var_decl | fun_decl | type_decl
 
 var_decls: 
-      | var_decls var_decl		{/*GList * temp = g_list_append($1, $2); $$=temp;*/$$=NULL;}
+      | var_decls var_decl		{GList * temp = g_list_append($1, $2); $$=temp;}
 
 var_decl: 
       T_VAR T_ID ':' type ';'				{/*GList t; g_list_append(&t, $4); $$=&t;*/
-      										TypeId temp;
+      										TypedId temp;
       										temp.id = symbol_var($2);
       										temp.type = $4;
       										$$= &temp;
       										}
       										
       | T_VAR T_ID ':' type '=' exp ';'		{
-      										TypeId temp;
+      										TypedId temp;
       										temp.id = symbol_var($2);
       										temp.type = $4;
       										$$= &temp;
@@ -111,7 +113,7 @@ var_decl:
       										/* NEED TO FINISH THE PART WITH THE XPRESSION */
 
 type_decl: 
-      T_TYPE T_ID ':' type ';'
+      T_TYPE T_ID ':' type ';'					{TypedId temp = typed_id(symbol_typename($2), $4); $$=&temp;}
 
 param_decl: 
       T_ID ':' type							{TypedId temp;
@@ -131,9 +133,9 @@ field_decls:
       | field_decls ',' field_decl		{GList * temp = g_list_append($1, $3);$$=temp;}
 
 type: 
-      T_INT						{/*Type * temp = type_int($1); $$=temp;*/}
-      | T_BOOL					{/*Type * temp = type_bool($1); $$=temp;*/}
-  	  | T_ID					{/*TypedId temp = type_id_new($1); $$=&temp;*/}
+      T_INT						{Type temp = type_int(); $$=&temp;}
+      | T_BOOL					{Type temp = type_bool(); $$=&temp;}
+  	  | T_ID					{Type temp = type_id(symbol_typename($1)); $$=&temp;}
       | '[' type ']'			{Type temp = type_array($2); $$=&temp;}
       | '{' field_decls '}'		{Type temp = type_struct($2); $$=&temp;}
 
