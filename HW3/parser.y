@@ -93,37 +93,38 @@ decls:										{$$=NULL;}
 decl: var_decl | fun_decl | type_decl		{$$=$1;}
 
 var_decls: 									{$$=NULL;}
-      | var_decls var_decl					{GList * temp = g_list_append($1, $2); 
+      | var_decls var_decl					{GList * temp = g_list_append($1, $2);
       										$$=temp;}
 
 var_decl: 
       T_VAR T_ID ':' type ';'				{
-      										Symbol tempSym = symbol_var($2);
-      										//Type tempType = type_id(tempSym);
-      										struct decl * temp = decl_new(tempSym, $4, NULL, NULL, NULL);
-      										$$=temp;
-      										}
+								Symbol tempSym = symbol_var($2);
+								//Type tempType = type_id(tempSym);
+								struct decl * temp = decl_new(tempSym, $4, NULL, NULL, NULL);
+								$$=temp;
+								}
       										
       | T_VAR T_ID ':' type '=' exp ';'		{
-      										Symbol tempSym = symbol_var($2);
-      										//Type tempType = type_id(tempSym);
-      										struct decl * temp = decl_new(tempSym, $4, $6, NULL, NULL);
-      										$$=temp;
-      										}
+								Symbol tempSym = symbol_var($2);
+								//Type tempType = type_id(tempSym);
+								struct decl * temp = decl_new(tempSym, $4, $6, NULL, NULL);
+								$$=temp;
+								}
 
 type_decl: 
       T_TYPE T_ID ':' type ';'				{
-      										Symbol tempSym = symbol_typename($2);
-      										struct decl * temp = decl_new(tempSym, $4, NULL, NULL, NULL);
-      										$$= temp;
-      										}
+									Symbol tempSym = symbol_typename($2);
+									struct decl * temp = decl_new(tempSym, $4, NULL, NULL, NULL);
+									$$= temp;
+									}
 
 param_decl: 
-      T_ID ':' type							{TypedId temp;
-      										temp.id = symbol_field($1);//symbol
-      										temp.type = $3;
-      										$$= &temp;
-      										}
+      T_ID ':' type						{
+                                                      TypedId temp;
+									temp.id = symbol_field($1);//symbol
+									temp.type = $3;
+									$$= &temp;
+									}
 
 param_decls: 
       param_decl							{GList t; $$ = g_list_append(NULL, $1);}
@@ -137,12 +138,11 @@ field_decls:
       | field_decls ',' field_decl			{GList * temp = g_list_append($1, $3);$$=temp;}
 
 type: 
-      T_INT									{/*Type temp = type_int(); $$=&temp;*/
-      										$$= type_nil(type_int());}
-      | T_BOOL								{Type temp = type_bool(); $$=&temp;}
-  	  | T_ID								{Type temp = type_id(symbol_typename($1)); $$=&temp;}
-      | '[' type ']'						{Type temp = type_array($2); $$=&temp;}
-      | '{' field_decls '}'					{Type temp = type_struct($2); $$=&temp;}
+      T_INT							{$$=type_new(type_nil());}
+      | T_BOOL						{$$=type_new(type_bool());}
+  	| T_ID						{$$=type_new(type_id(symbol_typename($1)));}
+      | '[' type ']'				      {$$=type_new(type_array($2));}
+      | '{' field_decls '}'				{$$=type_new(type_struct($2));}
 
 fun_decl: 
       T_FUNCTION T_ID '(' param_decls ')' ':' type '{' var_decls stmts '}'		{Type tempType = type_fun($4, $7);
