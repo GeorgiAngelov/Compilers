@@ -118,7 +118,7 @@ field_decls:
       | field_decls ',' field_decl			{$$ = g_list_append($1, $3);}
 
 type:                                           
-      T_INT							{$$=type_new(type_nil());}
+      T_INT							{$$=type_new(type_int());}
       | T_BOOL						{$$=type_new(type_bool());}
   	| T_ID						{$$=type_new(type_id(symbol_typename($1)));}
       | '[' type ']'				      {$$=type_new(type_array($2));}
@@ -128,7 +128,7 @@ fun_decl:
       T_FUNCTION T_ID '(' param_decls ')' ':' type '{' var_decls stmts '}'		{$$ = decl_new(symbol_fun($2), type_new(type_fun($4, $7)), NULL, $9, $10);}
       | T_FUNCTION T_ID '(' param_decls ')' '{' var_decls stmts '}'			{$$ = decl_new(symbol_fun($2), type_new(type_fun($4, NULL)), NULL, $7, $8);}
       | T_FUNCTION T_ID '(' ')' ':' type '{' var_decls stmts '}'				{$$ = decl_new(symbol_fun($2), type_new(type_fun(NULL, $6)), NULL, $8, $9);}
-      | T_FUNCTION T_ID '(' ')' '{' var_decls stmts '}'                             {$$ = decl_new(symbol_fun($2), type_new(type_fun(NULL, NULL)), NULL, $6, $7);}
+      | T_FUNCTION T_ID '(' ')' '{' var_decls stmts '}'                             {$$ = decl_new(symbol_fun($2), NULL, NULL, $6, $7);}
 
 exp:
       aexp | bexp						{$$=$1;}
@@ -140,10 +140,10 @@ aexp:
       | '+' exp %prec T_UPLUS 			{$$ = exp_binop_new(AST_EXP_PLUS, NULL, $2);}
       | '-' exp %prec T_UMINUS 			{$$ = exp_binop_new(AST_EXP_MINUS, NULL, $2);}
       | exp '-' exp 					{$$ = exp_binop_new(AST_EXP_MINUS, $1, $3);}
+      | exp '+' exp                             {$$ = exp_binop_new(AST_EXP_PLUS, $1, $3);} //This line was manually added
       | exp '/' exp 					{$$ = exp_binop_new(AST_EXP_DIV, $1, $3);}
       | exp '%' exp 					{$$ = exp_binop_new(AST_EXP_MOD, $1, $3);}
       | exp '*' exp 					{$$ = exp_binop_new(AST_EXP_MUL, $1, $3);}
-      | exp '+' exp                             {$$ = exp_binop_new(AST_EXP_PLUS, $1, $3);} //This line was manually added
 
 bexp: 
       T_TRUE						{$$ = exp_binop_new(AST_EXP_TRUE, NULL, NULL);}
