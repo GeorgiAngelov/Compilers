@@ -8,7 +8,7 @@ type x : int;
 
 type x : [int];
 
-function f (x : int) { }
+function f (x : int) { } //This is the problem ) { }
 function f (x : bool) : int { }
 
 function x (x : x) : x { }
