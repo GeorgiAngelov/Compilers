@@ -73,8 +73,8 @@ extern int yyerror(const char*);
 %type <exp> aexp exp bexp fun_call obj_lit lvalue struct_exp array_exp struct_lit array_lit
 %type <stmt> stmt
 %type <GList> var_decls field_decls param_decls decls block stmts exps field_inits
-%type <type> type field_decl
-%type <typed_id> param_decl
+%type <type> type
+%type <typed_id> param_decl field_decl
 %type <field_init> field_init
 
 %start program
@@ -111,7 +111,7 @@ param_decls:
       | param_decls ',' param_decl			{$$ = g_list_append($1, $3);}
 
 field_decl:                                          
-      T_ID ':' type					{$$=$3;}
+      T_ID ':' type					{$$=typed_id_new(typed_id(symbol_field($1), $3));}
 
 field_decls:                                    
       field_decl						{$$ = g_list_append(NULL, $1);}
@@ -126,9 +126,9 @@ type:
 
 fun_decl: 
       T_FUNCTION T_ID '(' param_decls ')' ':' type '{' var_decls stmts '}'		{$$ = decl_new(symbol_fun($2), type_new(type_fun($4, $7)), NULL, $9, $10);}
-      | T_FUNCTION T_ID '(' param_decls ')' '{' var_decls stmts '}'			{$$ = decl_new(symbol_fun($2), type_new(type_fun($4, NULL)), NULL, $7, $8);}
+      | T_FUNCTION T_ID '(' param_decls ')' '{' var_decls stmts '}'			{$$ = decl_new(symbol_fun($2), type_new(type_fun($4, type_new(type_void()))), NULL, $7, $8);}
       | T_FUNCTION T_ID '(' ')' ':' type '{' var_decls stmts '}'				{$$ = decl_new(symbol_fun($2), type_new(type_fun(NULL, $6)), NULL, $8, $9);}
-      | T_FUNCTION T_ID '(' ')' '{' var_decls stmts '}'                             {$$ = decl_new(symbol_fun($2), NULL, NULL, $6, $7);}
+      | T_FUNCTION T_ID '(' ')' '{' var_decls stmts '}'                             {$$ = decl_new(symbol_fun($2), type_new(type_fun(NULL, type_new(type_void()))), NULL, $6, $7);}
 
 exp:
       aexp | bexp						{$$=$1;}
