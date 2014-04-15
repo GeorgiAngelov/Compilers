@@ -83,59 +83,39 @@ extern int yyerror(const char*);
 
 program:
       decls {
-        //done_parsing($1);
-        decls_print($1);
-	  }
+            //done_parsing($1);
+            decls_print($1);
+	}
 
-decls:										{$$=NULL;}
-      | decls decl							{GList * temp = g_list_append($1, $2); $$=temp;}
+decls:							{$$=NULL;}
+      | decls decl					{$$ = g_list_append($1, $2);}
 
 decl: var_decl | fun_decl | type_decl		{$$=$1;}
 
-var_decls: 									{$$=NULL;}
-      | var_decls var_decl					{GList * temp = g_list_append($1, $2);
-      										$$=temp;}
+var_decls: 							{$$=NULL;}
+      | var_decls var_decl				{$$ = g_list_append($1, $2);}
 
 var_decl: 
-      T_VAR T_ID ':' type ';'				{
-								Symbol tempSym = symbol_var($2);
-								//Type tempType = type_id(tempSym);
-								struct decl * temp = decl_new(tempSym, $4, NULL, NULL, NULL);
-								$$=temp;
-								}
+      T_VAR T_ID ':' type ';'				{$$ = decl_new(symbol_var($2), $4, NULL, NULL, NULL);}
       										
-      | T_VAR T_ID ':' type '=' exp ';'		{
-								Symbol tempSym = symbol_var($2);
-								//Type tempType = type_id(tempSym);
-								struct decl * temp = decl_new(tempSym, $4, $6, NULL, NULL);
-								$$=temp;
-								}
+      | T_VAR T_ID ':' type '=' exp ';'		{$$ = decl_new(symbol_var($2), $4, $6, NULL, NULL);}
 
 type_decl: 
-      T_TYPE T_ID ':' type ';'				{
-									Symbol tempSym = symbol_typename($2);
-									struct decl * temp = decl_new(tempSym, $4, NULL, NULL, NULL);
-									$$= temp;
-									}
+      T_TYPE T_ID ':' type ';'			{$$ = decl_new(symbol_typename($2), $4, NULL, NULL, NULL);}
 
 param_decl: 
-      T_ID ':' type						{
-                                                      TypedId temp;
-									temp.id = symbol_field($1);//symbol
-									temp.type = $3;
-									$$= &temp;
-									}
+      T_ID ':' type					{$$ = typed_id_new(typed_id(symbol_field($1), $3));}
 
 param_decls: 
-      param_decl							{GList t; $$ = g_list_append(NULL, $1);}
-      | param_decls ',' param_decl			{GList * temp = g_list_append($1, $3); $$=temp;}
+      param_decl						{$$ = g_list_append(NULL, $1);}
+      | param_decls ',' param_decl			{$$ = g_list_append($1, $3);}
 
 field_decl: 
-      T_ID ':' type							{Type * temp = $3; $$=type_new(*temp);}
+      T_ID ':' type					{$$=$3;}
 
 field_decls: 
-      field_decl							{GList t; $$=g_list_append(NULL, $1);}
-      | field_decls ',' field_decl			{GList * temp = g_list_append($1, $3);$$=temp;}
+      field_decl						{$$=g_list_append(NULL, $1);}
+      | field_decls ',' field_decl			{$$ = g_list_append($1, $3);}
 
 type: 
       T_INT							{$$=type_new(type_nil());}
@@ -145,127 +125,86 @@ type:
       | '{' field_decls '}'				{$$=type_new(type_struct($2));}
 
 fun_decl: 
-      T_FUNCTION T_ID '(' param_decls ')' ':' type '{' var_decls stmts '}'		{Type tempType = type_fun($4, $7);
-      																			struct decl * temp = decl_new(symbol_fun($2), &tempType, NULL, $9, $10);
-      																			$$=temp;}
-      | T_FUNCTION T_ID '(' param_decls ')' '{' var_decls stmts '}'				{Type tempType = type_fun($4, NULL);
-      																			struct decl * temp = decl_new(symbol_fun($2),&tempType, NULL, $7, $8);
-      																			$$=temp;}
-      | T_FUNCTION T_ID '(' ')' ':' type '{' var_decls stmts '}'				{Type tempType = type_fun(NULL, $6);
-      																			struct decl * temp = decl_new(symbol_fun($2),&tempType, NULL, $8, $9);
-      																			$$=temp;}
-      | T_FUNCTION T_ID '(' ')' '{' var_decls stmts '}'							{Type tempType = type_fun(NULL, NULL);
-      																			struct decl * temp = decl_new(symbol_fun($2), &tempType, NULL, $6, $7);
-      																			$$=temp;}
+      T_FUNCTION T_ID '(' param_decls ')' ':' type '{' var_decls stmts '}'		{$$ = decl_new(symbol_fun($2), type_new(type_fun($4, $7)), NULL, $9, $10);}
+      | T_FUNCTION T_ID '(' param_decls ')' '{' var_decls stmts '}'			{$$ = decl_new(symbol_fun($2), type_new(type_fun($4, NULL)), NULL, $7, $8);}
+      | T_FUNCTION T_ID '(' ')' ':' type '{' var_decls stmts '}'				{$$ = decl_new(symbol_fun($2), type_new(type_fun(NULL, $6)), NULL, $8, $9);}
+      | T_FUNCTION T_ID '(' ')' '{' var_decls stmts '}'					{$$ = decl_new(symbol_fun($2), type_new(type_fun(NULL, NULL)), NULL, $6, $7);}
 
 exp:
-      aexp | bexp							{$$=$1;}
+      aexp | bexp						{$$=$1;}
       | obj_lit | fun_call | lvalue			{$$=$1;}
-      | '(' exp ')'							{$$=$2;}
+      | '(' exp ')'					{$$=$2;}
 
 aexp: 
-      T_NUM 								{struct exp* temp = exp_num_new($1);
-      										$$=temp;}
-      | '+' exp %prec T_UPLUS 				{struct exp* temp = exp_new(AST_EXP_PLUS);
-      										temp->right = $2;
-      										$$= temp;}
-      | '-' exp %prec T_UMINUS 				{struct exp* temp = exp_new(AST_EXP_MINUS);
-      										temp->right = $2;
-      										$$= temp;}
-      | exp '+' exp 						{struct exp* temp = exp_new(AST_EXP_PLUS);
-      										temp->left = $1;
-      										temp->right = $3;
-      										$$= temp;}
-      | exp '-' exp 						{struct exp* temp = exp_new(AST_EXP_MINUS);
-      										temp->left = $1;
-      										temp->right = $3;
-      										$$= temp;}
-      | exp '/' exp 						{struct exp* temp = exp_new(AST_EXP_DIV);
-      										temp->left = $1;
-      										temp->right = $3;
-      										$$= temp;}
-      | exp '%' exp 						{struct exp* temp = exp_new(AST_EXP_MOD);
-      										temp->left = $1;
-      										temp->right = $3;
-      										$$= temp;}
-      | exp '*' exp 						{struct exp* temp = exp_new(AST_EXP_MUL);
-      										//exp_print(temp);
-      										temp->left = $1;
-      										temp->right = $3;
-											$$ = temp;}
+      T_NUM 						{$$=exp_num_new($1);}
+      | '+' exp %prec T_UPLUS 			{$$ = exp_binop_new(AST_EXP_PLUS, NULL, $2);}
+      | '-' exp %prec T_UMINUS 			{$$ = exp_binop_new(AST_EXP_MINUS, NULL, $2);}
+      | exp '-' exp 					{$$ = exp_binop_new(AST_EXP_MINUS, $1, $3);}
+      | exp '/' exp 					{$$ = exp_binop_new(AST_EXP_DIV, $1, $3);}
+      | exp '%' exp 					{$$ = exp_binop_new(AST_EXP_MOD, $1, $3);}
+      | exp '*' exp 					{$$ = exp_binop_new(AST_EXP_MUL, $1, $3);}
 
 bexp: 
-      T_TRUE								{struct exp * temp = exp_binop_new(AST_EXP_TRUE, NULL, NULL); 
-      										$$= temp;}
-      | T_FALSE								{struct exp * temp = exp_binop_new(AST_EXP_FALSE, NULL, NULL); 
-      										$$= temp;}
-      | '!' exp								{struct exp * temp = exp_binop_new(AST_EXP_NOT, NULL, $2); 
-      										$$=temp;}
-      | exp '|' exp							{struct exp * temp = exp_binop_new(AST_EXP_OR, $1, $3); 
-      										$$=temp;}
-      | exp '&' exp							{struct exp * temp = exp_binop_new(AST_EXP_AND, $1, $3); 
-      										$$=temp;}
-      | exp '<' exp							{struct exp * temp = exp_binop_new(AST_EXP_LT, $1, $3); 
-      										$$=temp;}
-      | exp "<=" exp						{struct exp * temp = exp_binop_new(AST_EXP_LT_EQ, $1, $3); 
-      										$$=temp;}
-      | exp '>' exp							{struct exp * temp = exp_binop_new(AST_EXP_GT, $1, $3); 
-      										$$=temp;}
-      | exp ">=" exp						{struct exp * temp = exp_binop_new(AST_EXP_GT_EQ, $1, $3); 
-      										$$=temp;}
-      | exp "==" exp						{struct exp * temp = exp_binop_new(AST_EXP_EQ, $1, $3); 
-      										$$=temp;}
-      | exp "!=" exp						{struct exp * temp = exp_binop_new(AST_EXP_NOT_EQ, $1, $3); 
-      										$$=temp;}
+      T_TRUE						{$$ = exp_binop_new(AST_EXP_TRUE, NULL, NULL);}
+      | T_FALSE						{$$ = exp_binop_new(AST_EXP_FALSE, NULL, NULL);}
+      | '!' exp						{$$ = exp_binop_new(AST_EXP_NOT, NULL, $2);}
+      | exp '|' exp					{$$ = exp_binop_new(AST_EXP_OR, $1, $3);}
+      | exp '&' exp					{$$ = exp_binop_new(AST_EXP_AND, $1, $3);}
+      | exp '<' exp					{$$ = exp_binop_new(AST_EXP_LT, $1, $3);}
+      | exp "<=" exp					{$$ = exp_binop_new(AST_EXP_LT_EQ, $1, $3);}
+      | exp '>' exp					{$$ = exp_binop_new(AST_EXP_GT, $1, $3);}
+      | exp ">=" exp					{$$ = exp_binop_new(AST_EXP_GT_EQ, $1, $3);}
+      | exp "==" exp					{$$ = exp_binop_new(AST_EXP_EQ, $1, $3);}
+      | exp "!=" exp					{$$ = exp_binop_new(AST_EXP_NOT_EQ, $1, $3);}
 
-obj_lit: array_lit | struct_lit				{$$=$1;}
-      | T_NIL								{$$= exp_new(AST_EXP_NIL);}
+obj_lit: array_lit | struct_lit			{$$=$1;}
+      | T_NIL						{$$= exp_new(AST_EXP_NIL);}
 	
 array_lit:									
-      '[' exps ']'							{$$= exp_array_lit_new($2);}
-      | T_STR								{$$= exp_str_new($1);}
+      '[' exps ']'					{$$= exp_array_lit_new($2);}
+      | T_STR						{$$= exp_str_new($1);}
 	
 exps: 	
-      exp									{GList t; $$ = g_list_append(NULL, $1);}
-      | exps ',' exp						{GList * temp = g_list_append($1, $3);$$=temp;}
+      exp							{$$ = g_list_append(NULL, $1);}
+      | exps ',' exp					{$$ = g_list_append($1, $3);}
 	
 struct_lit:									
-      '{' field_inits '}'					{$$= exp_struct_lit_new($2);}
+      '{' field_inits '}'				{$$ = exp_struct_lit_new($2);}
 	
 field_init: 								
-      T_ID '=' exp							{$$= field_init_new(symbol_field($1), $3);}
+      T_ID '=' exp					{$$= field_init_new(symbol_field($1), $3);}
 	
 field_inits: 								
-      field_init							{GList t; $$ = g_list_append(NULL, $1);}
-      | field_inits ',' field_init			{GList * temp = g_list_append($1, $3); $$=temp;}
+      field_init						{$$ = g_list_append(NULL, $1);}
+      | field_inits ',' field_init			{$$ = g_list_append($1, $3);}
 	
 fun_call:	
-      T_ID '(' exps ')'						{$$= exp_fun_call_new(symbol_fun($1) ,$3);}
-      | T_ID '(' ')'						{$$= exp_fun_call_new(symbol_fun($1), NULL);}
+      T_ID '(' exps ')'					{$$= exp_fun_call_new(symbol_fun($1) ,$3);}
+      | T_ID '(' ')'					{$$= exp_fun_call_new(symbol_fun($1), NULL);}
 
 lvalue: //returns an expr *
-      T_ID									{$$= exp_id_new(symbol_var($1));}
-      | struct_exp '.' T_ID					{$$= exp_field_lookup_new($1, symbol_field($3));}
+      T_ID							{$$= exp_id_new(symbol_var($1));}
+      | struct_exp '.' T_ID				{$$= exp_field_lookup_new($1, symbol_field($3));}
       | array_exp '[' exp ']'				{$$= exp_array_index_new($1, $3);}
 
-array_exp: array_lit | fun_call | lvalue				{$$=$1;}
-struct_exp: struct_lit | fun_call | lvalue				{$$=$1;}
+array_exp: array_lit | fun_call | lvalue		{$$=$1;}
+struct_exp: struct_lit | fun_call | lvalue	{$$=$1;}
 
-stmts: 													{$$=NULL;}
-      | stmts stmt										{GList * temp = g_list_append($1, $2); $$=temp;}
+stmts: 							{$$=NULL;}
+      | stmts stmt					{$$ = g_list_append($1, $2);}
 
 stmt: 
-      exp ';'											{struct stmt * temp = stmt_exp_new($1); $$=temp;}
-      | lvalue '=' exp ';'								{struct stmt * temp = stmt_assign_new($1, $3); $$=temp;}
-      | T_IF '(' exp ')' block T_ELSE block				{struct stmt * temp = stmt_if_new($3, $5, $7); $$=temp;}
-      | T_IF '(' exp ')' block							{struct stmt * temp = stmt_if_new($3, $5, NULL); $$=temp;}
-      | T_WHILE '(' exp ')' block						{struct stmt * temp = stmt_while_new($3, $5); $$=temp;}
-      | T_FOR '(' lvalue '=' exp T_TO exp ')' block		{struct stmt * temp = stmt_for_new($3, $5, $7, $9); $$=temp;}
-      | T_RETURN '(' exp ')' ';'						{struct stmt * temp = stmt_return_new($3); $$=temp;}
-      | T_RETURN ';'									{struct stmt * temp = stmt_return_new(NULL); $$=temp;}
+      exp ';'								{$$ = stmt_exp_new($1);}
+      | lvalue '=' exp ';'						{$$ = stmt_assign_new($1, $3);}
+      | T_IF '(' exp ')' block T_ELSE block			{$$ = stmt_if_new($3, $5, $7);}
+      | T_IF '(' exp ')' block					{$$ = stmt_if_new($3, $5, NULL);}
+      | T_WHILE '(' exp ')' block					{$$ = stmt_while_new($3, $5);}
+      | T_FOR '(' lvalue '=' exp T_TO exp ')' block		{$$ = stmt_for_new($3, $5, $7, $9);}
+      | T_RETURN '(' exp ')' ';'					{$$ = stmt_return_new($3);}
+      | T_RETURN ';'							{$$ = stmt_return_new(NULL);}
 
 block:
-      '{' stmts '}'										{$$=$2;}
+      '{' stmts '}'					{$$=$2;}
 
 %%
 
