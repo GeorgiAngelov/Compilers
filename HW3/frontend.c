@@ -33,27 +33,22 @@ void build_environment(GList * node)
 		}
 		else
 		{
+			Symbol tmp = ((struct decl *)it->data)->id;
 			//build global declarations
-			switch (((struct decl *)it->data)->id.class)
-			{
-				case SYMBOL_VAR:
-				printf("Var\n");
-				break;
-				case SYMBOL_FIELD:
-				printf("Field\n");
-				break;
-				case SYMBOL_FUN:
-				printf("Fun\n");
-				break;
-				case SYMBOL_TYPENAME:
-				printf("Typename\n");
-				break;
-				case SYMBOL_INVALID:
-				printf("Invalid\n");
-				break;
+			if(symbol_is_var(tmp)){
+				printf("Symbol is VAR\n");
+			}else if(symbol_is_field(tmp)){
+				printf("Symbol is FIELD\n");
+			}else if(symbol_is_fun(tmp)){
+				printf("Symbol is FUN\n");
+			}else if(symbol_is_typename(tmp)){
+				printf("Symbol is Typename\n");
+			}else if(!symbol_is_valid(tmp)){
+				printf("Symbol is Invalid\n");
+			}else{
+				printf("Something went wrong and I have no SYMBOL for this\n");
 			}
 		}
-		
 		it = g_list_next(it);
 	}
 	
