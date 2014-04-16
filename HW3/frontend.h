@@ -7,6 +7,6 @@
 void done_parsing(GList* parse_result);
 
 //Builds the Environment
-void build_environment(GList * node);
+//void build_environment(GList * node, Env* parent_env);
 
 #endif

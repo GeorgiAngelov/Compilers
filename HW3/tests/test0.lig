@@ -1,1 +1,7 @@
-var x : int = 5*5;
+function main(args : [[int]]) : int {
+	var i : int = 0;
+	
+	return (0);
+}
+
+
