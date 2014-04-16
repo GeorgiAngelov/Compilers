@@ -19,6 +19,7 @@ struct fun_info {
 
 extern int yylex(void);
 extern int yyerror(const char*);
+extern Env* prog_env;
 
 }
 
@@ -83,7 +84,7 @@ extern int yyerror(const char*);
 
 program:
       decls {
-            //done_parsing($1);
+            done_parsing($1);
             decls_print($1);
 	}
 
@@ -96,22 +97,36 @@ var_decls: 							{$$=NULL;}
       | var_decls var_decl				{$$ = g_list_append($1, $2);}
 
 var_decl: 
-      T_VAR T_ID ':' type ';'				{$$ = decl_new(symbol_var($2), $4, NULL, NULL, NULL);}
+      T_VAR T_ID ':' type ';'				{
+      							Symbol tempSym = symbol_var($2);
+      							//env_insert(prog_env,tempSym,$4);
+      							$$ = decl_new(tempSym, $4, NULL, NULL, NULL);
+      							}
       										
-      | T_VAR T_ID ':' type '=' exp ';'		{$$ = decl_new(symbol_var($2), $4, $6, NULL, NULL);}
+      | T_VAR T_ID ':' type '=' exp ';'		{
+      							Symbol tempSym = symbol_var($2);
+      							//env_insert(prog_env,tempSym,$4);
+      							$$ = decl_new(tempSym, $4, $6, NULL, NULL);}
 
 type_decl: 
-      T_TYPE T_ID ':' type ';'			{$$ = decl_new(symbol_typename($2), $4, NULL, NULL, NULL);}
+      T_TYPE T_ID ':' type ';'			{
+      							Symbol tempSym = symbol_typename($2);
+      							//env_insert(prog_env,tempSym,$4);
+      							$$ = decl_new(tempSym, $4, NULL, NULL, NULL);}
 
 param_decl: 
-      T_ID ':' type					{$$ = typed_id_new(typed_id(symbol_field($1), $3));}
-
+      T_ID ':' type					{
+      							//env_insert(prog_env,symbol_field($1),$3);
+      							$$ = typed_id_new(typed_id(symbol_field($1), $3));}
+      
 param_decls: 
       param_decl						{$$ = g_list_append(NULL, $1);}
       | param_decls ',' param_decl			{$$ = g_list_append($1, $3);}
 
 field_decl:                                          
-      T_ID ':' type					{$$=typed_id_new(typed_id(symbol_field($1), $3));}
+      T_ID ':' type					{
+      							//env_insert(prog_env, symbol_field($1), $3);
+      							$$=typed_id_new(typed_id(symbol_field($1), $3));}
 
 field_decls:                                    
       field_decl						{$$ = g_list_append(NULL, $1);}
@@ -125,10 +140,59 @@ type:
       | '{' field_decls '}'				{$$=type_new(type_struct($2));}
 
 fun_decl: 
-      T_FUNCTION T_ID '(' param_decls ')' ':' type '{' var_decls stmts '}'		{$$ = decl_new(symbol_fun($2), type_new(type_fun($4, $7)), NULL, $9, $10);}
-      | T_FUNCTION T_ID '(' param_decls ')' '{' var_decls stmts '}'			{$$ = decl_new(symbol_fun($2), type_new(type_fun($4, type_new(type_void()))), NULL, $7, $8);}
-      | T_FUNCTION T_ID '(' ')' ':' type '{' var_decls stmts '}'				{$$ = decl_new(symbol_fun($2), type_new(type_fun(NULL, $6)), NULL, $8, $9);}
-      | T_FUNCTION T_ID '(' ')' '{' var_decls stmts '}'                             {$$ = decl_new(symbol_fun($2), type_new(type_fun(NULL, type_new(type_void()))), NULL, $6, $7);}
+      T_FUNCTION T_ID '(' param_decls ')' ':' type '{' var_decls stmts '}'		{
+      													/*env_insert_fun(prog_env, 
+      															symbol_fun($2), 
+      															type_new(type_fun($4, $7)),
+      															env_new(), 
+      															$10);
+      													*/		
+      													$$ = decl_new(symbol_fun($2),
+      															type_new(type_fun($4, $7)),
+      															NULL,
+      															$9, 
+      															$10);
+      													}
+      | T_FUNCTION T_ID '(' param_decls ')' '{' var_decls stmts '}'			{
+      	      											/*env_insert_fun(prog_env, 
+      															symbol_fun($2), 
+      															type_new(type_fun($4, type_new(type_void()))),
+      															env_new(), 
+      															$8);
+      													*/		
+      													$$ = decl_new(symbol_fun($2),
+      															type_new(type_fun($4, type_new(type_void()))),
+      															NULL,
+      															$7,
+      															$8);
+      													}
+      | T_FUNCTION T_ID '(' ')' ':' type '{' var_decls stmts '}'				{
+      			      									/*env_insert_fun(prog_env, 
+      															symbol_fun($2), 
+      															type_new(type_fun(NULL, $6)),
+      															env_new(), 
+      															$9);
+      													*/		
+      													$$ = decl_new(symbol_fun($2),
+      															type_new(type_fun(NULL, $6)),
+      															NULL,
+      															$8,
+      															$9);
+      													}
+      | T_FUNCTION T_ID '(' ')' '{' var_decls stmts '}'                             {
+           													/*env_insert_fun(prog_env, 
+      															symbol_fun($2), 
+      															type_new(type_fun(NULL, type_new(type_void()))),
+      															env_new(), 
+      															$7);
+      													*/		
+      													$$ = decl_new(symbol_fun($2),
+      															type_new(type_fun(NULL, type_new(type_void()))),
+      															NULL,
+      															$6,
+      															$7);
+      													}
+      
 
 exp:
       aexp | bexp						{$$=$1;}

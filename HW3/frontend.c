@@ -10,28 +10,79 @@
 #include <glib.h>
 
 int yyparse(void);
+Env* prog_env;
+GList * global_ast;
 
 void done_parsing(GList* parse_result) {
-      /* Save the AST root. */
-	  printf("Hello there!!\n");
+      global_ast = parse_result; 
+	  //printf("Hello there!!\n");
+}
+
+void build_environment(GList * node)
+{
+	GList * it = g_list_first(node);
+	
+	while(it != NULL)
+	{
+		//check type of decl
+		if(symbol_is_fun(((struct decl *)it->data)->id))
+		{
+			//build local env, function parameters, other things for type checking (clash, set type of decl to be invalid)
+			printf("function\n");
+			//build_environment(((struct decl *)it->data)->decls);
+		}
+		else
+		{
+			//build global declarations
+			switch (((struct decl *)it->data)->id.class)
+			{
+				case SYMBOL_VAR:
+				printf("Var\n");
+				break;
+				case SYMBOL_FIELD:
+				printf("Field\n");
+				break;
+				case SYMBOL_FUN:
+				printf("Fun\n");
+				break;
+				case SYMBOL_TYPENAME:
+				printf("Typename\n");
+				break;
+				case SYMBOL_INVALID:
+				printf("Invalid\n");
+				break;
+			}
+		}
+		
+		it = g_list_next(it);
+	}
+	
 }
 
 int main(int argc, char** argv) {
       yyin = argc > 1? fopen(argv[1], "r") : stdin;
 
+	
+	
       if (yyparse()) {
             fprintf(stderr, "Error: failed to parse.\n");
             if (yyin != stdin) fclose(yyin);
             exit(EXIT_FAILURE);
       }
+      
+      printf("\n");
 
       /* Build the global environment, do typechecking. */
-
+	build_environment(global_ast);
+	
       if (yyin != stdin) fclose(yyin);
       yylex_destroy();
       
-      printf("\n");
+      
       
       exit(EXIT_SUCCESS);
 }
+
+
+
 
