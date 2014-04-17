@@ -209,16 +209,16 @@ void list_print_with_sep(GList*, PrintFunc, const char* sep);
 // Print.
 void decl_print_type(struct decl*, Env*);
 void decls_print_type(GList*, Env*);
-void exp_print_type(struct exp*);
-void exps_print_type(GList*);
-void id_print_type(Symbol);
-void field_init_print_type(struct field_init*);
-void field_inits_print_type(GList*);
-void stmt_print_type(struct stmt*);
-void stmts_print_type(GList*);
+void exp_print_type(struct exp*, Env*);
+void exps_print_type(GList*, Env*);
+void id_print_type(Symbol, Env*);
+void field_init_print_type(struct field_init*, Env*);
+void field_inits_print_type(GList*, Env*);
+void stmt_print_type(struct stmt*, Env*);
+void stmts_print_type(GList*, Env*);
 
-void list_print_spaced_type(GList*, PrintFunc);
-void list_print_commad_type(GList*, PrintFunc);
-void list_print_with_sep_type(GList*, PrintFunc, const char* sep);
+void list_print_spaced_type(GList*, PrintFunc, Env*);
+void list_print_commad_type(GList*, PrintFunc, Env*);
+void list_print_with_sep_type(GList*, PrintFunc, const char* sep, Env*);
 
 #endif

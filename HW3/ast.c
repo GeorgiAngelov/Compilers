@@ -7,7 +7,7 @@
 
 static struct stmt* stmt_new(int class);
 static void binop_print(const char* op, struct exp* left, struct exp* right);
-static void binop_print_type(const char* op, struct exp* left, struct exp* right);
+static void binop_print_type(const char* op, struct exp* left, struct exp* right, Env*);
 
 #define SHIFTWIDTH 3
 static int indent;
@@ -571,16 +571,16 @@ void decl_print_type(struct decl* d, Env* env) {
             printf("decl-type ");
       }
 
-      id_print_type(d->id);
+      id_print_type(d->id, env);
       printf(" ");
       type_print(d->type);
 
       if (d->exp) {
             printf(" ");
-            exp_print_type(d->exp);
+            exp_print_type(d->exp, env);
       } else if (d->decls || d->stmts) {
             decls_print_type(d->decls, env);
-            stmts_print_type(d->stmts);
+            stmts_print_type(d->stmts, env);
       }
       printf(")");
       indent_exit();
@@ -594,68 +594,68 @@ void decls_print_type(GList* decls, Env* env) {
       indent_exit();
 }
 
-static void binop_print_type(const char* op, struct exp* left, struct exp* right) {
+static void binop_print_type(const char* op, struct exp* left, struct exp* right, Env *env) {
       printf("%s ", op);
-      exp_print_type(left);
+      exp_print_type(left, env);
       printf(" ");
-      exp_print_type(right);
+      exp_print_type(right, env);
 }
 
-void id_print_type(Symbol symbol) {
+void id_print_type(Symbol symbol, Env *env) {
       printf("(id %s)", symbol_to_str(symbol));
 }
 
-void exp_print_type(struct exp* exp) {
+void exp_print_type(struct exp* exp, Env *env) {
       if (!exp) return;
       printf("(");
       switch (exp->class) {
             case AST_EXP_PLUS:
-                  binop_print_type("+", exp->left, exp->right);
+                  binop_print_type("+", exp->left, exp->right,env);
                   break;
             case AST_EXP_MINUS:
-                  binop_print_type("-", exp->left, exp->right);
+                  binop_print_type("-", exp->left, exp->right,env);
                   break;
             case AST_EXP_DIV:
-                  binop_print_type("/", exp->left, exp->right);
+                  binop_print_type("/", exp->left, exp->right,env);
                   break;
             case AST_EXP_MOD:
-                  binop_print_type("%", exp->left, exp->right);
+                  binop_print_type("%", exp->left, exp->right,env);
                   break;
             case AST_EXP_MUL:
-                  binop_print_type("*", exp->left, exp->right);
+                  binop_print_type("*", exp->left, exp->right,env);
                   break;
 
             case AST_EXP_OR:
-                  binop_print_type("|", exp->left, exp->right);
+                  binop_print_type("|", exp->left, exp->right,env);
                   break;
             case AST_EXP_AND:
-                  binop_print_type("&", exp->left, exp->right);
+                  binop_print_type("&", exp->left, exp->right,env);
                   break;
             case AST_EXP_NOT:
-                  printf("! "); exp_print_type(exp->right);
+                  printf("! "); exp_print_type(exp->right,env);
                   break;
             case AST_EXP_LT:
-                  binop_print_type("<", exp->left, exp->right);
+                  binop_print_type("<", exp->left, exp->right,env);
                   break;
             case AST_EXP_LT_EQ:
-                  binop_print_type("<=", exp->left, exp->right);
+                  binop_print_type("<=", exp->left, exp->right,env);
                   break;
             case AST_EXP_GT:
-                  binop_print_type(">", exp->left, exp->right);
+                  binop_print_type(">", exp->left, exp->right,env);
                   break;
             case AST_EXP_GT_EQ:
-                  binop_print_type(">=", exp->left, exp->right);
+                  binop_print_type(">=", exp->left, exp->right,env);
                   break;
 
             case AST_EXP_EQ:
-                  binop_print_type("==", exp->left, exp->right);
+                  binop_print_type("==", exp->left, exp->right,env);
                   break;
             case AST_EXP_NOT_EQ:
-                  binop_print_type("!=", exp->left, exp->right);
+                  binop_print_type("!=", exp->left, exp->right,env);
                   break;
 
             case AST_EXP_NUM:
-                  printf("num %d", exp->num);
+                  printf("num %d", exp->num,env);
                   break;
             case AST_EXP_TRUE:
                   printf("true");
@@ -675,58 +675,58 @@ void exp_print_type(struct exp* exp) {
 
             case AST_EXP_STRUCT_LIT:
                   printf("struct-lit ");
-                  field_inits_print_type(exp->params);
+                  field_inits_print_type(exp->params,env);
                   break;
 
             case AST_EXP_ARRAY_LIT:
                   printf("array-lit ");
-                  exps_print_type(exp->params);
+                  exps_print_type(exp->params,env);
                   break;
 
             case AST_EXP_FUN_CALL:
                   printf("fun-call ");
-                  id_print_type(exp->id);
+                  id_print_type(exp->id,env);
                   printf(" ");
-                  exps_print_type(exp->params);
+                  exps_print_type(exp->params,env);
                   break;
 
             case AST_EXP_ARRAY_INDEX:
                   printf("array-idx ");
-                  exp_print_type(exp->left);
+                  exp_print_type(exp->left,env);
                   printf(" ");
-                  exp_print_type(exp->right);
+                  exp_print_type(exp->right,env);
                   break;
             case AST_EXP_FIELD_LOOKUP:
                   printf("field-lkup ");
-                  exp_print_type(exp->left);
+                  exp_print_type(exp->left,env);
                   printf(" ");
-                  id_print_type(exp->id);
+                  id_print_type(exp->id,env);
       }
       printf(")");
 }
 
-void exps_print_type(GList* exps) {
+void exps_print_type(GList* exps,Env *env) {
       printf("(exps");
       if (exps) printf(" ");
-      list_print_spaced(exps, (PrintFunc)exp_print_type);
+      list_print_spaced_type(exps, (PrintFunc)exp_print_type, env);
       printf(")");
 }
 
-void field_init_print_type(struct field_init* fi) {
+void field_init_print_type(struct field_init* fi,Env *env) {
       printf("(field-init ");
-      id_print_type(fi->id);
+      id_print_type(fi->id, env);
       printf(" ");
-      exp_print_type(fi->init);
+      exp_print_type(fi->init,env);
       printf(")");
 }
 
-void field_inits_print_type(GList* field_inits) {
+void field_inits_print_type(GList* field_inits,Env *env) {
       printf("(field-inits ");
-      list_print_spaced(field_inits, (PrintFunc)field_init_print_type);
+      list_print_spaced_type(field_inits, (PrintFunc)field_init_print_type, env);
       printf(")");
 }
 
-void stmt_print_type(struct stmt* stmt) {
+void stmt_print_type(struct stmt* stmt,Env *env) {
       assert(stmt);
       indent_enter();
       printf("(");
@@ -734,44 +734,44 @@ void stmt_print_type(struct stmt* stmt) {
             case AST_STMT_EXP:
                   printf("exp-stmt");
                   if (stmt->exp) printf(" ");
-                  exp_print_type(stmt->exp);
+                  exp_print_type(stmt->exp,env);
                   break;
 
             case AST_STMT_ASSIGN:
                   printf("assign ");
-                  exp_print_type(stmt->left);
+                  exp_print_type(stmt->left,env);
                   printf(" ");
-                  exp_print_type(stmt->right);
+                  exp_print_type(stmt->right,env);
                   break;
 
             case AST_STMT_IF:
                   printf("if ");
-                  exp_print_type(stmt->exp);
-                  stmts_print_type(stmt->block1);
-                  stmts_print_type(stmt->block2);
+                  exp_print_type(stmt->exp,env);
+                  stmts_print_type(stmt->block1,env);
+                  stmts_print_type(stmt->block2,env);
                   break;
 
             case AST_STMT_WHILE:
                   printf("while ");
-                  exp_print_type(stmt->exp);
-                  stmts_print_type(stmt->block1);
+                  exp_print_type(stmt->exp,env);
+                  stmts_print_type(stmt->block1,env);
                   break;
 
             case AST_STMT_FOR:
                   printf("for ");
-                  exp_print_type(stmt->left);
+                  exp_print_type(stmt->left,env);
                   printf(" ");
-                  exp_print_type(stmt->exp);
+                  exp_print_type(stmt->exp,env);
                   printf(" ");
-                  exp_print_type(stmt->right);
-                  stmts_print_type(stmt->block1);
+                  exp_print_type(stmt->right,env);
+                  stmts_print_type(stmt->block1,env);
                   break;
 
             case AST_STMT_RETURN:
                   printf("return");
                   if (stmt->exp) {
                         printf(" ");
-                        exp_print_type(stmt->exp);
+                        exp_print_type(stmt->exp,env);
                   }
                   break;
       }
@@ -779,7 +779,7 @@ void stmt_print_type(struct stmt* stmt) {
       indent_exit();
 }
 
-void stmts_print_type(GList* stmts) {
+void stmts_print_type(GList* stmts,Env *env) {
       indent_enter();
       printf("(stmts");
       g_list_foreach(stmts, (GFunc)stmt_print_type, NULL);
@@ -787,15 +787,15 @@ void stmts_print_type(GList* stmts) {
       indent_exit();
 }
 
-void list_print_spaced_type(GList* list, PrintFunc print) {
-      list_print_with_sep_type(list, print, " ");
+void list_print_spaced_type(GList* list, PrintFunc print,Env *env) {
+      list_print_with_sep_type(list, print, " ", env);
 }
 
-void list_print_commad_type(GList* list, PrintFunc print) {
-      list_print_with_sep_type(list, print, ", ");
+void list_print_commad_type(GList* list, PrintFunc print,Env *env) {
+      list_print_with_sep_type(list, print, ", ", env);
 }
 
-void list_print_with_sep_type(GList* list, PrintFunc print, const char* sep) {
+void list_print_with_sep_type(GList* list, PrintFunc print, const char* sep,Env *env) {
       GList* itr;
       for (itr = g_list_first(list); itr != g_list_last(itr); itr = g_list_next(itr)) {
             print(itr->data);
