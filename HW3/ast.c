@@ -566,6 +566,11 @@ void decl_print_type(struct decl* d, Env* env) {
       if (symbol_is_var(d->id)) {
             printf("decl-var ");
       } else if (symbol_is_fun(d->id)) {
+			//check for main
+			if(strcmp(symbol_to_str(d->id),"main") == 0){
+				printf("Main is declared!!!!\n");
+				//main_declared = 1;
+			}
             printf("decl-fun ");
       } else if (symbol_is_typename(d->id)) {
             printf("decl-type ");
@@ -655,7 +660,7 @@ void exp_print_type(struct exp* exp, Env *env) {
                   break;
 
             case AST_EXP_NUM:
-                  printf("num %d", exp->num,env);
+                  printf("num %d", exp->num);
                   break;
             case AST_EXP_TRUE:
                   printf("true");
