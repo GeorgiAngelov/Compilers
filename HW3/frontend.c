@@ -38,8 +38,9 @@ void build_environment(GList * node, Env * parent_env)
 			env_insert_fun(parent_env, node->id, node->type, fun_env, node->stmts);
 			
 			//other things for type checking (clash, set type of decl to be invalid)
-			printf("function\n");
-			
+			//printf("function\n");
+			printf("%s", node->id);
+
 			build_environment(node->decls, fun_env);
 		}
 		else

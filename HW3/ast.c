@@ -558,19 +558,18 @@ void list_print_with_sep(GList* list, PrintFunc print, const char* sep) {
 
 
 
-/////////////////////////////////TYPECHECKINGGGGGGGG/////////////////////
+/////////////////////////TYPECHECKINGGGGGGGG/////////////////////
 
 void decl_print_type(struct decl* d, Env* env) {
-	  indent_enter();
+	indent_enter();
       printf("(");
       if (symbol_is_var(d->id)) {
             printf("decl-var ");
       } else if (symbol_is_fun(d->id)) {
-			//check for main
-			if(strcmp(symbol_to_str(d->id),"main") == 0){
-				printf("Main is declared!!!!\n");
-				//main_declared = 1;
-			}
+		//check for main
+		if(strcmp(symbol_to_str(d->id),"main") == 0){
+			printf("Main is declared!!!!\n");
+		}
             printf("decl-fun ");
       } else if (symbol_is_typename(d->id)) {
             printf("decl-type ");
