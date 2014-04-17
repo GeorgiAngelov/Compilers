@@ -1,8 +1,0 @@
-
-Symbol is VAR
-Symbol is VAR
-Symbol is VAR
-(decls
-   (decl-var (id x) (type-int) (id y))
-   (decl-var (id y) (type-int) (id y))
-   (decl-var (id z) (type-array (type-int)) (array-lit (exps (id x) (id y) (id z)))))
