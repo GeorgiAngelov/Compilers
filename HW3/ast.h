@@ -203,4 +203,22 @@ void list_print_spaced(GList*, PrintFunc);
 void list_print_commad(GList*, PrintFunc);
 void list_print_with_sep(GList*, PrintFunc, const char* sep);
 
+
+
+///THIS IS FOR TYPECHECKING!!!!!!!!!!!!!!!
+// Print.
+void decl_print_type(struct decl*, Env*);
+void decls_print_type(GList*, Env*);
+void exp_print_type(struct exp*);
+void exps_print_type(GList*);
+void id_print_type(Symbol);
+void field_init_print_type(struct field_init*);
+void field_inits_print_type(GList*);
+void stmt_print_type(struct stmt*);
+void stmts_print_type(GList*);
+
+void list_print_spaced_type(GList*, PrintFunc);
+void list_print_commad_type(GList*, PrintFunc);
+void list_print_with_sep_type(GList*, PrintFunc, const char* sep);
+
 #endif

@@ -44,7 +44,6 @@ void build_environment(GList * node, Env * parent_env)
 		}
 		else
 		{
-			
 			//build global declarations
 			if(symbol_is_var(node->id)){
 				printf("Symbol is VAR\n");
@@ -85,8 +84,10 @@ int main(int argc, char** argv) {
       /* Build the global environment, do typechecking. */
       prog_env = env_new();
 	build_environment(global_ast, prog_env);
+	//call our function to print the prog environmnet
+	decls_print_type(global_ast, prog_env);
 	
-	env_print(prog_env);
+	//env_print(prog_env);
       if (yyin != stdin) fclose(yyin);
       yylex_destroy();
       
