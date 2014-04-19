@@ -35,11 +35,12 @@ void build_environment(GList * node, Env * parent_env)
 			//build_environment(node->type->fun.params, fun_env);
 			
 			//insert function env into parent env.
+			printf("Look HERE: %d...", env_contains(parent_env, node->id));
+			symbol_print(node->id);
 			env_insert_fun(parent_env, node->id, node->type, fun_env, node->stmts);
 			
 			//other things for type checking (clash, set type of decl to be invalid)
 			//printf("function\n");
-			printf("%s", node->id);
 
 			build_environment(node->decls, fun_env);
 		}
@@ -87,6 +88,7 @@ int main(int argc, char** argv) {
 	build_environment(global_ast, prog_env);
 	//call our function to print the prog environmnet
 	decls_print_type(global_ast, prog_env);
+	printf("\n");
 	
 	//env_print(prog_env);
       if (yyin != stdin) fclose(yyin);

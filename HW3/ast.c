@@ -564,12 +564,15 @@ void decl_print_type(struct decl* d, Env* env) {
 	indent_enter();
       printf("(");
       if (symbol_is_var(d->id)) {
+            // if(strcmp(symbol_to_str(d->id),"main") {
+                  
+            // }
             printf("decl-var ");
       } else if (symbol_is_fun(d->id)) {
 		//check for main
-		if(strcmp(symbol_to_str(d->id),"main") == 0){
-			printf("Main is declared!!!!\n");
-		}
+            printf("Look HERE: %d...", env_contains(env, d->id));
+            symbol_print(d->id);
+
             printf("decl-fun ");
       } else if (symbol_is_typename(d->id)) {
             printf("decl-type ");
