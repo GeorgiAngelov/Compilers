@@ -12,6 +12,7 @@
 int yyparse(void);
 Env* prog_env;
 GList * global_ast;
+int main_declared = 0;
 
 void done_parsing(GList* parse_result) {
       global_ast = parse_result; 
@@ -31,16 +32,15 @@ void build_environment(GList * node, Env * parent_env)
 		{
 			//build local env, 
 			Env * fun_env = env_new();
-			//function parameters?
-			//build_environment(node->type->fun.params, fun_env);
 			
-			//insert function env into parent env.
-			printf("Look HERE: %d...", env_contains(parent_env, node->id));
-			symbol_print(node->id);
+			if(strcmp(symbol_to_str(node->id),"main") == 0){
+				main_declared = 1;
+			}
+
+			//insert function env into parent envt
 			env_insert_fun(parent_env, node->id, node->type, fun_env, node->stmts);
 			
 			//other things for type checking (clash, set type of decl to be invalid)
-			//printf("function\n");
 
 			build_environment(node->decls, fun_env);
 		}
@@ -89,12 +89,14 @@ int main(int argc, char** argv) {
 	//call our function to print the prog environmnet
 	decls_print_type(global_ast, prog_env);
 	printf("\n");
+
+  if(main_declared==0) {
+  	printf("Function main() not defined or has wrong type!\n");
+  }
 	
 	//env_print(prog_env);
       if (yyin != stdin) fclose(yyin);
       yylex_destroy();
-      
-      
       
       exit(EXIT_SUCCESS);
 }
