@@ -17,6 +17,7 @@ enum {
       TYPE_VOID, // Type of a function that doesn't return anything.
       TYPE_NIL,  // Type of the "nil" expression.
       TYPE_OK,   // Type of statements and declarations.
+      TYPE_NONE, // Type for none
 };
 
 struct type_ {
