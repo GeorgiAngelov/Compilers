@@ -1,7 +1,1 @@
-function main(args : [[int]]) : int {
-	var i : int = 0;
-	
-	return (0);
-}
-
-
+5 + 4;

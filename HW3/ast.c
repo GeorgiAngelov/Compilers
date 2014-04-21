@@ -608,7 +608,13 @@ void decls_print_type(GList* decls, Env* env) {
 }
 
 static void binop_print_type(const char* op, struct exp* left, struct exp* right, Env *env) {
-      printf("%s ", op);
+      if(left->status == TYPE_INT && right->status == TYPE_INT) {
+            printf("%s:int ", op);
+      } else if(left->status == TYPE_BOOL && right->status == TYPE_BOOL) {
+            printf("%s:bool ", op);
+      } else {
+            printf("%s ", op);
+      }
       exp_print_type(left, env);
       printf(" ");
       exp_print_type(right, env);
@@ -623,56 +629,140 @@ void exp_print_type(struct exp* exp, Env *env) {
       printf("(");
       switch (exp->class) {
             case AST_EXP_PLUS:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_INT;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
                   binop_print_type("+", exp->left, exp->right,env);
-                  // if(symbol_is_int(exp->left->id)||type_is_ok(exp->right->id) && type_is_int(exp->right->id)||type_is_ok(exp->right->id))
-                  //       printf("It's ok!!!");
-                  // else
-                  //       printf("It's not ok!!!");
                   break;
             case AST_EXP_MINUS:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_INT;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
                   binop_print_type("-", exp->left, exp->right,env);
                   break;
             case AST_EXP_DIV:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_INT;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
                   binop_print_type("/", exp->left, exp->right,env);
                   break;
             case AST_EXP_MOD:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_INT;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
                   binop_print_type("%", exp->left, exp->right,env);
                   break;
             case AST_EXP_MUL:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_INT;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
                   binop_print_type("*", exp->left, exp->right,env);
                   break;
-
             case AST_EXP_OR:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_BOOL;
+                        exp->left->status = TYPE_BOOL;
+                        exp->right->status = TYPE_BOOL;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
                   binop_print_type("|", exp->left, exp->right,env);
                   break;
             case AST_EXP_AND:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_BOOL;
+                        exp->left->status = TYPE_BOOL;
+                        exp->right->status = TYPE_BOOL;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
                   binop_print_type("&", exp->left, exp->right,env);
                   break;
             case AST_EXP_NOT:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_BOOL;
+                        exp->left->status = TYPE_BOOL;
+                        exp->right->status = TYPE_BOOL;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
                   printf("! "); exp_print_type(exp->right,env);
                   break;
             case AST_EXP_LT:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_BOOL;
+                        exp->left->status = TYPE_BOOL;
+                        exp->right->status = TYPE_BOOL;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
                   binop_print_type("<", exp->left, exp->right,env);
                   break;
             case AST_EXP_LT_EQ:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_BOOL;
+                        exp->left->status = TYPE_BOOL;
+                        exp->right->status = TYPE_BOOL;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
                   binop_print_type("<=", exp->left, exp->right,env);
                   break;
             case AST_EXP_GT:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_BOOL;
+                        exp->left->status = TYPE_BOOL;
+                        exp->right->status = TYPE_BOOL;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
                   binop_print_type(">", exp->left, exp->right,env);
                   break;
             case AST_EXP_GT_EQ:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_BOOL;
+                        exp->left->status = TYPE_BOOL;
+                        exp->right->status = TYPE_BOOL;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
                   binop_print_type(">=", exp->left, exp->right,env);
                   break;
 
             case AST_EXP_EQ:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_BOOL;
+                        exp->left->status = TYPE_BOOL;
+                        exp->right->status = TYPE_BOOL;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
                   binop_print_type("==", exp->left, exp->right,env);
                   break;
             case AST_EXP_NOT_EQ:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_BOOL;
+                        exp->left->status = TYPE_BOOL;
+                        exp->right->status = TYPE_BOOL;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
                   binop_print_type("!=", exp->left, exp->right,env);
                   break;
 
             case AST_EXP_NUM:
-                  printf("num %d", exp->num);
+                  exp->status = TYPE_INT;
+                  printf("num:%s %d","int", exp->num);
                   break;
             case AST_EXP_TRUE:
                   printf("true");
