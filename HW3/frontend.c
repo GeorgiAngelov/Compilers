@@ -13,23 +13,21 @@ int yyparse(void);
 Env* prog_env;
 GList * global_ast;
 int main_declared = 0;
+int type_check_fail = 0;
 
 void done_parsing(GList* parse_result) {
       global_ast = parse_result; 
 	  //printf("Hello there!!\n");
 }
 
-void build_environment(GList * node, Env * parent_env)
-{
+void build_environment(GList * node, Env * parent_env) {
 	GList * it = g_list_first(node);
 	
-	while(it != NULL)
-	{
+	while(it != NULL) {
 		struct decl * node = (struct decl *)it->data;
 		
 		//check type of decl
-		if(symbol_is_fun(node->id))
-		{
+		if(symbol_is_fun(node->id)) {
 			//build local env, 
 			Env * fun_env = env_new();
 			
@@ -37,32 +35,39 @@ void build_environment(GList * node, Env * parent_env)
 				main_declared = 1;
 			}
 
-			//insert function env into parent envt
-			env_insert_fun(parent_env, node->id, node->type, fun_env, node->stmts);
+			if(env_contains(parent_env, node->id)) {
+				node->status = TYPE_NONE;
+				type_check_fail = 1;
+			} else {
+				//insert function env into parent envt
+				env_insert_fun(parent_env, node->id, node->type, fun_env, node->stmts);
+			}
 			
 			//other things for type checking (clash, set type of decl to be invalid)
-
 			build_environment(node->decls, fun_env);
-		}
-		else
-		{
-			//build global declarations
-			if(symbol_is_var(node->id)){
-				printf("Symbol is VAR\n");
-				env_insert(parent_env, node->id, node->type);
-			}else if(symbol_is_field(node->id)){
-				//env_insert(prog_env, symbol_field($1), $3);
-				env_insert(parent_env, node->id, node->type);
-				printf("Symbol is FIELD\n");
-			}else if(symbol_is_fun(node->id)){
-				printf("Symbol is FUN How did we get here?\n");
-			}else if(symbol_is_typename(node->id)){
-				printf("Symbol is Typename\n");
-				env_insert(parent_env,node->id, node->type);
-			}else if(!symbol_is_valid(node->id)){
-				printf("Symbol is Invalid\n");
-			}else{
-				printf("Something went wrong and I have no SYMBOL for this\n");
+		} else {
+			if(env_contains(parent_env, node->id)) {
+				node->status = TYPE_NONE;
+				type_check_fail = 1;
+			} else {
+				//build global declarations
+				if(symbol_is_var(node->id)){
+					printf("Symbol is VAR\n");
+					env_insert(parent_env, node->id, node->type);
+				}else if(symbol_is_field(node->id)){
+					//env_insert(prog_env, symbol_field($1), $3);
+					env_insert(parent_env, node->id, node->type);
+					printf("Symbol is FIELD\n");
+				}else if(symbol_is_fun(node->id)){
+					printf("Symbol is FUN How did we get here?\n");
+				}else if(symbol_is_typename(node->id)){
+					printf("Symbol is Typename\n");
+					env_insert(parent_env,node->id, node->type);
+				}else if(!symbol_is_valid(node->id)){
+					printf("Symbol is Invalid\n");
+				}else{
+					printf("Something went wrong and I have no SYMBOL for this\n");
+				}
 			}
 		}
 		it = g_list_next(it);
@@ -92,6 +97,10 @@ int main(int argc, char** argv) {
 
   if(main_declared==0) {
   	printf("Function main() not defined or has wrong type!\n");
+  }
+
+  if(type_check_fail==1) {
+  	printf("Typechecking failed!\n");
   }
 	
 	//env_print(prog_env);

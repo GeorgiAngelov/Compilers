@@ -19,6 +19,8 @@ struct decl {
       // The "class" of decl (var, typename, function) is carried around in the
       // symbol namespace, so we don't need a separate "class" field.
       Symbol id;
+      int status;
+      
       Type* type; // The type also carries around function parameters.
       // Possible initializers.
       struct exp* exp; // For a "var" decl.
@@ -64,6 +66,8 @@ enum ast_exp_class {
 
 struct exp {
       int class;
+      int status;
+
       int num;
       Symbol id;
       char* str;

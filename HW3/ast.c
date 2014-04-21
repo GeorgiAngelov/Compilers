@@ -564,18 +564,24 @@ void decl_print_type(struct decl* d, Env* env) {
 	indent_enter();
       printf("(");
       if (symbol_is_var(d->id)) {
-            // if(strcmp(symbol_to_str(d->id),"main") {
-                  
-            // }
-            printf("decl-var ");
+            if(d->status == TYPE_NONE) {
+                  printf("decl-var:NONE ");
+            } else {
+                  printf("decl-var:ok ");
+            }
       } else if (symbol_is_fun(d->id)) {
 		//check for main
-            printf("Look HERE: %d...", env_contains(env, d->id));
-            symbol_print(d->id);
-
-            printf("decl-fun ");
+            if(d->status == TYPE_NONE) {
+                  printf("decl-fun:NONE ");
+            } else {
+                  printf("decl-fun:ok ");
+            }
       } else if (symbol_is_typename(d->id)) {
-            printf("decl-type ");
+            if(d->status == TYPE_NONE) {
+                  printf("decl-type:NONE ");
+            } else {
+                  printf("decl-type:ok ");
+            }
       }
 
       id_print_type(d->id, env);
@@ -618,6 +624,10 @@ void exp_print_type(struct exp* exp, Env *env) {
       switch (exp->class) {
             case AST_EXP_PLUS:
                   binop_print_type("+", exp->left, exp->right,env);
+                  // if(symbol_is_int(exp->left->id)||type_is_ok(exp->right->id) && type_is_int(exp->right->id)||type_is_ok(exp->right->id))
+                  //       printf("It's ok!!!");
+                  // else
+                  //       printf("It's not ok!!!");
                   break;
             case AST_EXP_MINUS:
                   binop_print_type("-", exp->left, exp->right,env);

@@ -324,7 +324,7 @@ GList* typed_ids_to_types(GList* typed_ids) {
       return list_copy_deep(typed_ids, (CopyFunc)typed_id_to_type, NULL);
 }
 
-/*** Printing. ***/
+/*** Prfing. ***/
 
 void type_print_pretty(const Type* t) {
       if (!t) {
