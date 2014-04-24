@@ -1,0 +1,44 @@
+function chr(c : int) : [int] { return ([c]); }
+function ord(c : [int]) : int { return (c[0]); }
+
+function f(i : int) { 
+      if (i > 0) { 
+            f(i/10); 
+            print(chr(i - i/10*10 + ord("0")));
+      }
+}
+
+function printint(i : int) {
+      if (i < 0) { 
+            print("-"); 
+            f(-i);
+      } else { 
+            if (i > 0) { 
+                  f(i); 
+            } else { 
+                  print("0"); 
+            }
+      }
+}
+
+type struct : { x : int, y : int, z : int};
+
+var x : struct = {x = 1, y = 81, z = 5};
+
+function double_y(x : struct) {
+      x.y = x.y + x.y;
+}
+
+function main (args : [[int]]) : int {
+      print("x.y before doubling: ");
+      printint(x.y);
+      print([10]);
+
+      double_y(x);
+
+      print("x.y after doubling: ");
+      printint(x.y);
+      print([10]);
+
+      return(0);
+}

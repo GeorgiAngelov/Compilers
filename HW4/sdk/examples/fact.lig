@@ -1,0 +1,37 @@
+function chr(c : int) : [int] { return ([c]); }
+function ord(c : [int]) : int { return (c[0]); }
+
+function f(i : int) { 
+      if (i > 0) { 
+            f(i/10); 
+            print(chr(i - i/10*10 + ord("0")));
+      }
+}
+
+function printint(i : int) {
+      if (i < 0) { 
+            print("-"); 
+            f(-i);
+      } else { 
+            if (i > 0) { 
+                  f(i); 
+            } else { 
+                  print("0"); 
+            }
+      }
+}
+
+function fact(n : int) : int {
+      if (n <= 1) {
+            return (1);
+      } else {
+            return (n * fact(n - 1));
+      }
+}
+
+function main(args : [[int]]) : int {
+      print("The value of fact(10) is ");
+      printint(fact(10));
+      print([10]);
+      return (0);
+}

@@ -1,0 +1,54 @@
+var N : int = 8;
+
+type intArray : [int];
+
+var arr : intArray = new_array(N);
+
+function chr(c : int) : [int] { return ([c]); }
+function ord(c : [int]) : int { return (c[0]); }
+
+function f(i : int) { 
+      if (i > 0) { 
+            f(i/10); 
+            print(chr(i - i/10*10 + ord("0")));
+      }
+}
+
+function printint(i : int) {
+      if (i < 0) { 
+            print("-"); 
+            f(-i);
+      } else { 
+            if (i > 0) { 
+                  f(i); 
+            } else { 
+                  print("0"); 
+            }
+      }
+}
+
+
+// Creates a new array of n elements and initializes it to zero.
+function new_array(n : int) : [int] {
+      var arr : [int] = nil;
+      var i : int;
+      arr = resize(arr, n);
+      for (i = 0 to n) {
+            arr[i] = 0; 
+      }
+
+      return (arr);
+}
+
+function main(argv : [[int]]) : int {
+     var i : int = 0;
+     print("This should be a list of zeros:");
+     print([10]);
+     for (i = 0 to N) {
+           printint(arr[i]);
+           print([10]);
+     }
+
+     return (0);
+}
+

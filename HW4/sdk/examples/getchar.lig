@@ -1,0 +1,9 @@
+function main (args : [[int]]) : int {
+      var c : int;
+      print("Give me a char: ");
+      c = getchar();
+      print("Got: ");
+      print([c, 10]);
+
+      return (c);
+}

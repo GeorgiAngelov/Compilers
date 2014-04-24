@@ -1,0 +1,65 @@
+function chr(c : int) : [int] { return ([c]); }
+function ord(c : [int]) : int { return (c[0]); }
+
+function f(i : int) { 
+      if (i > 0) { 
+            f(i/10); 
+            print(chr(i - i/10*10 + ord("0")));
+      }
+}
+
+function printint(i : int) {
+      if (i < 0) { 
+            print("-"); 
+            f(-i);
+      } else { 
+            if (i > 0) { 
+                  f(i); 
+            } else { 
+                  print("0"); 
+            }
+      }
+}
+
+
+function isdigit(c : int) : bool { 
+      return (c >= ord("0") & c <= ord("9"));
+}
+
+function skipto() : int {
+      var c : int = getchar();
+      while (c == ord(" ") | c == 10) {
+            c = getchar();
+      }
+      return (c);
+}
+
+function readint() : int {
+      var i : int = 0;
+      var isdigit : bool = false;
+
+      var c : int = skipto();
+
+      isdigit = isdigit(c);
+
+      while (isdigit(c)) {
+            i = i * 10 + (c - ord("0"));
+            c = getchar(); 
+      }
+
+     return(i);
+}
+
+function main(args : [[int]]) : int {
+      var x : int;
+
+      print("Give me a positive int: ");
+      x = readint();
+
+      print("Here's the next biggest number: ");
+      printint(x + 1);
+
+      print([10]);
+
+      return(0);
+}

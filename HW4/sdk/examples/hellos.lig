@@ -1,0 +1,14 @@
+var msg1 : [int] = "Hello world! 1";
+var msg2 : [int] = "Hello world! 2";
+var msg3 : [int] = "Hello world! 3";
+
+function main(args : [[int]]) : int {
+      print(msg1);
+      print([10]);
+      print(msg2);
+      print([10]);
+      print(msg3);
+      print([10]);
+
+      return (0);
+}

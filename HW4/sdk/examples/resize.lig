@@ -1,0 +1,8 @@
+function resize_ints(ints : [int], n : int) : [int] {
+      return (resize(ints, n));
+}
+
+function main(args : [[int]]) : int {
+      var x : [int] = resize_ints(x, 5);
+      return (x[4]);
+}

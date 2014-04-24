@@ -1,0 +1,20 @@
+function main(args : [[int]]) : int {
+      var t : bool = true;
+      var f : bool = false;
+
+      if (t & t) {
+            print("pass 1!");
+      } else {
+            print("fail 1!");
+      }
+      print([10]);
+
+      if (f | f) {
+            print("fail 2!");
+            return (0);
+      }
+
+      print("pass 2!");
+      print([10]);
+      return (0);
+}

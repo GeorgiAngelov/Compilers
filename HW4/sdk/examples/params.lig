@@ -1,0 +1,14 @@
+function f(a : [int], b : [int], c : [int]) {
+      print(a);
+      print([10]);
+      print(b);
+      print([10]);
+      print(c);
+      print([10]);
+}
+
+function main(args : [[int]]) : int {
+      f("one", "two", "three");
+
+      return (0);
+}

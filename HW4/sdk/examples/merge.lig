@@ -1,0 +1,121 @@
+function chr(c : int) : [int] { return ([c]); }
+function ord(c : [int]) : int { return (c[0]); }
+
+function f(i : int) { 
+      if (i > 0) { 
+            f(i/10); 
+            print(chr(i - i/10*10 + ord("0")));
+      }
+}
+
+function printint(i : int) {
+      if (i < 0) { 
+            print("-"); 
+            f(-i);
+      } else { 
+            if (i > 0) { 
+                  f(i); 
+            } else { 
+                  print("0"); 
+            }
+      }
+}
+
+function isdigit(c : int) : bool { 
+      return (c >= ord("0") & c <= ord("9"));
+}
+
+function skipto() : int {
+      var c : int = getchar();
+      while (c == ord(" ") | c == 10) {
+            c = getchar();
+      }
+      return (c);
+}
+
+function readint(flag : {any : bool}) : int {
+      var i : int = 0;
+      var isdigit : bool = false;
+
+      var c : int = skipto();
+
+      flag.any = isdigit(c);
+
+      while (isdigit(c)) {
+            i = i * 10 + (c - ord("0"));
+            c = getchar(); 
+      }
+
+     return(i);
+}
+
+
+type list : {first : int, rest : list};
+
+function readlist() : list {
+      var any : {any : bool} = {any = false};
+      var i : int = readint(any);
+      var newlist : list = {first = 0, rest = nil};
+
+      if (any.any) {
+            newlist.first = i;
+            newlist.rest = readlist();
+            return (newlist);
+      } else {
+            return (nil);
+      }
+}
+
+function merge(a : list, b : list) : list {
+      var newlist : list = {first = 0, rest = nil};
+
+      if (a == nil) { 
+            return (b);
+      } else { 
+            if (b == nil) { 
+                  return (a);
+            } else {
+                  if (a.first < b.first) {
+                        newlist.first = a.first;
+                        newlist.rest = merge(a.rest, b);
+                        return (newlist);
+                  } else {
+                        newlist.first = b.first;
+                        newlist.rest = merge(a, b.rest);
+                        return (newlist);
+                  }
+            }
+      }
+}
+  
+function printlist(l : list) {
+      if (l == nil) { 
+            // 10 == '\n'
+            print([10]); 
+      } else {
+            printint(l.first); 
+            print(" "); 
+            printlist(l.rest);
+      }
+}
+
+function main(argv : [[int]]) : int {
+      var list1 : list;
+      var list2 : list;
+
+      print("Enter list of space-separated numbers, terminated by a non-number:");
+      print([10]);
+
+      list1 = readlist();
+      getchar();
+
+      print("Enter another such list:");
+      print([10]);
+      list2 = readlist();
+
+      print("Merged lists:");
+      print([10]);
+
+      printlist(merge(list1, list2));
+      return (0);
+}
