@@ -40,7 +40,7 @@
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 26 "parser.y" /* yacc.c:1909  */
+#line 26 "parser.y" /* yacc.c:1915  */
 
 
 #include "type.h"
@@ -48,7 +48,7 @@ extern int yydebug;
 #include <glib.h>
 
 
-#line 52 "parser.h" /* yacc.c:1909  */
+#line 52 "parser.h" /* yacc.c:1915  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -87,7 +87,7 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 34 "parser.y" /* yacc.c:1909  */
+#line 34 "parser.y" /* yacc.c:1915  */
 
       char* id;
       char* str;
@@ -102,7 +102,7 @@ union YYSTYPE
       struct field_init* field_init;
       Type* type;
 
-#line 106 "parser.h" /* yacc.c:1909  */
+#line 106 "parser.h" /* yacc.c:1915  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

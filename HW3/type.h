@@ -17,6 +17,7 @@ enum {
       TYPE_VOID, // Type of a function that doesn't return anything.
       TYPE_NIL,  // Type of the "nil" expression.
       TYPE_OK,   // Type of statements and declarations.
+      TYPE_NONE, // Type for none
 };
 
 struct type_ {
@@ -55,6 +56,7 @@ Type type_fun(GList* params, Type* ret);
 Type type_void(void);
 Type type_nil(void);
 Type type_ok(void);
+Type type_none(void);
 TypedId typed_id(Symbol id, Type* type);
 
 // Create a shallow copy in malloc'd memory. Use free() when done. *_new()
@@ -75,6 +77,7 @@ int type_is_array_lit(const Type*);
 int type_is_fun(const Type*);
 int type_is_void(const Type*);
 int type_is_ok(const Type*);
+int type_is_none(const Type*);
 int type_is_obj(const Type*);
 
 // Accessors for composite types.

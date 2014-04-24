@@ -7,6 +7,7 @@
 
 static struct stmt* stmt_new(int class);
 static void binop_print(const char* op, struct exp* left, struct exp* right);
+static void binop_print_type(const char* op, struct exp* left, struct exp* right, Env*);
 
 #define SHIFTWIDTH 3
 static int indent;
@@ -555,3 +556,357 @@ void list_print_with_sep(GList* list, PrintFunc print, const char* sep) {
       if (itr) print(itr->data);
 }
 
+
+
+/////////////////////////TYPECHECKINGGGGGGGG/////////////////////
+
+void decl_print_type(struct decl* d, Env* env) {
+	indent_enter();
+      printf("(");
+      if (symbol_is_var(d->id)) {
+            if(d->status == TYPE_NONE) {
+                  printf("decl-var:NONE ");
+            } else {
+                  printf("decl-var:ok ");
+            }
+      } else if (symbol_is_fun(d->id)) {
+		//check for main
+            if(d->status == TYPE_NONE) {
+                  printf("decl-fun:NONE ");
+            } else {
+                  printf("decl-fun:ok ");
+            }
+      } else if (symbol_is_typename(d->id)) {
+            if(d->status == TYPE_NONE) {
+                  printf("decl-type:NONE ");
+            } else {
+                  printf("decl-type:ok ");
+            }
+      }
+
+      id_print_type(d->id, env);
+      printf(" ");
+      type_print(d->type);
+
+      if (d->exp) {
+            printf(" ");
+            exp_print_type(d->exp, env);
+      } else if (d->decls || d->stmts) {
+            decls_print_type(d->decls, env);
+            stmts_print_type(d->stmts, env);
+      }
+      printf(")");
+      indent_exit();
+}
+
+void decls_print_type(GList* decls, Env* env) {
+      indent_enter();
+      printf("(decls");
+      g_list_foreach(decls, (GFunc)decl_print_type, env);
+      printf(")");
+      indent_exit();
+}
+
+static void binop_print_type(const char* op, struct exp* left, struct exp* right, Env *env) {
+      if(left->status == TYPE_INT && right->status == TYPE_INT) {
+            printf("%s:int ", op);
+      } else if(left->status == TYPE_BOOL && right->status == TYPE_BOOL) {
+            printf("%s:bool ", op);
+      } else {
+            printf("%s ", op);
+      }
+      exp_print_type(left, env);
+      printf(" ");
+      exp_print_type(right, env);
+}
+
+void id_print_type(Symbol symbol, Env *env) {
+      printf("(id %s)", symbol_to_str(symbol));
+}
+
+void exp_print_type(struct exp* exp, Env *env) {
+      if (!exp) return;
+      printf("(");
+      switch (exp->class) {
+            case AST_EXP_PLUS:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_INT;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
+                  binop_print_type("+", exp->left, exp->right,env);
+                  break;
+            case AST_EXP_MINUS:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_INT;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
+                  binop_print_type("-", exp->left, exp->right,env);
+                  break;
+            case AST_EXP_DIV:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_INT;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
+                  binop_print_type("/", exp->left, exp->right,env);
+                  break;
+            case AST_EXP_MOD:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_INT;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
+                  binop_print_type("%", exp->left, exp->right,env);
+                  break;
+            case AST_EXP_MUL:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_INT;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
+                  binop_print_type("*", exp->left, exp->right,env);
+                  break;
+            case AST_EXP_OR:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_BOOL;
+                        exp->left->status = TYPE_BOOL;
+                        exp->right->status = TYPE_BOOL;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
+                  binop_print_type("|", exp->left, exp->right,env);
+                  break;
+            case AST_EXP_AND:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_BOOL;
+                        exp->left->status = TYPE_BOOL;
+                        exp->right->status = TYPE_BOOL;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
+                  binop_print_type("&", exp->left, exp->right,env);
+                  break;
+            case AST_EXP_NOT:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_BOOL;
+                        exp->left->status = TYPE_BOOL;
+                        exp->right->status = TYPE_BOOL;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
+                  printf("! "); exp_print_type(exp->right,env);
+                  break;
+            case AST_EXP_LT:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_BOOL;
+                        exp->left->status = TYPE_BOOL;
+                        exp->right->status = TYPE_BOOL;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
+                  binop_print_type("<", exp->left, exp->right,env);
+                  break;
+            case AST_EXP_LT_EQ:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_BOOL;
+                        exp->left->status = TYPE_BOOL;
+                        exp->right->status = TYPE_BOOL;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
+                  binop_print_type("<=", exp->left, exp->right,env);
+                  break;
+            case AST_EXP_GT:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_BOOL;
+                        exp->left->status = TYPE_BOOL;
+                        exp->right->status = TYPE_BOOL;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
+                  binop_print_type(">", exp->left, exp->right,env);
+                  break;
+            case AST_EXP_GT_EQ:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_BOOL;
+                        exp->left->status = TYPE_BOOL;
+                        exp->right->status = TYPE_BOOL;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
+                  binop_print_type(">=", exp->left, exp->right,env);
+                  break;
+
+            case AST_EXP_EQ:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_BOOL;
+                        exp->left->status = TYPE_BOOL;
+                        exp->right->status = TYPE_BOOL;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
+                  binop_print_type("==", exp->left, exp->right,env);
+                  break;
+            case AST_EXP_NOT_EQ:
+                  if(TYPE_INT == exp->left->status && TYPE_INT == exp->right->status) {
+                        exp->status = TYPE_BOOL;
+                        exp->left->status = TYPE_BOOL;
+                        exp->right->status = TYPE_BOOL;
+                  } else {
+                        exp->status = TYPE_NONE;
+                  }
+                  binop_print_type("!=", exp->left, exp->right,env);
+                  break;
+
+            case AST_EXP_NUM:
+                  exp->status = TYPE_INT;
+                  printf("num:%s %d","int", exp->num);
+                  break;
+            case AST_EXP_TRUE:
+                  printf("true");
+                  break;
+            case AST_EXP_FALSE:
+                  printf("false");
+                  break;
+            case AST_EXP_NIL:
+                  printf("nil");
+                  break;
+            case AST_EXP_STR:
+                  printf("str %s", exp->str);
+                  break;
+            case AST_EXP_ID:
+                  printf("id %s", symbol_to_str(exp->id));
+                  break;
+
+            case AST_EXP_STRUCT_LIT:
+                  printf("struct-lit ");
+                  field_inits_print_type(exp->params,env);
+                  break;
+
+            case AST_EXP_ARRAY_LIT:
+                  printf("array-lit ");
+                  exps_print_type(exp->params,env);
+                  break;
+
+            case AST_EXP_FUN_CALL:
+                  printf("fun-call ");
+                  id_print_type(exp->id,env);
+                  printf(" ");
+                  exps_print_type(exp->params,env);
+                  break;
+
+            case AST_EXP_ARRAY_INDEX:
+                  printf("array-idx ");
+                  exp_print_type(exp->left,env);
+                  printf(" ");
+                  exp_print_type(exp->right,env);
+                  break;
+            case AST_EXP_FIELD_LOOKUP:
+                  printf("field-lkup ");
+                  exp_print_type(exp->left,env);
+                  printf(" ");
+                  id_print_type(exp->id,env);
+      }
+      printf(")");
+}
+
+void exps_print_type(GList* exps,Env *env) {
+      printf("(exps");
+      if (exps) printf(" ");
+      list_print_spaced_type(exps, (PrintFunc)exp_print_type, env);
+      printf(")");
+}
+
+void field_init_print_type(struct field_init* fi,Env *env) {
+      printf("(field-init ");
+      id_print_type(fi->id, env);
+      printf(" ");
+      exp_print_type(fi->init,env);
+      printf(")");
+}
+
+void field_inits_print_type(GList* field_inits,Env *env) {
+      printf("(field-inits ");
+      list_print_spaced_type(field_inits, (PrintFunc)field_init_print_type, env);
+      printf(")");
+}
+
+void stmt_print_type(struct stmt* stmt,Env *env) {
+      assert(stmt);
+      indent_enter();
+      printf("(");
+      switch (stmt->class) {
+            case AST_STMT_EXP:
+                  printf("exp-stmt");
+                  if (stmt->exp) printf(" ");
+                  exp_print_type(stmt->exp,env);
+                  break;
+
+            case AST_STMT_ASSIGN:
+                  printf("assign ");
+                  exp_print_type(stmt->left,env);
+                  printf(" ");
+                  exp_print_type(stmt->right,env);
+                  break;
+
+            case AST_STMT_IF:
+                  printf("if ");
+                  exp_print_type(stmt->exp,env);
+                  stmts_print_type(stmt->block1,env);
+                  stmts_print_type(stmt->block2,env);
+                  break;
+
+            case AST_STMT_WHILE:
+                  printf("while ");
+                  exp_print_type(stmt->exp,env);
+                  stmts_print_type(stmt->block1,env);
+                  break;
+
+            case AST_STMT_FOR:
+                  printf("for ");
+                  exp_print_type(stmt->left,env);
+                  printf(" ");
+                  exp_print_type(stmt->exp,env);
+                  printf(" ");
+                  exp_print_type(stmt->right,env);
+                  stmts_print_type(stmt->block1,env);
+                  break;
+
+            case AST_STMT_RETURN:
+                  printf("return");
+                  if (stmt->exp) {
+                        printf(" ");
+                        exp_print_type(stmt->exp,env);
+                  }
+                  break;
+      }
+      printf(")");
+      indent_exit();
+}
+
+void stmts_print_type(GList* stmts,Env *env) {
+      indent_enter();
+      printf("(stmts");
+      g_list_foreach(stmts, (GFunc)stmt_print_type, NULL);
+      printf(")");
+      indent_exit();
+}
+
+void list_print_spaced_type(GList* list, PrintFunc print,Env *env) {
+      list_print_with_sep_type(list, print, " ", env);
+}
+
+void list_print_commad_type(GList* list, PrintFunc print,Env *env) {
+      list_print_with_sep_type(list, print, ", ", env);
+}
+
+void list_print_with_sep_type(GList* list, PrintFunc print, const char* sep,Env *env) {
+      GList* itr;
+      for (itr = g_list_first(list); itr != g_list_last(itr); itr = g_list_next(itr)) {
+            print(itr->data);
+            printf(sep);
+      }
+      if (itr) print(itr->data);
+}

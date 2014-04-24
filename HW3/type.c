@@ -71,6 +71,12 @@ Type type_ok(void) {
       return t;
 }
 
+Type type_none(void) {
+      Type t;
+      t.class = TYPE_NONE;
+      return t;
+}
+
 TypedId typed_id(Symbol id, Type* type) {
       TypedId tid;
       tid.id = id;
@@ -140,6 +146,10 @@ int type_is_nil(const Type* t) {
 
 int type_is_ok(const Type* t) {
       return t && t->class == TYPE_OK;
+}
+
+int type_is_none(const Type* t) {
+      return t && t->class == TYPE_NONE;
 }
 
 int type_is_obj(const Type* t) {
@@ -314,7 +324,7 @@ GList* typed_ids_to_types(GList* typed_ids) {
       return list_copy_deep(typed_ids, (CopyFunc)typed_id_to_type, NULL);
 }
 
-/*** Printing. ***/
+/*** Prfing. ***/
 
 void type_print_pretty(const Type* t) {
       if (!t) {

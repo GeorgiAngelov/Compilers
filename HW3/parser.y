@@ -85,7 +85,6 @@ extern Env* prog_env;
 program:
       decls {
             done_parsing($1);
-            decls_print($1);
 	}
 
 decls:							{$$=NULL;}

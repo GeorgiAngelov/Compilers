@@ -19,6 +19,8 @@ struct decl {
       // The "class" of decl (var, typename, function) is carried around in the
       // symbol namespace, so we don't need a separate "class" field.
       Symbol id;
+      int status;
+      
       Type* type; // The type also carries around function parameters.
       // Possible initializers.
       struct exp* exp; // For a "var" decl.
@@ -64,6 +66,8 @@ enum ast_exp_class {
 
 struct exp {
       int class;
+      int status;
+
       int num;
       Symbol id;
       char* str;
@@ -202,5 +206,23 @@ typedef void (*PrintFunc)(void*);
 void list_print_spaced(GList*, PrintFunc);
 void list_print_commad(GList*, PrintFunc);
 void list_print_with_sep(GList*, PrintFunc, const char* sep);
+
+
+
+///THIS IS FOR TYPECHECKING!!!!!!!!!!!!!!!
+// Print.
+void decl_print_type(struct decl*, Env*);
+void decls_print_type(GList*, Env*);
+void exp_print_type(struct exp*, Env*);
+void exps_print_type(GList*, Env*);
+void id_print_type(Symbol, Env*);
+void field_init_print_type(struct field_init*, Env*);
+void field_inits_print_type(GList*, Env*);
+void stmt_print_type(struct stmt*, Env*);
+void stmts_print_type(GList*, Env*);
+
+void list_print_spaced_type(GList*, PrintFunc, Env*);
+void list_print_commad_type(GList*, PrintFunc, Env*);
+void list_print_with_sep_type(GList*, PrintFunc, const char* sep, Env*);
 
 #endif
