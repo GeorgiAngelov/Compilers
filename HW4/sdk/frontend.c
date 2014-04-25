@@ -107,10 +107,7 @@ static int check_main_defined(void) {
 
 static void generate_data(FILE* out, GList * ast_root, Env* genv)
 {
-	
-	env_print(genv);
-	decls_print(g_hash_table_get_values(genv->vars));
-	
+	mips_print_main(ast_root);
 }
 
 static void generate_text(FILE* out, GList * ast_root, Env* genv)

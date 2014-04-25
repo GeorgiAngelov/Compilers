@@ -7,5 +7,5 @@
 //void annotate_decls(GList* decls, Env* env);
 
 //int decls_all_ok(GList* decls);
-
+void mips_print_main(GList * ast_root);
 #endif
