@@ -28,3 +28,4 @@ clean:
 	-rm -f $(LFILE:%.l=%.o) $(LFILE:%.l=%.c) $(LFILE:%.l=%.h)
 	-rm -f $(CFILES:%.c=%.o)
 	-rm -f $(PROGRAM)
+	-rm -f examples/*.s
