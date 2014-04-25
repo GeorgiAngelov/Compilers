@@ -1,6 +1,6 @@
 PROGRAM = ligc
-CFILES = ast.c env.c frontend.c type.c typecheck.c
-HEADERS = ast.h env.h frontend.h type.h typecheck.h
+CFILES = ast.c env.c frontend.c type.c typecheck.c mipsgen.c
+HEADERS = ast.h env.h frontend.h type.h typecheck.h mipsgen.h
 YFILE = parser.y
 LFILE = lexer.l
 

@@ -1,4 +1,5 @@
 #include "typecheck.h"
+#include "mipsgen.h"
 #include "ast.h"
 #include "env.h"
 #include "frontend.h"
@@ -104,6 +105,34 @@ static int check_main_defined(void) {
       return main_defined;
 }
 
+static void generate_data(FILE* out, GList * ast_root, Env* genv)
+{
+	
+	env_print(genv);
+	decls_print(g_hash_table_get_values(genv->vars));
+	
+}
+
+static void generate_text(FILE* out, GList * ast_root, Env* genv)
+{
+	
+	
+	
+}
+
+static void generate_mips(FILE* out, GList* ast_root, Env* genv)
+{
+	fprintf(out, "\t\t.data\n");
+	//generate data section
+	generate_data(out, ast_root, genv);
+	
+	fprintf(out, "\n\t\t.text\n");
+	//generate text section
+	generate_text(out, ast_root, genv);
+	
+}
+
+
 int main(int argc, char** argv) {
       int ast_flag = 0, do_codegen = 1;
       yyin = NULL;
@@ -175,7 +204,7 @@ int main(int argc, char** argv) {
                   FILE* out = fopen(file_out, "w");
 
                   // *** DO MIPS CODE GEN HERE. ***
-                  // generate_mips(out, ast_root, genv);
+                  generate_mips(out, ast_root, genv);
 
                   free(file_out);
                   fclose(out);
