@@ -118,7 +118,7 @@ static void generate_data(FILE* out, GList * ast_root, Env* genv)
 static void generate_text(FILE* out, GList * ast_root, Env* genv)
 {
 	if(check_main_defined()==1)
-		fprintf(out,"\t\tmain:\n");
+	fprintf(out,"\t\tmain:\n");
 	//generate exit system call
 	fprintf(out, "\t\tli,$v0,10\n");
 	fprintf(out, "\t\tsyscall\n");
