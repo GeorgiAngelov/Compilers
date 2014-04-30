@@ -107,13 +107,21 @@ static int check_main_defined(void) {
 
 static void generate_data(FILE* out, GList * ast_root, Env* genv)
 {
-	mips_print_main(ast_root);
+	//mips_print_main(ast_root);
+	//if(check_main_defined()==1)
+	//fprintf(out,"you gonna get reminded");
+	
+	
+	
 }
 
 static void generate_text(FILE* out, GList * ast_root, Env* genv)
 {
-	
-	
+	if(check_main_defined()==1)
+		fprintf(out,"\t\tmain:\n");
+	//generate exit system call
+	fprintf(out, "\t\tli,$v0,10\n");
+	fprintf(out, "\t\tsyscall\n");
 	
 }
 
@@ -122,7 +130,7 @@ static void generate_mips(FILE* out, GList* ast_root, Env* genv)
 	fprintf(out, "\t\t.data\n");
 	//generate data section
 	generate_data(out, ast_root, genv);
-	
+		
 	fprintf(out, "\n\t\t.text\n");
 	//generate text section
 	generate_text(out, ast_root, genv);

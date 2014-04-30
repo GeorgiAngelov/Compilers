@@ -1,4 +1,4 @@
-#include "type.h"
+:#include "type.h"
 #include "env.h"
 #include "ast.h"
 #include <assert.h>
