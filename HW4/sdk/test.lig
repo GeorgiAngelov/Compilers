@@ -1,0 +1,8 @@
+function main (argv : [[int]]) : int {
+	
+	var i: int;
+	i = (3 + 2) + (2 + 3);
+	
+	return (0);
+}
+
