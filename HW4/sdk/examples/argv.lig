@@ -1,11 +1,11 @@
 function main(args : [[int]]) : int {
-      // Print the command line arguments.
+	// Print the command line arguments.
 
-      var i : int;
+	var i : int;
 
-      for (i = 0 to sizeof(args)) {
-            print(args[i]);
-      }
+	for (i = 0 to sizeof(args)) {
+		print(args[i]);
+	}
 
-      return (0);
+	return (0);
 }

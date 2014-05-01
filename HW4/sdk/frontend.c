@@ -20,7 +20,7 @@ static int check_main_defined(void);
 
 // A global variable for holding the root of the AST after parsing.
 static GList* ast_root;
-static Env* genv;
+static Env* genv; 
 
 void done_parsing(GList* parse_result) {
       ast_root = parse_result;
@@ -118,7 +118,15 @@ static void generate_data(FILE* out, GList * ast_root, Env* genv)
 static void generate_text(FILE* out, GList * ast_root, Env* genv)
 {
 	if(check_main_defined()==1)
-	fprintf(out,"\t\tmain:\n");
+		fprintf(out,"\t\tmain:\n");
+	
+	
+	///////////////////////////////////////////
+	//do all asignment and declarations ( Local only )
+	///////////////////////////////////////////
+	mips_generate_text(out, ast_root, genv);
+	
+	
 	//generate exit system call
 	fprintf(out, "\t\tli,$v0,10\n");
 	fprintf(out, "\t\tsyscall\n");
@@ -183,6 +191,7 @@ int main(int argc, char** argv) {
             genv = env_new();
             insert_decls(ast_root, genv);
             insert_builtins(genv);
+			//call the function to set the OK or not OK type of every declaration
             annotate_decls(ast_root, genv);
 
             if (ast_flag) {
