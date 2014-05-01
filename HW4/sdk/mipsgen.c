@@ -141,8 +141,7 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		}
 
 		case AST_EXP_ID: {
-			/*assert(symbol_is_var(exp->id));
-			exp->node_type = type_copy_deep(env_lookup(env, exp->id));*/
+			exp->node_type = type_copy_deep(env_lookup(env, exp->id));
 			break;
 		}
 
@@ -165,15 +164,12 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		}
 
 		case AST_EXP_ARRAY_INDEX: {
-			/*assert(exp->left);
-			assert(exp->right);
-
 			const Type* arr = type_expand(mips_traverse_exp(exp->left, env), env);
 			const Type* idx = mips_traverse_exp(exp->right, env);
 
 			if (type_is_array(arr) && type_is_int(idx)) {
 				exp->node_type = type_copy_deep(type_array_get_eles(arr));
-			} */
+			}
 
 			break;
 		}
@@ -198,7 +194,6 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
  
       switch (stmt->kind) {
             case AST_STMT_EXP: {
-
                   if (mips_traverse_exp(stmt->exp, env)) {
                         stmt->node_type = type_ok_new();
                   }
