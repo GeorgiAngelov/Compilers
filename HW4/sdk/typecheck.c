@@ -25,6 +25,10 @@ static Type* supremum(const Type* left, const Type* right, Env* env);
 static struct decl* decl_supremum(const struct decl* left, const struct decl* right, Env* env);
 static GList* decls_supremum(GList* left, GList* right, Env* env);
 
+/**
+*	Tbe function deals with traversing through the AST and assigning OK or no OK for types
+*
+*/
 void annotate_decls(GList* decls, Env* env) {
       g_list_foreach(decls, (GFunc)annotate_decl, env);
 }
@@ -45,13 +49,16 @@ static void annotate_decl(struct decl* d, Env* env) {
       assert(!d->node_type || type_is_conflict(d->node_type));
 
       Type* calculated = NULL;
-
+	  
+	  //if the declaration has any expressions
       if (d->exp) {
             const Type* t = annotate_exp(d->exp, env);
             if (subtype(t, d->type, env)) {
                   calculated = type_ok_new();
             }
-      } else if (d->decls || d->stmts) {
+      }
+	  //if the declaration has any declarations or statements(hence it is a function)
+	  else if (d->decls || d->stmts) {
             Env* fun_env = env_lookup_fun_env(env, d->id);
             assert(fun_env);
 

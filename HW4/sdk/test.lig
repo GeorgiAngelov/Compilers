@@ -1,8 +1,8 @@
-function main (argv : [[int]]) : int {
-	
-	var i: int;
-	i = (3 + 2) + (2 + 3);
-	
+function main(args : [[int]]) : int {
+	var i : int;
+	var x : int;
+	x = 5+5;
+	i = 6+x;
+	i = i+i;
 	return (0);
 }
-
