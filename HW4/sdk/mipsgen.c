@@ -121,22 +121,22 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		}
 
 		case AST_EXP_TRUE: {
-			//exp->node_type = type_bool_new();
+			exp->node_type = type_bool_new();
 			break;
 		}
 
 		case AST_EXP_FALSE: {
-			//exp->node_type = type_bool_new();
+			exp->node_type = type_bool_new();
 			break;
 		}
 
 		case AST_EXP_NIL: {
-			//exp->node_type = type_nil_new();
+			exp->node_type = type_nil_new();
 			break;
 		}
 
 		case AST_EXP_STR: {
-			//exp->node_type = type_array_new(type_int_new());
+			exp->node_type = type_array_new(type_int_new());
 			break;
 		}
 
@@ -202,14 +202,11 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
                   if (mips_traverse_exp(stmt->exp, env)) {
                         stmt->node_type = type_ok_new();
                   }
-
                   break;
             }
-
             case AST_STMT_ASSIGN: {
                   const Type* left = mips_traverse_exp(stmt->left, env);
                   const Type* right = mips_traverse_exp(stmt->right, env);
-
                   break;
             }
 
@@ -292,7 +289,7 @@ void mips_find_print_declarations_local(Env* genv){
 }
 
 void mips_print_main(GList * ast_root){
-	/*Env* genv = env_new();
+	Env* genv = env_new();
 	insert_decls(ast_root, genv);
 	//decls_print(ast_root);
 	g_list_foreach(genv, (GFunc)mips_find_print_main, NULL);
