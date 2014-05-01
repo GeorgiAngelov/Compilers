@@ -10,13 +10,13 @@ FILE *out;
 
 //local declarations
 void mips_generate_text(FILE* out_ptr, GList * decls, Env* env){
-	printf("Inside mips_generate_text\n");
+	//printf("Inside mips_generate_text\n");
 	out = out_ptr;
 	g_list_foreach(decls, (GFunc)mips_traverse_decl, env);
 }
 
 static void mips_traverse_decl(struct decl* d, Env* env) {
-	printf("Inside mips_traverse_decl\n");
+	//printf("Inside mips_traverse_decl\n");
 	Type* calculated = NULL;
 
 	//if the declaration has any expressions
@@ -35,8 +35,48 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 	}
 }
 
+void print_exp_type (int kind)
+{
+	switch (kind)
+	{
+		case AST_EXP_PLUS:
+		{
+			printf("add");
+			break;
+		}
+		case AST_EXP_MINUS:
+		{
+			printf("sub");
+			break;
+		}
+		case AST_EXP_DIV:
+		{
+			printf("div");
+			break;
+		}
+		case AST_EXP_MOD:
+		{
+			printf("mod");
+			break;
+		}
+		case AST_EXP_MUL:
+		{
+			printf("mul");
+			break;
+		}
+		case AST_EXP_OR:
+		{
+			printf("or");
+			break;
+		}
+	}
+	
+	printf(" ");
+	
+}
+
 static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
-	printf("Inside mips_traverse_exp\n");
+	//printf("Inside mips_traverse_exp\n");
 	exp->node_type = NULL;
 
 	switch (exp->kind) {
@@ -45,25 +85,39 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		case AST_EXP_DIV:
 		case AST_EXP_MOD:
 		case AST_EXP_MUL: {
-			  assert(exp->left);
-			  assert(exp->right);
-				
-			  const Type* left = mips_traverse_exp(exp->left, env);
-			  const Type* right = mips_traverse_exp(exp->right, env);
-
-			  if (type_is_int(left) && type_is_int(right)) {
-				printf("left num: %d , right : %d\n", exp->left->num, exp->right->num);
-				exp->node_type = type_int_new();
-			  }
-
-			  break;
+			const Type* left = mips_traverse_exp(exp->left, env);
+			const Type* right = mips_traverse_exp(exp->right, env);
+			
+			//if both expressions are only nums, then we store them in a register
+			if (exp->left->kind == AST_EXP_NUM && exp->right->kind == AST_EXP_NUM) {
+				printf("li $t0, %d\n", exp->left->num);
+				printf("li $t1, %d\n", exp->right->num);
+				print_exp_type(exp->kind);
+				printf(" $t2, $t0, $t1\n");
+			}
+			//if the LEFT one is the only num, then store it in a register, because the right side is already in a register
+			else if(exp->left->kind == AST_EXP_NUM){
+				printf("li $t0, %d\n", exp->left->num);
+				print_exp_type(exp->kind);
+				printf(" $t2, $t0, $t1\n");
+			}
+			//if the RIGHT one is the only num, then store it in a register, because the right side is already in a register
+			else if(exp->right->kind == AST_EXP_NUM){
+				printf("li $t1, %d\n", exp->right->num);
+				print_exp_type(exp->kind);
+				printf(" $t2, $t2, $t1\n");
+			}
+			//if neither one is a NUM, it means that we stored them in a registerr, LEFT Is always $2, and RIGHT Is always $3
+			else{
+				print_exp_type(exp->kind);
+				printf(" $t2, $t2, $t3\n");
+			}
+			exp->node_type = type_int_new();
+			break;
 		}
 
 		case AST_EXP_OR:
 		case AST_EXP_AND: {
-			  assert(exp->left);
-			  assert(exp->right);
-
 			  const Type* left = mips_traverse_exp(exp->left, env);
 			  const Type* right = mips_traverse_exp(exp->right, env);
 
@@ -75,8 +129,6 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		}
 
 		case AST_EXP_NOT: {
-			  assert(exp->right);
-
 			  const Type* right = mips_traverse_exp(exp->right, env);
 
 			  if (type_is_bool(right)) {
@@ -90,9 +142,6 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		case AST_EXP_LT_EQ:
 		case AST_EXP_GT:
 		case AST_EXP_GT_EQ: {
-			  assert(exp->left);
-			  assert(exp->right);
-
 			  const Type* left = mips_traverse_exp(exp->left, env);
 			  const Type* right = mips_traverse_exp(exp->right, env);
 
@@ -190,75 +239,62 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 }
 
 static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
-      stmt->node_type = NULL;
- 
-      switch (stmt->kind) {
-            case AST_STMT_EXP: {
-                  if (mips_traverse_exp(stmt->exp, env)) {
-                        stmt->node_type = type_ok_new();
-                  }
-                  break;
-            }
-            case AST_STMT_ASSIGN: {
-                  const Type* left = mips_traverse_exp(stmt->left, env);
-                  const Type* right = mips_traverse_exp(stmt->right, env);
-                  break;
-            }
+	stmt->node_type = NULL;
 
-            case AST_STMT_IF: {
-                  const Type* cond = mips_traverse_exp(stmt->exp, env);
+	switch (stmt->kind) {
+		case AST_STMT_EXP: {
+			  if (mips_traverse_exp(stmt->exp, env)) {
+					stmt->node_type = type_ok_new();
+			  }
+			  break;
+		}
+		case AST_STMT_ASSIGN: {
+			  const Type* left = mips_traverse_exp(stmt->left, env);
+			  const Type* right = mips_traverse_exp(stmt->right, env);
+			  break;
+		}
 
-                  g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
-                  g_list_foreach(stmt->block2, (GFunc)mips_traverse_stmt, env);
+		case AST_STMT_IF: {
+			  const Type* cond = mips_traverse_exp(stmt->exp, env);
 
-                  break;
-            }
+			  g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
+			  g_list_foreach(stmt->block2, (GFunc)mips_traverse_stmt, env);
 
-            case AST_STMT_WHILE: {
-                  const Type* cond = mips_traverse_exp(stmt->exp, env);
-                  g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
+			  break;
+		}
 
-                  break;
-            }
+		case AST_STMT_WHILE: {
+			  const Type* cond = mips_traverse_exp(stmt->exp, env);
+			  g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
 
-            case AST_STMT_FOR: {
-                  const Type* lval = mips_traverse_exp(stmt->left, env);
-                  const Type* from = mips_traverse_exp(stmt->exp, env);
-                  const Type* to = mips_traverse_exp(stmt->right, env);
+			  break;
+		}
 
-                  g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
+		case AST_STMT_FOR: {
+			  const Type* lval = mips_traverse_exp(stmt->left, env);
+			  const Type* from = mips_traverse_exp(stmt->exp, env);
+			  const Type* to = mips_traverse_exp(stmt->right, env);
 
-                  break;
-            }
+			  g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
 
-            case AST_STMT_RETURN: {
-                  Type* expected = env_lookup(env, symbol_fun_return());
+			  break;
+		}
 
-                  Type* actual = NULL;
-                  if (stmt->exp) {
-                        actual = type_copy_deep(mips_traverse_exp(stmt->exp, env));
-                  } else {
-                        actual = type_void_new();
-                  }
+		case AST_STMT_RETURN: {
+			  Type* expected = env_lookup(env, symbol_fun_return());
 
-                  type_destroy(actual);
-                  break;
-            }
-      }
+			  Type* actual = NULL;
+			  if (stmt->exp) {
+					actual = type_copy_deep(mips_traverse_exp(stmt->exp, env));
+			  } else {
+					actual = type_void_new();
+			  }
+
+			  type_destroy(actual);
+			  break;
+		}
+	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 /*

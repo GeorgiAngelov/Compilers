@@ -1,7 +1,8 @@
 function main(args : [[int]]) : int {
 	var i : int;
-	i = 5+5;
-	i = 6+6;
+	var x : int;
+	x = 5+5;
+	i = 6+x;
 	i = i+i;
 	return (0);
 }
