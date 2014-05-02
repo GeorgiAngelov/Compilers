@@ -87,8 +87,8 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		case AST_EXP_DIV:
 		case AST_EXP_MOD:
 		case AST_EXP_MUL: {
-			const Type* left = mips_traverse_exp(exp->left, env);
-			const Type* right = mips_traverse_exp(exp->right, env);
+			//const Type* left = mips_traverse_exp(exp->left, env);
+			//const Type* right = mips_traverse_exp(exp->right, env);
 			int leftC;
 			int rightC;
 			//if both expressions are only nums, then we store them in a register
