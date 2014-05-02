@@ -107,7 +107,11 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		case AST_EXP_MOD:
 		case AST_EXP_MUL: 
 		case AST_EXP_OR:
-		case AST_EXP_AND: {
+		case AST_EXP_AND: 
+		case AST_EXP_LT:
+		case AST_EXP_LT_EQ:
+		case AST_EXP_GT:
+		case AST_EXP_GT_EQ: {
 			//const Type* left = mips_traverse_exp(exp->left, env);
 			//const Type* right = mips_traverse_exp(exp->right, env);
 			int leftC;
@@ -212,19 +216,17 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			  break;
 		}
 
-		case AST_EXP_LT:
-		case AST_EXP_LT_EQ:
-		case AST_EXP_GT:
-		case AST_EXP_GT_EQ: {/*
+		 /*
+		{
 			  const Type* left = mips_traverse_exp(exp->left, env);
 			  const Type* right = mips_traverse_exp(exp->right, env);
 
 			  if (type_is_int(left) && type_is_int(right)) {
 					exp->node_type = type_bool_new();
 			  }
-*/
+
 			  break;
-		}
+		}*/
 
 		case AST_EXP_EQ:
 		case AST_EXP_NOT_EQ: {/*
@@ -331,11 +333,25 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 		}
 
 		case AST_STMT_IF: {
-			  const Type* cond = mips_traverse_exp(stmt->exp, env);
-
-			  g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
-			  g_list_foreach(stmt->block2, (GFunc)mips_traverse_stmt, env);
-
+			  //const Type* cond = mips_traverse_exp(stmt->exp, env);
+			int resultC;
+			
+			//evaluate boolean expression
+			mips_traverse_exp(stmt->exp, env);
+			//store result in next available register
+			fprintf(out, "move $t%d, $v0\n", count);
+			resultC = count;
+			count++;
+			//check evaluation value
+			fprintf("bnez $t%d, %s\n", resultC, iLabel);
+			//jump to else if false
+			g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
+			//jump to end else if true
+			//print else label
+			fprintf(out, "");
+			g_list_foreach(stmt->block2, (GFunc)mips_traverse_stmt, env);
+			//print end else label
+			
 			  break;
 		}
 

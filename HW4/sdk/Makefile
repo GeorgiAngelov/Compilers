@@ -4,8 +4,8 @@ HEADERS = ast.h env.h frontend.h type.h typecheck.h mipsgen.h
 YFILE = parser.y
 LFILE = lexer.l
 
-CC = gcc
-CFLAGS = -std=gnu99 -g -Wall `pkg-config --cflags glib-2.0`
+CC = g++
+CFLAGS = -g -Wall `pkg-config --cflags glib-2.0`
 # Link against glib.
 LDLIBS = `pkg-config --libs glib-2.0`
 LEX = flex
