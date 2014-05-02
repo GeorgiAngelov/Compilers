@@ -23,6 +23,7 @@ static GList* ast_root;
 static Env* genv; 
 
 int count;
+FILE* out;
 
 void done_parsing(GList* parse_result) {
       ast_root = parse_result;
@@ -113,7 +114,7 @@ static void generate_data(FILE* out, GList * ast_root, Env* genv)
 	//if(check_main_defined()==1)
 	//fprintf(out,"you gonna get reminded");
 	
-	
+	fprintf(out, "newline:	.asciiz \"\\n\"");
 	
 }
 
@@ -130,8 +131,8 @@ static void generate_text(FILE* out, GList * ast_root, Env* genv)
 	
 	
 	//generate exit system call
-	fprintf(out, "\t\tli,$v0,10\n");
-	fprintf(out, "\t\tsyscall\n");
+	//fprintf(out, "\t\tli,$v0,10\n");
+	//fprintf(out, "\t\tsyscall\n");
 	
 }
 
@@ -218,11 +219,13 @@ int main(int argc, char** argv) {
                   *(file_out + prefix) = 0; // Replace that "." in ".lig" with a null terminator.
                   strcat(file_out, ".s"); // Add the new extension.
 
-                  FILE* out = fopen(file_out, "w");
+                  out = fopen(file_out, "w");
 
                   // *** DO MIPS CODE GEN HERE. ***
                   generate_mips(out, ast_root, genv);
-
+			
+			fprintf(out, "move $a0, $v0\nli $v0, 1       # Select print_int syscall\nsyscall\n              la $a0, newline\n                li $v0, 4               # Select print_string syscall\n                syscall\nli $v0, 10\nsyscall");
+			
                   free(file_out);
                   fclose(out);
             }

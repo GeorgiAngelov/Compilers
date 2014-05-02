@@ -6,9 +6,19 @@
 #include <glib.h>
 #include <assert.h>
 #include <stdio.h>
-FILE *out;
+
+
+enum {
+     SYMBOL_INVALID = 256,
+     SYMBOL_FIELD,
+     SYMBOL_FUN,
+     SYMBOL_TYPENAME,
+     SYMBOL_VAR,
+     SYMBOL_PSEUDO,
+};
 
 extern int count;
+extern FILE *out;
 
 //local declarations
 void mips_generate_text(FILE* out_ptr, GList * decls, Env* env){
@@ -20,7 +30,11 @@ void mips_generate_text(FILE* out_ptr, GList * decls, Env* env){
 static void mips_traverse_decl(struct decl* d, Env* env) {
 	//printf("Inside mips_traverse_decl\n");
 	Type* calculated = NULL;
-
+	/*
+	if(d->id.kind == SYMBOL_VAR){
+	printf("var %s\n", symbol_to_str(d->id));
+	}
+	*/
 	//if the declaration has any expressions
 	if (d->exp) {
 		const Type* t = mips_traverse_exp(d->exp, env);
@@ -43,32 +57,37 @@ void print_exp_type (int kind)
 	{
 		case AST_EXP_PLUS:
 		{
-			printf("add");
+			fprintf(out, "add");
 			break;
 		}
 		case AST_EXP_MINUS:
 		{
-			printf("sub");
+			fprintf(out, "sub");
 			break;
 		}
 		case AST_EXP_DIV:
 		{
-			printf("div");
+			fprintf(out, "div");
 			break;
 		}
 		case AST_EXP_MOD:
 		{
-			printf("mod");
+			fprintf(out, "rem");
 			break;
 		}
 		case AST_EXP_MUL:
 		{
-			printf("mul");
+			fprintf(out, "mul");
+			break;
+		}
+		case AST_EXP_AND:
+		{
+			fprintf(out, "and");
 			break;
 		}
 		case AST_EXP_OR:
 		{
-			printf("or");
+			fprintf(out, "or");
 			break;
 		}
 	}
@@ -86,89 +105,93 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		case AST_EXP_MINUS:
 		case AST_EXP_DIV:
 		case AST_EXP_MOD:
-		case AST_EXP_MUL: {
+		case AST_EXP_MUL: 
+		case AST_EXP_OR:
+		case AST_EXP_AND: {
 			//const Type* left = mips_traverse_exp(exp->left, env);
 			//const Type* right = mips_traverse_exp(exp->right, env);
 			int leftC;
 			int rightC;
+			
 			//if both expressions are only nums, then we store them in a register
-			if (exp->left->kind == AST_EXP_NUM && exp->right->kind == AST_EXP_NUM) {
+			if 	(
+				(exp->left->kind == AST_EXP_NUM && exp->right->kind == AST_EXP_NUM) || 
+				(exp->left->kind == AST_EXP_TRUE && exp->right->kind == AST_EXP_FALSE) ||
+				(exp->left->kind == AST_EXP_FALSE && exp->right->kind == AST_EXP_TRUE) ||
+				(exp->left->kind == AST_EXP_TRUE && exp->right->kind == AST_EXP_TRUE) ||
+				(exp->left->kind == AST_EXP_FALSE && exp->right->kind == AST_EXP_FALSE)
+				) {
 				//printf("li $t0, %d\n", exp->left->num);
 				//printf("li $t1, %d\n", exp->right->num);
+				//printf("case1\n");
 				
-				
-				printf("store %d in t%d\n", exp->left->num, count);
+				fprintf(out, "li $t%d, %d\n", count, exp->left->num);
 				leftC = count;
 				count++;
-				printf("store %d in t%d\n", exp->right->num, count);
+				fprintf(out, "li $t%d, %d\n", count, exp->right->num);
 				rightC = count;
 				count++;
-				print_exp_type(exp->kind);
-				printf(" $v0, $t%d, $t%d\n", leftC, rightC);
-				count = count -2;
 			}
 			//if the LEFT one is the only num, then store it in a register, because the right side is already in a register
-			else if(exp->left->kind == AST_EXP_NUM){
-				
+			else if(	(exp->left->kind == AST_EXP_NUM) ||
+					(exp->left->kind == AST_EXP_TRUE) ||
+					(exp->left->kind == AST_EXP_FALSE)
+					){
+				//printf("case2\n");
 				
 				//printf("li $t0, %d\n", exp->left->num);
 				
 				
-				printf("store %d in t%d\n", exp->left->num, count);
+				fprintf(out, "li $t%d, %d\n", count, exp->left->num);
 				leftC = count;
 				count++;
 				 mips_traverse_exp(exp->right, env);
 				 //result of right is in v0
-				 printf("move v0 to t%d\n", count);
+				 fprintf(out, "move $t%d, $v0\n", count);
 				 rightC = count;
 				 count++;
-				 print_exp_type(exp->kind);
-				printf(" $v0, $t%d, $t%d\n", leftC, rightC);
-				count = count -2;
 			}
 			//if the RIGHT one is the only num, then store it in a register, because the right side is already in a register
-			else if(exp->right->kind == AST_EXP_NUM){
+			else if(	(exp->right->kind == AST_EXP_NUM) ||
+					(exp->right->kind == AST_EXP_TRUE) ||
+					(exp->right->kind == AST_EXP_FALSE)
+					){
 				//printf("li $t1, %d\n", exp->right->num);
 				
+				//printf("case3\n");
 				
-				
-				printf("store %d in t%d\n", exp->right->num, count);
+				fprintf(out, "li $t%d, %d\n", count, exp->right->num);
 				rightC = count;
 				count++;
 				mips_traverse_exp(exp->left, env);
 				//result of left is in v0
-				printf("move v0 to t%d\n", count);
+				fprintf(out, "move $t%d, $v0\n", count);
 				leftC = count;
 				count++;
-				print_exp_type(exp->kind);
-				printf(" $v0, $t%d, $t%d\n", leftC, rightC);
-				count = count -2;
-				
-				
 			}
 			//if neither one is a NUM, it means that we stored them in a registerr, LEFT Is always $2, and RIGHT Is always $3
 			else{
-				
+				//printf("case4\n");
 				mips_traverse_exp(exp->left, env);
 				//result of left is now stored v0
-				printf("move v0 in t%d\n", count);
+				fprintf(out, "move $t%d, $v0\n", count);
 				leftC = count;
 				count++;
 				mips_traverse_exp(exp->right, env);
 				//result of right is now stored v0
-				printf("move v0 in t%d\n", count);
+				fprintf(out, "move $t%d, $v0\n", count);
 				rightC = count;
 				count++;
-				print_exp_type(exp->kind);
-				printf(" $v0, $t%d, $t%d\n", leftC, rightC);
-				count = count -2;
 			}
+			
+			print_exp_type(exp->kind);
+			fprintf(out, " $v0, $t%d, $t%d\n", leftC, rightC);
+			count = count -2;
+			
 			exp->node_type = type_int_new();
 			break;
 		}
-
-		case AST_EXP_OR:
-		case AST_EXP_AND: {
+		/*{
 			  const Type* left = mips_traverse_exp(exp->left, env);
 			  const Type* right = mips_traverse_exp(exp->right, env);
 
@@ -177,41 +200,41 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			  }
 
 			  break;
-		}
+		}*/
 
-		case AST_EXP_NOT: {
+		case AST_EXP_NOT: {/*
 			  const Type* right = mips_traverse_exp(exp->right, env);
 
 			  if (type_is_bool(right)) {
 					exp->node_type = type_bool_new();
 			  }
-
+*/
 			  break;
 		}
 
 		case AST_EXP_LT:
 		case AST_EXP_LT_EQ:
 		case AST_EXP_GT:
-		case AST_EXP_GT_EQ: {
+		case AST_EXP_GT_EQ: {/*
 			  const Type* left = mips_traverse_exp(exp->left, env);
 			  const Type* right = mips_traverse_exp(exp->right, env);
 
 			  if (type_is_int(left) && type_is_int(right)) {
 					exp->node_type = type_bool_new();
 			  }
-
+*/
 			  break;
 		}
 
 		case AST_EXP_EQ:
-		case AST_EXP_NOT_EQ: {
+		case AST_EXP_NOT_EQ: {/*
 			const Type* left = mips_traverse_exp(exp->left, env);
 			const Type* right = mips_traverse_exp(exp->right, env);
 
 			if (type_equal(left, right) || (type_is_obj(left) && type_is_obj(right))) {
 				exp->node_type = type_bool_new();
 			}
-
+*/
 			break;
 		}
 
@@ -264,14 +287,16 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		}
 
 		case AST_EXP_ARRAY_INDEX: {
+			/*
 			const Type* arr = type_expand(mips_traverse_exp(exp->left, env), env);
 			const Type* idx = mips_traverse_exp(exp->right, env);
 
 			if (type_is_array(arr) && type_is_int(idx)) {
 				exp->node_type = type_copy_deep(type_array_get_eles(arr));
 			}
-
+			*/
 			break;
+			
 		}
 
 		case AST_EXP_FIELD_LOOKUP: {
