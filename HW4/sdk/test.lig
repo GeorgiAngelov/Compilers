@@ -1,8 +1,12 @@
 function main(args : [[int]]) : int {
-	var i : int;
+	//var i : int;
 	var x : int;
-	x = 5+5;
-	i = 6+x;
-	i = i+i;
+	//x = 1 + 2;
+	//x = (3 * 4) + 5;
+	x = 3 * (4 + 5);
+	//x = (1 + 2) + (3 + 4);
+	
+	//i = 6+x;
+	//i = i+i;
 	return (0);
 }

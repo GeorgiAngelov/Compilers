@@ -8,6 +8,8 @@
 #include <stdio.h>
 FILE *out;
 
+extern int count;
+
 //local declarations
 void mips_generate_text(FILE* out_ptr, GList * decls, Env* env){
 	//printf("Inside mips_generate_text\n");
@@ -87,30 +89,79 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		case AST_EXP_MUL: {
 			const Type* left = mips_traverse_exp(exp->left, env);
 			const Type* right = mips_traverse_exp(exp->right, env);
-			
+			int leftC;
+			int rightC;
 			//if both expressions are only nums, then we store them in a register
 			if (exp->left->kind == AST_EXP_NUM && exp->right->kind == AST_EXP_NUM) {
-				printf("li $t0, %d\n", exp->left->num);
-				printf("li $t1, %d\n", exp->right->num);
+				//printf("li $t0, %d\n", exp->left->num);
+				//printf("li $t1, %d\n", exp->right->num);
+				
+				
+				printf("store %d in t%d\n", exp->left->num, count);
+				leftC = count;
+				count++;
+				printf("store %d in t%d\n", exp->right->num, count);
+				rightC = count;
+				count++;
 				print_exp_type(exp->kind);
-				printf(" $t2, $t0, $t1\n");
+				printf(" $v0, $t%d, $t%d\n", leftC, rightC);
+				count = count -2;
 			}
 			//if the LEFT one is the only num, then store it in a register, because the right side is already in a register
 			else if(exp->left->kind == AST_EXP_NUM){
-				printf("li $t0, %d\n", exp->left->num);
-				print_exp_type(exp->kind);
-				printf(" $t2, $t0, $t1\n");
+				
+				
+				//printf("li $t0, %d\n", exp->left->num);
+				
+				
+				printf("store %d in t%d\n", exp->left->num, count);
+				leftC = count;
+				count++;
+				 mips_traverse_exp(exp->right, env);
+				 //result of right is in v0
+				 printf("move v0 to t%d\n", count);
+				 rightC = count;
+				 count++;
+				 print_exp_type(exp->kind);
+				printf(" $v0, $t%d, $t%d\n", leftC, rightC);
+				count = count -2;
 			}
 			//if the RIGHT one is the only num, then store it in a register, because the right side is already in a register
 			else if(exp->right->kind == AST_EXP_NUM){
-				printf("li $t1, %d\n", exp->right->num);
+				//printf("li $t1, %d\n", exp->right->num);
+				
+				
+				
+				printf("store %d in t%d\n", exp->right->num, count);
+				rightC = count;
+				count++;
+				mips_traverse_exp(exp->left, env);
+				//result of left is in v0
+				printf("move v0 to t%d\n", count);
+				leftC = count;
+				count++;
 				print_exp_type(exp->kind);
-				printf(" $t2, $t2, $t1\n");
+				printf(" $v0, $t%d, $t%d\n", leftC, rightC);
+				count = count -2;
+				
+				
 			}
 			//if neither one is a NUM, it means that we stored them in a registerr, LEFT Is always $2, and RIGHT Is always $3
 			else{
+				
+				mips_traverse_exp(exp->left, env);
+				//result of left is now stored v0
+				printf("move v0 in t%d\n", count);
+				leftC = count;
+				count++;
+				mips_traverse_exp(exp->right, env);
+				//result of right is now stored v0
+				printf("move v0 in t%d\n", count);
+				rightC = count;
+				count++;
 				print_exp_type(exp->kind);
-				printf(" $t2, $t2, $t3\n");
+				printf(" $v0, $t%d, $t%d\n", leftC, rightC);
+				count = count -2;
 			}
 			exp->node_type = type_int_new();
 			break;
