@@ -356,6 +356,9 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 		case AST_STMT_IF: {
 			  //const Type* cond = mips_traverse_exp(stmt->exp, env);
 			int resultC;
+			int resultcompareC;
+			std::string elselabel = mips_label_gen();
+			std::string endelselabel = mips_label_gen();
 			
 			//evaluate boolean expression
 			mips_traverse_exp(stmt->exp, env);
@@ -363,15 +366,21 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			fprintf(out, "move $t%d, $v0\n", count);
 			resultC = count;
 			count++;
+			fprintf(out, "li $t%d, 1\n", count);
+			resultcompareC = count;
+			count++;
 			//check evaluation value
-			fprintf("bnez $t%d, %s\n", resultC, iLabel);
+			fprintf(out, "bnez $t%d, $t%d, %s\n", resultC, resultcompareC, elselabel.c_str());
 			//jump to else if false
 			g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
 			//jump to end else if true
+			fprintf(out, "li $t%d, 0 \n", resultcompareC);
+			fprintf(out, "beq $t%d, $t%d, %s\n", resultC, resultcompareC, endelselabel.c_str());
 			//print else label
-			fprintf(out, "");
+			fprintf(out, "%s:", elselabel.c_str());
 			g_list_foreach(stmt->block2, (GFunc)mips_traverse_stmt, env);
 			//print end else label
+			fprintf(out, "%s:", endelselabel.c_str());
 			
 			  break;
 		}
