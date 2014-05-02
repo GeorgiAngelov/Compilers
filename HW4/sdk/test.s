@@ -32,6 +32,12 @@ add $v0, $t2, $t3
 li $t1, 0 
 beq $t0, $t1, _lbl1
 _lbl0:_lbl1:move $a0, $v0
+_lbl0: While Condition Here
+li $t0, 5
+li $t1, 5
+add $v0, $t0, $t1
+j _lbl0
+move $a0, $v0
 li $v0, 1       # Select print_int syscall
 syscall
               la $a0, newline

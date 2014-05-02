@@ -387,10 +387,10 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 
 		case AST_STMT_WHILE: {
 			  const Type* cond = mips_traverse_exp(stmt->exp, env);
-			  g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
 			  std::string label = mips_label_gen();
-			  printf("Test: %s\n", label.c_str());
-			  // printf("Label: %s\n", mips_label_gen("while"));
+			  fprintf(out, "%s: %s\n", label.c_str(), "While Condition Here");
+			  g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
+			  fprintf(out, "j %s\n", label.c_str());
 
 			  break;
 		}
