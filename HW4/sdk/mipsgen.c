@@ -14,6 +14,7 @@
 #include <string>
 #include <sstream>
 
+
 enum {
      SYMBOL_INVALID = 256,
      SYMBOL_FIELD,
@@ -25,7 +26,8 @@ enum {
 
 extern int count;
 extern int label_count;
-extern FILE *out;
+//extern FILE *out;
+extern std::ofstream out;
 
 std::string mips_label_gen() {
 	std::string label = "_lbl";
@@ -42,9 +44,9 @@ std::string mips_label_gen() {
 }
 
 //local declarations
-void mips_generate_text(FILE* out_ptr, GList * decls, Env* env){
+void mips_generate_text(GList * decls, Env* env){
 	//printf("Inside mips_generate_text\n");
-	out = out_ptr;
+	//out = out_ptr;
 	g_list_foreach(decls, (GFunc)mips_traverse_decl, env);
 }
 
@@ -78,37 +80,44 @@ void print_exp_type (int kind)
 	{
 		case AST_EXP_PLUS:
 		{
-			fprintf(out, "add");
+			//fprintf(out, "add");
+			out << "add";
 			break;
 		}
 		case AST_EXP_MINUS:
 		{
-			fprintf(out, "sub");
+			//fprintf(out, "sub");
+			out << "sub";
 			break;
 		}
 		case AST_EXP_DIV:
 		{
-			fprintf(out, "div");
+			//fprintf(out, "div");
+			out << "div";
 			break;
 		}
 		case AST_EXP_MOD:
 		{
-			fprintf(out, "rem");
+			//fprintf(out, "rem");
+			out << "rem";
 			break;
 		}
 		case AST_EXP_MUL:
 		{
-			fprintf(out, "mul");
+			//fprintf(out, "mul");
+			out << "mul";
 			break;
 		}
 		case AST_EXP_AND:
 		{
-			fprintf(out, "and");
+			//fprintf(out, "and");
+			out << "and";
 			break;
 		}
 		case AST_EXP_OR:
 		{
-			fprintf(out, "or");
+			//fprintf(out, "or");
+			out << "or";
 			break;
 		}
 	}
@@ -150,10 +159,12 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 				//printf("li $t1, %d\n", exp->right->num);
 				//printf("case1\n");
 				
-				fprintf(out, "li $t%d, %d\n", count, exp->left->num);
+				//fprintf(out, "li $t%d, %d\n", count, exp->left->num);
+				out << "li $t" << count << ", " << exp->left->num << std::endl;
 				leftC = count;
 				count++;
-				fprintf(out, "li $t%d, %d\n", count, exp->right->num);
+				//fprintf(out, "li $t%d, %d\n", count, exp->right->num);
+				out << "li $t" << count << ", " << exp->right->num << std::endl;
 				rightC = count;
 				count++;
 			}
@@ -167,12 +178,14 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 				//printf("li $t0, %d\n", exp->left->num);
 				
 				
-				fprintf(out, "li $t%d, %d\n", count, exp->left->num);
+				//fprintf(out, "li $t%d, %d\n", count, exp->left->num);
+				out << "li $t" << count << ", " << exp->left->num << std::endl;
 				leftC = count;
 				count++;
 				 mips_traverse_exp(exp->right, env);
 				 //result of right is in v0
-				 fprintf(out, "move $t%d, $v0\n", count);
+				 //fprintf(out, "move $t%d, $v0\n", count);
+				 out << "move $t" << count << ", $v0" << std::endl;
 				 rightC = count;
 				 count++;
 			}
@@ -185,12 +198,14 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 				
 				//printf("case3\n");
 				
-				fprintf(out, "li $t%d, %d\n", count, exp->right->num);
+				//fprintf(out, "li $t%d, %d\n", count, exp->right->num);
+				out << "li $t" << count << ", " << exp->right->num << std::endl;
 				rightC = count;
 				count++;
 				mips_traverse_exp(exp->left, env);
 				//result of left is in v0
-				fprintf(out, "move $t%d, $v0\n", count);
+				//fprintf(out, "move $t%d, $v0\n", count);
+				out << "move $t" << count << ", $v0" << std::endl;
 				leftC = count;
 				count++;
 			}
@@ -199,18 +214,21 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 				//printf("case4\n");
 				mips_traverse_exp(exp->left, env);
 				//result of left is now stored v0
-				fprintf(out, "move $t%d, $v0\n", count);
+				//fprintf(out, "move $t%d, $v0\n", count);
+				out << "move $t" << count << ", $v0" << std::endl;
 				leftC = count;
 				count++;
 				mips_traverse_exp(exp->right, env);
 				//result of right is now stored v0
-				fprintf(out, "move $t%d, $v0\n", count);
+				//fprintf(out, "move $t%d, $v0\n", count);
+				out << "move $t" << count << ", $v0" << std::endl;
 				rightC = count;
 				count++;
 			}
 			
 			print_exp_type(exp->kind);
-			fprintf(out, " $v0, $t%d, $t%d\n", leftC, rightC);
+			//fprintf(out, " $v0, $t%d, $t%d\n", leftC, rightC);
+			out << " $v0, $t" << leftC << ", $t" << rightC << std::endl;
 			count = count -2;
 			
 			exp->node_type = type_int_new();
@@ -363,24 +381,31 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			//evaluate boolean expression
 			mips_traverse_exp(stmt->exp, env);
 			//store result in next available register
-			fprintf(out, "move $t%d, $v0\n", count);
+			//fprintf(out, "move $t%d, $v0\n", count);
+			out << "move $t" << count << ", $v0" << std::endl;
 			resultC = count;
 			count++;
-			fprintf(out, "li $t%d, 1\n", count);
+			//fprintf(out, "li $t%d, 1\n", count);
+			out << "li $t" << count << ", 1" << std::endl;
 			resultcompareC = count;
 			count++;
 			//check evaluation value
-			fprintf(out, "bnez $t%d, $t%d, %s\n", resultC, resultcompareC, elselabel.c_str());
+			//fprintf(out, "bnez $t%d, $t%d, %s\n", resultC, resultcompareC, elselabel.c_str());
+			out << "benz $t" << resultC << ", $t" << resultcompareC << ", " << elselabel << std::endl;
 			//jump to else if false
 			g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
 			//jump to end else if true
-			fprintf(out, "li $t%d, 0 \n", resultcompareC);
-			fprintf(out, "beq $t%d, $t%d, %s\n", resultC, resultcompareC, endelselabel.c_str());
+			//fprintf(out, "li $t%d, 0 \n", resultcompareC);
+			out << "li $t" << resultcompareC << ", 0" << std::endl;
+			//fprintf(out, "beq $t%d, $t%d, %s\n", resultC, resultcompareC, endelselabel.c_str());
+			out << "beq $t" << resultC << ", $t" << resultcompareC << ", " << endelselabel << std::endl;
 			//print else label
-			fprintf(out, "%s:", elselabel.c_str());
+			//fprintf(out, "%s:", elselabel.c_str());
+			out << elselabel << ":" << std::endl;
 			g_list_foreach(stmt->block2, (GFunc)mips_traverse_stmt, env);
 			//print end else label
-			fprintf(out, "%s:", endelselabel.c_str());
+			//fprintf(out, "%s:", endelselabel.c_str());
+			out << endelselabel << ":" << std::endl;
 			
 			  break;
 		}
@@ -388,10 +413,12 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 		case AST_STMT_WHILE: {
 			  const Type* cond = mips_traverse_exp(stmt->exp, env);
 			  std::string label = mips_label_gen();
-			  fprintf(out, "%s: %s\n", label.c_str(), "While Condition Here");
+			  //fprintf(out, "%s: %s\n", label.c_str(), "While Condition Here");
+			  out << label << ":" << "While Condition Here" << std::endl;
 			  g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
-			  fprintf(out, "j %s\n", label.c_str());
-
+			  //fprintf(out, "j %s\n", label.c_str());
+			out << "j " << label << std::endl;
+				
 			  break;
 		}
 

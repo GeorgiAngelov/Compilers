@@ -11,6 +11,9 @@
 #include <stdio.h>
 #include <glib.h>
 
+#include <iostream>
+#include <fstream> 
+
 int yyparse(void);
 
 static void insert_decl(struct decl* d, Env* env);
@@ -24,7 +27,8 @@ static Env* genv;
 
 int count;
 int label_count;
-FILE* out;
+//FILE* out;
+std::ofstream out;
 
 void done_parsing(GList* parse_result) {
       ast_root = parse_result;
@@ -109,43 +113,49 @@ static int check_main_defined(void) {
       return main_defined;
 }
 
-static void generate_data(FILE* out, GList * ast_root, Env* genv)
+static void generate_data(GList * ast_root, Env* genv)
 {
 	//mips_print_main(ast_root);
 	//if(check_main_defined()==1)
 	//fprintf(out,"you gonna get reminded");
 	
-	fprintf(out, "newline:	.asciiz \"\\n\"");
+	//fprintf(out, "newline:	.asciiz \"\\n\"");
+	out << "newline:	.asciiz \"\\n\"" << std::endl;
 	
 }
 
-static void generate_text(FILE* out, GList * ast_root, Env* genv)
+static void generate_text(GList * ast_root, Env* genv)
 {
 	if(check_main_defined()==1)
-		fprintf(out,"\t\tmain:\n");
+		//fprintf(out,"\t\tmain:\n");
+		out << "\t\tmain:\n";
 	
 	
 	///////////////////////////////////////////
 	//do all asignment and declarations ( Local only )
 	///////////////////////////////////////////
-	mips_generate_text(out, ast_root, genv);
+	mips_generate_text(ast_root, genv);
 	
 	
 	//generate exit system call
 	//fprintf(out, "\t\tli,$v0,10\n");
+	//out << "\t\tli,$v0, 10\n";
 	//fprintf(out, "\t\tsyscall\n");
+	//out << "\t\tsyscall\n";
 	
 }
 
-static void generate_mips(FILE* out, GList* ast_root, Env* genv)
+static void generate_mips(GList* ast_root, Env* genv)
 {
-	fprintf(out, "\t\t.data\n");
+	//fprintf(out, "\t\t.data\n");
+	out << "\t\t.data\n";
 	//generate data section
-	generate_data(out, ast_root, genv);
+	generate_data(ast_root, genv);
 		
-	fprintf(out, "\n\t\t.text\n");
+	//fprintf(out, "\n\t\t.text\n");
+	out << "\t\t.text\n";
 	//generate text section
-	generate_text(out, ast_root, genv);
+	generate_text(ast_root, genv);
 	
 }
 
@@ -220,16 +230,18 @@ int main(int argc, char** argv) {
 
                   *(file_out + prefix) = 0; // Replace that "." in ".lig" with a null terminator.
                   strcat(file_out, ".s"); // Add the new extension.
-
-                  out = fopen(file_out, "w");
-
-                  // *** DO MIPS CODE GEN HERE. ***
-                  generate_mips(out, ast_root, genv);
+                  //out = fopen(file_out, "w");
+			out.open(file_out);
 			
-			fprintf(out, "move $a0, $v0\nli $v0, 1       # Select print_int syscall\nsyscall\n              la $a0, newline\n                li $v0, 4               # Select print_string syscall\n                syscall\nli $v0, 10\nsyscall");
+                  // *** DO MIPS CODE GEN HERE. ***
+                  generate_mips(ast_root, genv);
+			
+			//fprintf(out, "move $a0, $v0\nli $v0, 1       # Select print_int syscall\nsyscall\n              la $a0, newline\n                li $v0, 4               # Select print_string syscall\n                syscall\nli $v0, 10\nsyscall");
+			out << "move $a0, $v0\nli $v0, 1       # Select print_int syscall\nsyscall\n              la $a0, newline\n                li $v0, 4               # Select print_string syscall\n                syscall\nli $v0, 10\nsyscall";
 			
                   free(file_out);
-                  fclose(out);
+                  //fclose(out);
+                  out.close();
             }
 
             env_destroy(genv);
