@@ -23,6 +23,11 @@ move $t2, $v0
 add $v0, $t1, $t2
 move $t1, $v0
 div $v0, $t1, $t0
+_lbl0: While Condition Here
+li $t0, 5
+li $t1, 5
+add $v0, $t0, $t1
+j _lbl0
 move $a0, $v0
 li $v0, 1       # Select print_int syscall
 syscall
