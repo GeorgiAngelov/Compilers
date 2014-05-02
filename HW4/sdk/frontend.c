@@ -23,6 +23,7 @@ static GList* ast_root;
 static Env* genv; 
 
 int count;
+int label_count;
 FILE* out;
 
 void done_parsing(GList* parse_result) {
@@ -153,6 +154,7 @@ int main(int argc, char** argv) {
       int ast_flag = 0, do_codegen = 1;
       yyin = NULL;
       count = 0;
+      label_count = 0;
 
       if (argc < 2) {
             printf("Usage: %s [--ast] <liger_source_file>\n", argv[0]);

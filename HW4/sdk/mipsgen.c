@@ -1,12 +1,18 @@
 #include "typecheck.h"
 #include "mipsgen.h"
-#include "type.h"
 #include "ast.h"
 #include "env.h"
-#include <glib.h>
+#include "frontend.h"
+
+#include "lexer.h"
+#include "parser.h"
+
 #include <assert.h>
 #include <stdio.h>
+#include <glib.h>
 
+#include <string>
+#include <sstream>
 
 enum {
      SYMBOL_INVALID = 256,
@@ -18,7 +24,22 @@ enum {
 };
 
 extern int count;
+extern int label_count;
 extern FILE *out;
+
+std::string mips_label_gen() {
+	std::string label = "_lbl";
+
+	std::string s;
+	std::stringstream out;
+	out << label_count;
+	s = out.str();
+
+	label.append(s);  
+	label_count++;
+
+	return label;
+}
 
 //local declarations
 void mips_generate_text(FILE* out_ptr, GList * decls, Env* env){
@@ -342,6 +363,9 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 		case AST_STMT_WHILE: {
 			  const Type* cond = mips_traverse_exp(stmt->exp, env);
 			  g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
+			  std::string label = mips_label_gen();
+			  printf("Test: %s\n", label.c_str());
+			  // printf("Label: %s\n", mips_label_gen("while"));
 
 			  break;
 		}
