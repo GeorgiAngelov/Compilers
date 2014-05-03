@@ -154,9 +154,31 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		case AST_EXP_AND: {
 			//const Type* left = mips_traverse_exp(exp->left, env);
 			//const Type* right = mips_traverse_exp(exp->right, env);
-			int leftC;
-			int rightC;
+			//int leftC;
+			//int rightC;
 			
+			out << "sub $sp, $sp, 4" << std::endl;
+			
+			stack_count += 4;
+			
+			mips_traverse_exp(exp->left, env);
+			
+			out << "sw $v0, 0($sp)"<< std::endl;
+			
+			mips_traverse_exp(exp->right, env);
+			
+			out << "lw $v1, 0($sp)" << std::endl;
+			
+			out << "add $sp, $sp, 4" << std::endl;
+			
+			stack_count = stack_count - 4;
+			
+			print_exp_type(exp->kind);
+			
+			out << " $v0, $v1, $v0" << std::endl;
+			
+			
+			/*
 			//if both expressions are only nums, then we store them in a register
 			if 	(
 				(exp->left->kind == AST_EXP_NUM && exp->right->kind == AST_EXP_NUM) || 
@@ -225,14 +247,26 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 				mips_traverse_exp(exp->left, env);
 				//result of left is now stored v0
 				//fprintf(out, "move $t%d, $v0\n", count);
-				out << "move $t" << count << ", $v0" << std::endl;
-				leftC = count;
-				count++;
+				//out << "move $t" << count << ", $v0" << std::endl;
+				//leftC = count;
+				//count++;
+				
+				out << "sub $sp, $sp, 4" << std::endl;
+				//set up var access in map
+				stack_count += 4;
+				out << "sw $v0, " << stack_count << "($fp)" << std::endl;
+				
 				mips_traverse_exp(exp->right, env);
 				//result of right is now stored v0
 				//fprintf(out, "move $t%d, $v0\n", count);
 				out << "move $t" << count << ", $v0" << std::endl;
 				rightC = count;
+				count++;
+				
+				out << "lw $t" << count << ", " << stack_count << "($fp)" << std::endl;
+				out << "add $sp, $sp, 4" << std::endl;
+				stack_count = stack_count - 4;
+				leftC = count;
 				count++;
 			}
 			
@@ -240,7 +274,7 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			//fprintf(out, " $v0, $t%d, $t%d\n", leftC, rightC);
 			out << " $v0, $t" << leftC << ", $t" << rightC << std::endl;
 			count = count -2;
-			
+			*/
 			exp->node_type = type_int_new();
 			break;
 		}
@@ -311,16 +345,19 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 
 		case AST_EXP_NUM: {
 			exp->node_type = type_int_new();
+			out << "li $v0, " << exp->num << std::endl;
 			break;
 		}
 
 		case AST_EXP_TRUE: {
 			exp->node_type = type_bool_new();
+			out << "li $v0, 1" << std::endl;
 			break;
 		}
 
 		case AST_EXP_FALSE: {
 			exp->node_type = type_bool_new();
+			out << "li $v0, 0" << std::endl;
 			break;
 		}
 
@@ -337,7 +374,12 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		case AST_EXP_ID: {
 			//exp->node_type = type_copy_deep(env_lookup(env, exp->id));
 			
-			
+			std::string id(symbol_to_str((exp->id)));
+			  
+			int offset = local_variables[id];
+			  
+			//$vo contains result of right expression.
+			out << "lw $v0, " << offset << "($fp)" << std::endl;
 			
 			break;
 		}
