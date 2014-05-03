@@ -2,7 +2,7 @@
 #include "mipsgen.h"
 #include "ast.h"
 #include "env.h"
-#include "frontend.h"
+#include "frontend.h"m
 
 #include "lexer.h"
 #include "parser.h"
@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <fstream> 
+#include <map>
 
 int yyparse(void);
 
@@ -29,6 +30,7 @@ int count;
 int label_count;
 //FILE* out;
 std::ofstream out;
+std::map<std::string, int> local_variables;
 
 void done_parsing(GList* parse_result) {
       ast_root = parse_result;
@@ -129,6 +131,7 @@ static void generate_text(GList * ast_root, Env* genv)
 	if(check_main_defined()==1)
 		//fprintf(out,"\t\tmain:\n");
 		out << "\t\tmain:\n";
+		out << "move $fp $sp" << std::endl;
 	
 	
 	///////////////////////////////////////////
@@ -237,7 +240,20 @@ int main(int argc, char** argv) {
                   generate_mips(ast_root, genv);
 			
 			//fprintf(out, "move $a0, $v0\nli $v0, 1       # Select print_int syscall\nsyscall\n              la $a0, newline\n                li $v0, 4               # Select print_string syscall\n                syscall\nli $v0, 10\nsyscall");
-			out << "move $a0, $v0\nli $v0, 1       # Select print_int syscall\nsyscall\n              la $a0, newline\n                li $v0, 4               # Select print_string syscall\n                syscall\nli $v0, 10\nsyscall";
+			for( std::map<std::string, int>::iterator ii=local_variables.begin(); ii!=local_variables.end(); ++ii)
+			{
+				int offset = (*ii).second;
+				out << "lw $a0, " << offset << "($fp)" << std::endl;
+				//out << "li " << offset << "($fp), 1" << std::endl;
+				out << "li $v0, 1" << std::endl;
+				out << "syscall" << std::endl;
+				out << "la $a0, newline" << std::endl;
+				out << "li $v0, 4" << std::endl;
+				out << "syscall" << std::endl;
+			}
+			out <<
+			"li $v0, 10\n" <<
+			"syscall";
 			
                   free(file_out);
                   //fclose(out);

@@ -13,6 +13,7 @@
 
 #include <string>
 #include <sstream>
+#include <map>
 
 
 enum {
@@ -28,6 +29,9 @@ extern int count;
 extern int label_count;
 //extern FILE *out;
 extern std::ofstream out;
+extern std::map<std::string, int> local_variables;
+
+int stack_count = 0;
 
 std::string mips_label_gen() {
 	std::string label = "_lbl";
@@ -71,6 +75,16 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 		g_list_foreach(d->decls, (GFunc)mips_traverse_decl, merged_env);
 		g_list_foreach(d->stmts, (GFunc)mips_traverse_stmt, merged_env);
 		env_destroy(merged_env);
+	}
+	else
+	{
+		
+		out << "sub $sp, $sp, 4" << std::endl;
+		//set up var access in map
+		std::string id(symbol_to_str((d->id)));
+		stack_count += 4;
+		local_variables[id] = stack_count;
+		
 	}
 }
 
@@ -137,11 +151,7 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		case AST_EXP_MOD:
 		case AST_EXP_MUL: 
 		case AST_EXP_OR:
-		case AST_EXP_AND: 
-		case AST_EXP_LT:
-		case AST_EXP_LT_EQ:
-		case AST_EXP_GT:
-		case AST_EXP_GT_EQ: {
+		case AST_EXP_AND: {
 			//const Type* left = mips_traverse_exp(exp->left, env);
 			//const Type* right = mips_traverse_exp(exp->right, env);
 			int leftC;
@@ -234,6 +244,26 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			exp->node_type = type_int_new();
 			break;
 		}
+		case AST_EXP_LT:
+		case AST_EXP_GT:{
+			
+			/*
+			mips_traverse_exp(exp->left, env);
+			out << "move $t" << count << ", $v0" << std::endl;
+			leftC = count;
+			count++;
+			mips_traverse_exp(exp->right, env);
+			*/
+			break;
+		}
+		case AST_EXP_GT_EQ:
+		case AST_EXP_LT_EQ:
+		{
+			
+			break;
+		}
+		
+		
 		/*{
 			  const Type* left = mips_traverse_exp(exp->left, env);
 			  const Type* right = mips_traverse_exp(exp->right, env);
@@ -305,7 +335,10 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		}
 
 		case AST_EXP_ID: {
-			exp->node_type = type_copy_deep(env_lookup(env, exp->id));
+			//exp->node_type = type_copy_deep(env_lookup(env, exp->id));
+			
+			
+			
 			break;
 		}
 
@@ -366,9 +399,24 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			  break;
 		}
 		case AST_STMT_ASSIGN: {
-			  const Type* left = mips_traverse_exp(stmt->left, env);
-			  const Type* right = mips_traverse_exp(stmt->right, env);
-			  break;
+			
+			if (stmt->right->kind == AST_EXP_NUM)
+			{
+				out << "li $v0 " << stmt->right->num << std::endl;
+			}
+			else
+			{
+				const Type* right = mips_traverse_exp(stmt->right, env);
+			}
+			
+			std::string id(symbol_to_str((stmt->left->id)));
+			  
+			int offset = local_variables[id];
+			  
+			//$vo contains result of right expression.
+			out << "sw $v0, " << offset << "($fp)" << std::endl;
+			  
+			break;
 		}
 
 		case AST_STMT_IF: {
