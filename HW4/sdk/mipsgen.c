@@ -78,13 +78,15 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 	}
 	else
 	{
-		
+		//How to reserve space on the stack for local
+		//Also below is the reserve space
 		out << "sub $sp, $sp, 4" << std::endl;
-		//set up var access in map
+		//set up var access in map -- looks up the id
 		std::string id(symbol_to_str((d->id)));
+		//this increments the stack count, the current offset
 		stack_count += 4;
-		local_variables[id] = stack_count;
-		
+		//thus is stored on a map based on the id
+		local_variables[id] = stack_count;	
 	}
 }
 
@@ -398,8 +400,8 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			  }
 			  break;
 		}
-		case AST_STMT_ASSIGN: {
-			
+		case AST_STMT_ASSIGN: {		
+			//checks if the number being assigned is just a num, if exp then looks up the value
 			if (stmt->right->kind == AST_EXP_NUM)
 			{
 				out << "li $v0 " << stmt->right->num << std::endl;
@@ -408,14 +410,18 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			{
 				const Type* right = mips_traverse_exp(stmt->right, env);
 			}
+			//After end, value will be stored $v0
 			
+			//Then we do ID lookup
 			std::string id(symbol_to_str((stmt->left->id)));
-			  
+			
+			//Find the particular symbol's offset  
 			int offset = local_variables[id];
-			  
+			
+			//This is where the storage of $v0 happens  
 			//$vo contains result of right expression.
 			out << "sw $v0, " << offset << "($fp)" << std::endl;
-			  
+			 
 			break;
 		}
 
@@ -459,26 +465,27 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 		}
 
 		case AST_STMT_WHILE: {
+			out << "sub $sp, $sp, 4" << std::endl;
+			stack_count += 4;
+
 			std::string while_label = mips_label_gen();
 			int resultC;
 			int resultcompareC;
 
 			mips_traverse_exp(stmt->exp, env);
-			out << "move $t" << count << ", $v0" << std::endl;
-			resultC = count;
-			count++;
+			out << "sw $v0, 0($sp)" << std::endl;
 
-			out << "li $t" << count << ", 0" << std::endl;
-			resultcompareC = count;
-
-			out << while_label << ":" << "beq $t" << resultC << ", $t" << resultcompareC << ", " << while_label << std::endl;
+			out << while_label << ":" << "beq 0($sp)" << ", 0, " << while_label << std::endl;
 			g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
 		  	out << "j " << while_label << std::endl;
-				
+			
+			stack_count -= 4;
+			out << "add $sp, $sp, 4" << std::endl;
 			break;
 		}
 
 		case AST_STMT_FOR: {
+			//TODO - NEED to implement the left and the right as well!!
 			const Type* lval = mips_traverse_exp(stmt->left, env);
 			// const Type* from = mips_traverse_exp(stmt->exp, env);
 			const Type* to = mips_traverse_exp(stmt->right, env);

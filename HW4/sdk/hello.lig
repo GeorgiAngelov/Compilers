@@ -1,7 +1,0 @@
-function main (argv : [[int]]) : int {
-      print("Hello world");
-      print([10]);
-
-      return (0);
-}
-
