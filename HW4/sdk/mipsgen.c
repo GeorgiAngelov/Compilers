@@ -219,7 +219,7 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 				leftC = count;
 				count++;
 			}
-			//if neither one is a NUM, it means that we stored them in a registerr, LEFT Is always $2, and RIGHT Is always $3
+			//if neither one is a NUM, it means that we stored them in a register, LEFT Is always $2, and RIGHT Is always $3
 			else{
 				//printf("case4\n");
 				mips_traverse_exp(exp->left, env);
@@ -455,29 +455,56 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			//fprintf(out, "%s:", endelselabel.c_str());
 			out << endelselabel << ":" << std::endl;
 			
-			  break;
+			break;
 		}
 
 		case AST_STMT_WHILE: {
-			  const Type* cond = mips_traverse_exp(stmt->exp, env);
-			  std::string label = mips_label_gen();
-			  //fprintf(out, "%s: %s\n", label.c_str(), "While Condition Here");
-			  out << label << ":" << "While Condition Here" << std::endl;
-			  g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
-			  //fprintf(out, "j %s\n", label.c_str());
-			out << "j " << label << std::endl;
+			std::string while_label = mips_label_gen();
+			int resultC;
+			int resultcompareC;
+
+			mips_traverse_exp(stmt->exp, env);
+			out << "move $t" << count << ", $v0" << std::endl;
+			resultC = count;
+			count++;
+
+			out << "li $t" << count << ", 0" << std::endl;
+			resultcompareC = count;
+
+			out << while_label << ":" << "beq $t" << resultC << ", $t" << resultcompareC << ", " << while_label << std::endl;
+			g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
+		  	out << "j " << while_label << std::endl;
 				
-			  break;
+			break;
 		}
 
 		case AST_STMT_FOR: {
-			  const Type* lval = mips_traverse_exp(stmt->left, env);
-			  const Type* from = mips_traverse_exp(stmt->exp, env);
-			  const Type* to = mips_traverse_exp(stmt->right, env);
+			const Type* lval = mips_traverse_exp(stmt->left, env);
+			// const Type* from = mips_traverse_exp(stmt->exp, env);
+			const Type* to = mips_traverse_exp(stmt->right, env);
 
-			  g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
+			std::string for_label = mips_label_gen();
+			std::string end_for_label = mips_label_gen();
+			int resultC;
+			int counter;
 
-			  break;
+			mips_traverse_exp(stmt->exp, env);
+			out << "move $t" << count << ", $v0" << std::endl;
+			resultC = count;
+			count++;
+
+			//Load the counter
+			out << "li $t" << count << ", 0" << std::endl;
+			counter = count;
+			count++;
+
+			out << for_label << ": " << "beq $t" << resultC << ", $t" << counter << ", " << end_for_label << std::endl;
+			g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
+			out << "addi $t" << counter << ", 1" << std::endl;
+		  	out << "j " << for_label << std::endl;
+		  	out << end_for_label << ":" << std::endl;
+
+			break;
 		}
 
 		case AST_STMT_RETURN: {
@@ -495,33 +522,3 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 		}
 	}
 }
-
-
-/*
-void mips_find_print_main(Env* genv) {
-	GList* params = NULL;
-	params = g_list_append(params, decl_param_new("args", type_array_new(type_array_new(type_int_new()))));
-	Type* maintype = type_fun_new(params, type_int_new());
-
-	int main_defined = type_equal(maintype, env_lookup(genv, symbol_fun("main")));
-	
-	if(main_defined == 1){
-		fprintf(out,"Main declared");
-		return;
-	}
-	return;
-}
-
-void mips_find_print_declarations_local(Env* genv){
-	GList *params = NULL;
-	Type* inttype = type_int_new();	
-	//int int_defined = type_equal(inttype, env_lookup(genv,
-	return;
-}
-
-void mips_print_main(GList * ast_root){
-	Env* genv = env_new();
-	insert_decls(ast_root, genv);
-	//decls_print(ast_root);
-	g_list_foreach(genv, (GFunc)mips_find_print_main, NULL);
-}*/
