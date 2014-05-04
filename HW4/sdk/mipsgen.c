@@ -538,8 +538,8 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 
 			std::string while_label = mips_label_gen();
 			std::string end_while_label = mips_label_gen();
-			int resultC;
-			int resultcompareC;
+			//int resultC;
+			//int resultcompareC;
 
 			//out << while_label << ":" << "beq 0($sp)" << ", 0, " << while_label << std::endl;
 			out << while_label << ":" << std::endl;
@@ -562,10 +562,51 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			// const Type* from = mips_traverse_exp(stmt->exp, env);
 			const Type* to = mips_traverse_exp(stmt->right, env);
 
+			//left is the variable I look up (i)
+			//expr is what I set i equal to initially
+			//right is the expression I check against.
+			
+			//find value of expr
+			mips_traverse_exp(stmt->exp, env);
+
+			//Then we do ID lookup
+			std::string id(symbol_to_str((stmt->left->id)));
+			
+			//Find the particular symbol's offset  
+			int offset = local_variables[id];
+			
+			//assign initial value to counter
+			out << "sw $v0, " << offset << "($fp)" << std::endl;
+
 			std::string for_label = mips_label_gen();
 			std::string end_for_label = mips_label_gen();
-			int resultC;
-			int counter;
+			//int resultC;
+			//int counter;
+			
+			//print for label
+			out << for_label << ":" << std::endl;
+			
+			//do comparison
+			mips_traverse_exp(stmt->right, env);
+			out << "lw $v1, " << offset << "($fp)" << std::endl;
+			out << "bge $v1, $v0, " << end_for_label << std::endl;
+			
+			//execute block
+			g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
+			
+			//increment counter
+			out << "lw $v0, " << offset << "($fp)" << std::endl;
+			out << "addi $v0, $v0, 1" << std::endl;
+			out << "sw $v0, " << offset << "($fp)" << std::endl;
+			
+			
+			//loop
+			out << "j " << for_label << std::endl;
+			
+			//print end for label
+			out << end_for_label << ":" << std::endl;
+			
+			/*
 
 			mips_traverse_exp(stmt->exp, env);
 			out << "move $t" << count << ", $v0" << std::endl;
@@ -578,10 +619,10 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			count++;
 
 			out << for_label << ": " << "beq $t" << resultC << ", $t" << counter << ", " << end_for_label << std::endl;
-			g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
-			out << "addi $t" << counter << ", 1" << std::endl;
-		  	out << "j " << for_label << std::endl;
-		  	out << end_for_label << ":" << std::endl;
+			
+			
+		  	
+		  	*/
 
 			break;
 		}
