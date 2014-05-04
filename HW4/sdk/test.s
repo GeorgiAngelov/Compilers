@@ -23,7 +23,7 @@ bge $v1, $v0, _lbl1
 sub $sp, $sp, 4
 lw $v0, 4($fp)
 sw $v0, 0($sp)
-li $v0, 2
+li $v0, 4
 lw $v1, 0($sp)
 add $sp, $sp, 4
 mul $v0, $v1, $v0

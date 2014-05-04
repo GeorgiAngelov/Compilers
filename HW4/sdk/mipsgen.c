@@ -34,14 +34,16 @@ extern std::map<std::string, int> local_variables;
 
 int stack_count = 0;
 
+//function to generate a the next label ( done so we do not interfere with previously created labels )
 std::string mips_label_gen() {
 	std::string label = "_lbl";
 
 	std::string s;
+	//input the label_count as a string
 	std::stringstream out;
 	out << label_count;
 	s = out.str();
-
+	//append the count number to the "label" string
 	label.append(s);  
 	label_count++;
 
@@ -50,19 +52,13 @@ std::string mips_label_gen() {
 
 //local declarations
 void mips_generate_text(GList * decls, Env* env){
-	//printf("Inside mips_generate_text\n");
-	//out = out_ptr;
+	//loop through each declaration in the tree
 	g_list_foreach(decls, (GFunc)mips_traverse_decl, env);
 }
 
 static void mips_traverse_decl(struct decl* d, Env* env) {
-	//printf("Inside mips_traverse_decl\n");
 	Type* calculated = NULL;
-	/*
-	if(d->id.kind == SYMBOL_VAR){
-	printf("var %s\n", symbol_to_str(d->id));
-	}
-	*/
+
 	//if the declaration has any expressions
 	if (d->exp) {
 		const Type* t = mips_traverse_exp(d->exp, env);
@@ -144,28 +140,30 @@ void print_exp_type (int kind)
 		}
 		case AST_EXP_GT:
 		{
-			reverse = 1;
-			out << "slt";
+			//reverse = 1;
+			out << "sgt";
 			break;
 		}
 		case AST_EXP_GT_EQ:
 		{
-			out << "";
+			out << "sge";
 			break;
 		}
 		case AST_EXP_LT_EQ:
 		{
-			out << "";
+			out << "sle";
 			break;
 		}
 		case AST_EXP_EQ:
 		{
-			out << "";
+			out << "seq";
+			//reverse = EQUAL_KEY
 			break;
 		}
 		case AST_EXP_NOT_EQ:
 		{
-			out << "";
+			out << "sne";
+			//reverse = NOT_EQUAL_KEY
 			break;
 		}
 	}
@@ -173,7 +171,6 @@ void print_exp_type (int kind)
 }
 
 static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
-	//printf("Inside mips_traverse_exp\n");
 	exp->node_type = NULL;
 
 	switch (exp->kind) {
@@ -190,153 +187,37 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		case AST_EXP_LT_EQ:
 		case AST_EXP_EQ:
 		case AST_EXP_NOT_EQ: {
-			//const Type* left = mips_traverse_exp(exp->left, env);
-			//const Type* right = mips_traverse_exp(exp->right, env);
-			//int leftC;
-			//int rightC;
-			
+			//create a whole for the value of this expression
 			out << "sub $sp, $sp, 4" << std::endl;
-			
+			//increment our stack_count variable for offsets
 			stack_count += 4;
-			
+			//traverset the left side of the expression
 			mips_traverse_exp(exp->left, env);
 			
+			//store the result from the left side into $v0
 			out << "sw $v0, 0($sp)"<< std::endl;
 			
+			//traverse the right side of the expression
 			mips_traverse_exp(exp->right, env);
 			
+			//store the results from the right expression into $v1
 			out << "lw $v1, 0($sp)" << std::endl;
 			
+			//decrement the stack (that way we are back to the original stack length
+			//that was right before we entered this case
 			out << "add $sp, $sp, 4" << std::endl;
 			
+			//decrease the stack counter variable since we are done with the variable
 			stack_count = stack_count - 4;
 			
+			//print the type of epression(add, sub, mul, etc...)
 			print_exp_type(exp->kind);
 			
-			if (reverse == 0)
-			{
-				out << " $v0, $v1, $v0" << std::endl;
-			}
-			else
-			{
-				out << " $v0, $v0, $v1" << std::endl;
-				reverse = 0;
-			}
+			out << " $v0, $v1, $v0" << std::endl;
 			
-			
-			/*
-			//if both expressions are only nums, then we store them in a register
-			if 	(
-				(exp->left->kind == AST_EXP_NUM && exp->right->kind == AST_EXP_NUM) || 
-				(exp->left->kind == AST_EXP_TRUE && exp->right->kind == AST_EXP_FALSE) ||
-				(exp->left->kind == AST_EXP_FALSE && exp->right->kind == AST_EXP_TRUE) ||
-				(exp->left->kind == AST_EXP_TRUE && exp->right->kind == AST_EXP_TRUE) ||
-				(exp->left->kind == AST_EXP_FALSE && exp->right->kind == AST_EXP_FALSE)
-				) {
-				//printf("li $t0, %d\n", exp->left->num);
-				//printf("li $t1, %d\n", exp->right->num);
-				//printf("case1\n");
-				
-				//fprintf(out, "li $t%d, %d\n", count, exp->left->num);
-				out << "li $t" << count << ", " << exp->left->num << std::endl;
-				leftC = count;
-				count++;
-				//fprintf(out, "li $t%d, %d\n", count, exp->right->num);
-				out << "li $t" << count << ", " << exp->right->num << std::endl;
-				rightC = count;
-				count++;
-			}
-			//if the LEFT one is the only num, then store it in a register, because the right side is already in a register
-			else if(	(exp->left->kind == AST_EXP_NUM) ||
-					(exp->left->kind == AST_EXP_TRUE) ||
-					(exp->left->kind == AST_EXP_FALSE)
-					){
-				//printf("case2\n");
-				
-				//printf("li $t0, %d\n", exp->left->num);
-				
-				
-				//fprintf(out, "li $t%d, %d\n", count, exp->left->num);
-				out << "li $t" << count << ", " << exp->left->num << std::endl;
-				leftC = count;
-				count++;
-				 mips_traverse_exp(exp->right, env);
-				 //result of right is in v0
-				 //fprintf(out, "move $t%d, $v0\n", count);
-				 out << "move $t" << count << ", $v0" << std::endl;
-				 rightC = count;
-				 count++;
-			}
-			//if the RIGHT one is the only num, then store it in a register, because the right side is already in a register
-			else if(	(exp->right->kind == AST_EXP_NUM) ||
-					(exp->right->kind == AST_EXP_TRUE) ||
-					(exp->right->kind == AST_EXP_FALSE)
-					){
-				//printf("li $t1, %d\n", exp->right->num);
-				
-				//printf("case3\n");
-				
-				//fprintf(out, "li $t%d, %d\n", count, exp->right->num);
-				out << "li $t" << count << ", " << exp->right->num << std::endl;
-				rightC = count;
-				count++;
-				mips_traverse_exp(exp->left, env);
-				//result of left is in v0
-				//fprintf(out, "move $t%d, $v0\n", count);
-				out << "move $t" << count << ", $v0" << std::endl;
-				leftC = count;
-				count++;
-			}
-			//if neither one is a NUM, it means that we stored them in a register, LEFT Is always $2, and RIGHT Is always $3
-			else{
-				//printf("case4\n");
-				mips_traverse_exp(exp->left, env);
-				//result of left is now stored v0
-				//fprintf(out, "move $t%d, $v0\n", count);
-				//out << "move $t" << count << ", $v0" << std::endl;
-				//leftC = count;
-				//count++;
-				
-				out << "sub $sp, $sp, 4" << std::endl;
-				//set up var access in map
-				stack_count += 4;
-				out << "sw $v0, " << stack_count << "($fp)" << std::endl;
-				
-				mips_traverse_exp(exp->right, env);
-				//result of right is now stored v0
-				//fprintf(out, "move $t%d, $v0\n", count);
-				out << "move $t" << count << ", $v0" << std::endl;
-				rightC = count;
-				count++;
-				
-				out << "lw $t" << count << ", " << stack_count << "($fp)" << std::endl;
-				out << "add $sp, $sp, 4" << std::endl;
-				stack_count = stack_count - 4;
-				leftC = count;
-				count++;
-			}
-			
-			print_exp_type(exp->kind);
-			//fprintf(out, " $v0, $t%d, $t%d\n", leftC, rightC);
-			out << " $v0, $t" << leftC << ", $t" << rightC << std::endl;
-			count = count -2;
-			*/
 			exp->node_type = type_int_new();
 			break;
 		}
-		
-		
-		/*{
-			  const Type* left = mips_traverse_exp(exp->left, env);
-			  const Type* right = mips_traverse_exp(exp->right, env);
-
-			  if (type_is_bool(left) && type_is_bool(right)) {
-					exp->node_type =  type_bool_new();
-			  }
-
-			  break;
-		}*/
-
 		case AST_EXP_NOT: {/*
 			  const Type* right = mips_traverse_exp(exp->right, env);
 

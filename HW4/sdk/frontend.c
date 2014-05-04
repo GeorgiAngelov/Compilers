@@ -230,31 +230,31 @@ int main(int argc, char** argv) {
             }
 
             if (do_codegen) {
-                  char* file_out = strdup(argv[i]);
+				char* file_out = strdup(argv[i]);
 
-                  *(file_out + prefix) = 0; // Replace that "." in ".lig" with a null terminator.
-                  strcat(file_out, ".s"); // Add the new extension.
-                  //out = fopen(file_out, "w");
-			out.open(file_out);
+				*(file_out + prefix) = 0; // Replace that "." in ".lig" with a null terminator.
+				strcat(file_out, ".s"); // Add the new extension.
+				//out = fopen(file_out, "w");
+				out.open(file_out);
 			
-                  // *** DO MIPS CODE GEN HERE. ***
-                  generate_mips(ast_root, genv);
-			
-			//fprintf(out, "move $a0, $v0\nli $v0, 1       # Select print_int syscall\nsyscall\n              la $a0, newline\n                li $v0, 4               # Select print_string syscall\n                syscall\nli $v0, 10\nsyscall");
-			for( std::map<std::string, int>::iterator ii=local_variables.begin(); ii!=local_variables.end(); ++ii)
-			{
-				int offset = (*ii).second;
-				out << "lw $a0, " << offset << "($fp)" << std::endl;
-				//out << "li " << offset << "($fp), 1" << std::endl;
-				out << "li $v0, 1" << std::endl;
-				out << "syscall" << std::endl;
-				out << "la $a0, newline" << std::endl;
-				out << "li $v0, 4" << std::endl;
-				out << "syscall" << std::endl;
-			}
-			out <<
-			"li $v0, 10\n" <<
-			"syscall";
+				// *** DO MIPS CODE GEN HERE. ***
+				generate_mips(ast_root, genv);
+
+				//fprintf(out, "move $a0, $v0\nli $v0, 1       # Select print_int syscall\nsyscall\n              la $a0, newline\n                li $v0, 4               # Select print_string syscall\n                syscall\nli $v0, 10\nsyscall");
+				for( std::map<std::string, int>::iterator ii=local_variables.begin(); ii!=local_variables.end(); ++ii)
+				{
+					int offset = (*ii).second;
+					out << "lw $a0, " << offset << "($fp)" << std::endl;
+					//out << "li " << offset << "($fp), 1" << std::endl;
+					out << "li $v0, 1" << std::endl;
+					out << "syscall" << std::endl;
+					out << "la $a0, newline" << std::endl;
+					out << "li $v0, 4" << std::endl;
+					out << "syscall" << std::endl;
+				}
+				out <<
+				"li $v0, 10\n" <<
+				"syscall";
 			
                   free(file_out);
                   //fclose(out);
