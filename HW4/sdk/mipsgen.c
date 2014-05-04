@@ -532,8 +532,8 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 		}
 
 		case AST_STMT_WHILE: {
-			out << "sub $sp, $sp, 4" << std::endl;
-			stack_count += 4;
+			//out << "sub $sp, $sp, 4" << std::endl;
+			//stack_count += 4;
 
 			std::string while_label = mips_label_gen();
 			std::string end_while_label = mips_label_gen();
@@ -543,15 +543,15 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			//out << while_label << ":" << "beq 0($sp)" << ", 0, " << while_label << std::endl;
 			out << while_label << ":" << std::endl;
 			mips_traverse_exp(stmt->exp, env);
-			out << "sw $v0, 0($sp)" << std::endl;
+			//out << "sw $v0, 0($sp)" << std::endl;
 			out << "li $v1, 0" << std::endl;
 			out << "beq $v0" << ", $v1, " << end_while_label << std::endl;
 			g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
 		  	out << "j " << while_label << std::endl;
 		  	out << end_while_label << ":" << std::endl;
 			
-			stack_count -= 4;
-			out << "add $sp, $sp, 4" << std::endl;
+			//stack_count -= 4;
+			//out << "add $sp, $sp, 4" << std::endl;
 			break;
 		}
 
