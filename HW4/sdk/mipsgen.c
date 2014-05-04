@@ -219,7 +219,7 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			}
 			else
 			{
-				out << " $vo, $v0, $v1" << std::endl;
+				out << " $v0, $v0, $v1" << std::endl;
 				reverse = 0;
 			}
 			
