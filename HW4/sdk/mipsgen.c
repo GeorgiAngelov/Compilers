@@ -140,7 +140,6 @@ void print_exp_type (int kind)
 		}
 		case AST_EXP_GT:
 		{
-			//reverse = 1;
 			out << "sgt";
 			break;
 		}
@@ -157,13 +156,11 @@ void print_exp_type (int kind)
 		case AST_EXP_EQ:
 		{
 			out << "seq";
-			//reverse = EQUAL_KEY
 			break;
 		}
 		case AST_EXP_NOT_EQ:
 		{
 			out << "sne";
-			//reverse = NOT_EQUAL_KEY
 			break;
 		}
 	}
@@ -194,7 +191,7 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			//traverset the left side of the expression
 			mips_traverse_exp(exp->left, env);
 			
-			//store the result from the left side into $v0
+			//store the result from the left side into the stack
 			out << "sw $v0, 0($sp)"<< std::endl;
 			
 			//traverse the right side of the expression
@@ -218,14 +215,16 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			exp->node_type = type_int_new();
 			break;
 		}
-		case AST_EXP_NOT: {/*
-			  const Type* right = mips_traverse_exp(exp->right, env);
-
-			  if (type_is_bool(right)) {
-					exp->node_type = type_bool_new();
-			  }
-*/
-			  break;
+		case AST_EXP_NOT: {
+			//traverse the right side of the expression
+			mips_traverse_exp(exp->right, env);
+			
+			out << "not $v0, $v0" << std::endl;
+			
+			if (exp->right->kind == TYPE_BOOL) {
+				exp->node_type = type_bool_new();
+			}
+			break;
 		}
 
 		 /*
