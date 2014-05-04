@@ -27,7 +27,6 @@ lw $v1, 0($sp)
 add $sp, $sp, 4
 add $v0, $v1, $v0
 sw $v0, 4($fp)
-_lbl2:
 sub $sp, $sp, 4
 lw $v0, 4($fp)
 sw $v0, 0($sp)
@@ -35,8 +34,7 @@ li $v0, 6
 lw $v1, 0($sp)
 add $sp, $sp, 4
 slt $v0, $v1, $v0
-li $v1, 0
-beq $v0, $v1, _lbl3
+beq $v0, 0, _lbl2
 sub $sp, $sp, 4
 lw $v0, 4($fp)
 sw $v0, 0($sp)
@@ -45,7 +43,16 @@ lw $v1, 0($sp)
 add $sp, $sp, 4
 add $v0, $v1, $v0
 sw $v0, 4($fp)
-j _lbl2
+j _lbl3
+_lbl2:
+sub $sp, $sp, 4
+lw $v0, 8($fp)
+sw $v0, 0($sp)
+li $v0, 1
+lw $v1, 0($sp)
+add $sp, $sp, 4
+add $v0, $v1, $v0
+sw $v0, 8($fp)
 _lbl3:
 j _lbl0
 _lbl1:

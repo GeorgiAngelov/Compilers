@@ -503,23 +503,24 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			mips_traverse_exp(stmt->exp, env);
 			//store result in next available register
 			//fprintf(out, "move $t%d, $v0\n", count);
-			out << "move $t" << count << ", $v0" << std::endl;
-			resultC = count;
-			count++;
+			//out << "move $t" << count << ", $v0" << std::endl;
+			//resultC = count;
+			//count++;
 			//fprintf(out, "li $t%d, 1\n", count);
-			out << "li $t" << count << ", 1" << std::endl;
+			//out << "li $t" << count << ", 1" << std::endl;
 			resultcompareC = count;
 			count++;
 			//check evaluation value
 			//fprintf(out, "bnez $t%d, $t%d, %s\n", resultC, resultcompareC, elselabel.c_str());
-			out << "benz $t" << resultC << ", $t" << resultcompareC << ", " << elselabel << std::endl;
+			out << "beq $v0, 0, " << elselabel << std::endl;
 			//jump to else if false
 			g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
 			//jump to end else if true
 			//fprintf(out, "li $t%d, 0 \n", resultcompareC);
-			out << "li $t" << resultcompareC << ", 0" << std::endl;
+			//out << "li $t" << resultcompareC << ", 0" << std::endl;
 			//fprintf(out, "beq $t%d, $t%d, %s\n", resultC, resultcompareC, endelselabel.c_str());
-			out << "beq $t" << resultC << ", $t" << resultcompareC << ", " << endelselabel << std::endl;
+			//out << "beq $t" << resultC << ", $t" << resultcompareC << ", " << endelselabel << std::endl;
+			out << "j " << endelselabel << std::endl;
 			//print else label
 			//fprintf(out, "%s:", elselabel.c_str());
 			out << elselabel << ":" << std::endl;
