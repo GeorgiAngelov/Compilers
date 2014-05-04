@@ -31,6 +31,7 @@ int label_count;
 //FILE* out;
 std::ofstream out;
 std::map<std::string, int> local_variables;
+int reverse = 0;
 
 void done_parsing(GList* parse_result) {
       ast_root = parse_result;

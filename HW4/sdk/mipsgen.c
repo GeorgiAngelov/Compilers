@@ -29,6 +29,7 @@ extern int count;
 extern int label_count;
 //extern FILE *out;
 extern std::ofstream out;
+extern int reverse;
 extern std::map<std::string, int> local_variables;
 
 int stack_count = 0;
@@ -136,9 +137,38 @@ void print_exp_type (int kind)
 			out << "or";
 			break;
 		}
+		case AST_EXP_LT:
+		{
+			out << "slt";
+			break;
+		}
+		case AST_EXP_GT:
+		{
+			reverse = 1;
+			out << "slt";
+			break;
+		}
+		case AST_EXP_GT_EQ:
+		{
+			out << "";
+			break;
+		}
+		case AST_EXP_LT_EQ:
+		{
+			out << "";
+			break;
+		}
+		case AST_EXP_EQ:
+		{
+			out << "";
+			break;
+		}
+		case AST_EXP_NOT_EQ:
+		{
+			out << "";
+			break;
+		}
 	}
-	
-	printf(" ");
 	
 }
 
@@ -153,7 +183,13 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		case AST_EXP_MOD:
 		case AST_EXP_MUL: 
 		case AST_EXP_OR:
-		case AST_EXP_AND: {
+		case AST_EXP_AND: 
+		case AST_EXP_LT:
+		case AST_EXP_GT:
+		case AST_EXP_GT_EQ:
+		case AST_EXP_LT_EQ:
+		case AST_EXP_EQ:
+		case AST_EXP_NOT_EQ: {
 			//const Type* left = mips_traverse_exp(exp->left, env);
 			//const Type* right = mips_traverse_exp(exp->right, env);
 			//int leftC;
@@ -177,7 +213,15 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			
 			print_exp_type(exp->kind);
 			
-			out << " $v0, $v1, $v0" << std::endl;
+			if (reverse == 0)
+			{
+				out << " $v0, $v1, $v0" << std::endl;
+			}
+			else
+			{
+				out << " $vo, $v0, $v1" << std::endl;
+				reverse = 0;
+			}
 			
 			
 			/*
@@ -280,24 +324,6 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			exp->node_type = type_int_new();
 			break;
 		}
-		case AST_EXP_LT:
-		case AST_EXP_GT:{
-			
-			/*
-			mips_traverse_exp(exp->left, env);
-			out << "move $t" << count << ", $v0" << std::endl;
-			leftC = count;
-			count++;
-			mips_traverse_exp(exp->right, env);
-			*/
-			break;
-		}
-		case AST_EXP_GT_EQ:
-		case AST_EXP_LT_EQ:
-		{
-			
-			break;
-		}
 		
 		
 		/*{
@@ -333,8 +359,7 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			  break;
 		}*/
 
-		case AST_EXP_EQ:
-		case AST_EXP_NOT_EQ: {/*
+		 {/*
 			const Type* left = mips_traverse_exp(exp->left, env);
 			const Type* right = mips_traverse_exp(exp->right, env);
 
@@ -511,15 +536,19 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			stack_count += 4;
 
 			std::string while_label = mips_label_gen();
+			std::string end_while_label = mips_label_gen();
 			int resultC;
 			int resultcompareC;
 
+			//out << while_label << ":" << "beq 0($sp)" << ", 0, " << while_label << std::endl;
+			out << while_label << ":" << std::endl;
 			mips_traverse_exp(stmt->exp, env);
 			out << "sw $v0, 0($sp)" << std::endl;
-
-			out << while_label << ":" << "beq 0($sp)" << ", 0, " << while_label << std::endl;
+			out << "li $v1, 0" << std::endl;
+			out << "beq $v0" << ", $v1, " << end_while_label << std::endl;
 			g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
 		  	out << "j " << while_label << std::endl;
+		  	out << end_while_label << ":" << std::endl;
 			
 			stack_count -= 4;
 			out << "add $sp, $sp, 4" << std::endl;
