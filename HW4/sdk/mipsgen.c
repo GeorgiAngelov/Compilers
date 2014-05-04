@@ -438,10 +438,9 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 		}
 
 		case AST_STMT_FOR: {
-			//TODO - NEED to implement the left and the right as well!!
-			const Type* lval = mips_traverse_exp(stmt->left, env);
+			//const Type* lval = mips_traverse_exp(stmt->left, env);
 			// const Type* from = mips_traverse_exp(stmt->exp, env);
-			const Type* to = mips_traverse_exp(stmt->right, env);
+			//const Type* to = mips_traverse_exp(stmt->right, env);
 
 			//left is the variable I look up (i)
 			//expr is what I set i equal to initially

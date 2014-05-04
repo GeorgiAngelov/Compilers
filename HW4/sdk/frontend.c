@@ -244,10 +244,19 @@ int main(int argc, char** argv) {
 				for( std::map<std::string, int>::iterator ii=local_variables.begin(); ii!=local_variables.end(); ++ii)
 				{
 					int offset = (*ii).second;
+					/*
+					//label
+					//out << "li $a0, '" << (*ii).first << "'" << std::endl;//<< " = \"" << std::endl;
+					out << "li $v0, 4" << std::endl;
+					out << "syscall" << std::endl;
+					*/
+					//value
 					out << "lw $a0, " << offset << "($fp)" << std::endl;
 					//out << "li " << offset << "($fp), 1" << std::endl;
 					out << "li $v0, 1" << std::endl;
 					out << "syscall" << std::endl;
+					
+					//newline
 					out << "la $a0, newline" << std::endl;
 					out << "li $v0, 4" << std::endl;
 					out << "syscall" << std::endl;
