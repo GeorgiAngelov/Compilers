@@ -212,6 +212,105 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			
 			out << " $v0, $v1, $v0" << std::endl;
 			
+			//OLD CODE!!! OLD CODE OLD !!! CODE OLD CODE!!
+			/*
+			//if both expressions are only nums, then we store them in a register
+			if 	(
+				(exp->left->kind == AST_EXP_NUM && exp->right->kind == AST_EXP_NUM) || 
+				(exp->left->kind == AST_EXP_TRUE && exp->right->kind == AST_EXP_FALSE) ||
+				(exp->left->kind == AST_EXP_FALSE && exp->right->kind == AST_EXP_TRUE) ||
+				(exp->left->kind == AST_EXP_TRUE && exp->right->kind == AST_EXP_TRUE) ||
+				(exp->left->kind == AST_EXP_FALSE && exp->right->kind == AST_EXP_FALSE)
+				) {
+				//printf("li $t0, %d\n", exp->left->num);
+				//printf("li $t1, %d\n", exp->right->num);
+				//printf("case1\n");
+				
+				//fprintf(out, "li $t%d, %d\n", count, exp->left->num);
+				out << "li $t" << count << ", " << exp->left->num << std::endl;
+				leftC = count;
+				count++;
+				//fprintf(out, "li $t%d, %d\n", count, exp->right->num);
+				out << "li $t" << count << ", " << exp->right->num << std::endl;
+				rightC = count;
+				count++;
+			}
+			//if the LEFT one is the only num, then store it in a register, because the right side is already in a register
+			else if(	(exp->left->kind == AST_EXP_NUM) ||
+					(exp->left->kind == AST_EXP_TRUE) ||
+					(exp->left->kind == AST_EXP_FALSE)
+					){
+				//printf("case2\n");
+				
+				//printf("li $t0, %d\n", exp->left->num);
+				
+				
+				//fprintf(out, "li $t%d, %d\n", count, exp->left->num);
+				out << "li $t" << count << ", " << exp->left->num << std::endl;
+				leftC = count;
+				count++;
+				 mips_traverse_exp(exp->right, env);
+				 //result of right is in v0
+				 //fprintf(out, "move $t%d, $v0\n", count);
+				 out << "move $t" << count << ", $v0" << std::endl;
+				 rightC = count;
+				 count++;
+			}
+			//if the RIGHT one is the only num, then store it in a register, because the right side is already in a register
+			else if(	(exp->right->kind == AST_EXP_NUM) ||
+					(exp->right->kind == AST_EXP_TRUE) ||
+					(exp->right->kind == AST_EXP_FALSE)
+					){
+				//printf("li $t1, %d\n", exp->right->num);
+				
+				//printf("case3\n");
+				
+				//fprintf(out, "li $t%d, %d\n", count, exp->right->num);
+				out << "li $t" << count << ", " << exp->right->num << std::endl;
+				rightC = count;
+				count++;
+				mips_traverse_exp(exp->left, env);
+				//result of left is in v0
+				//fprintf(out, "move $t%d, $v0\n", count);
+				out << "move $t" << count << ", $v0" << std::endl;
+				leftC = count;
+				count++;
+			}
+			//if neither one is a NUM, it means that we stored them in a register, LEFT Is always $2, and RIGHT Is always $3
+			else{
+				//printf("case4\n");
+				mips_traverse_exp(exp->left, env);
+				//result of left is now stored v0
+				//fprintf(out, "move $t%d, $v0\n", count);
+				//out << "move $t" << count << ", $v0" << std::endl;
+				//leftC = count;
+				//count++;
+				
+				out << "sub $sp, $sp, 4" << std::endl;
+				//set up var access in map
+				stack_count += 4;
+				out << "sw $v0, " << stack_count << "($fp)" << std::endl;
+				
+				mips_traverse_exp(exp->right, env);
+				//result of right is now stored v0
+				//fprintf(out, "move $t%d, $v0\n", count);
+				out << "move $t" << count << ", $v0" << std::endl;
+				rightC = count;
+				count++;
+				
+				out << "lw $t" << count << ", " << stack_count << "($fp)" << std::endl;
+				out << "add $sp, $sp, 4" << std::endl;
+				stack_count = stack_count - 4;
+				leftC = count;
+				count++;
+			}
+			
+			print_exp_type(exp->kind);
+			//fprintf(out, " $v0, $t%d, $t%d\n", leftC, rightC);
+			out << " $v0, $t" << leftC << ", $t" << rightC << std::endl;
+			count = count -2;
+			*/
+			
 			exp->node_type = type_int_new();
 			break;
 		}
@@ -279,8 +378,6 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		}
 
 		case AST_EXP_ID: {
-			//exp->node_type = type_copy_deep(env_lookup(env, exp->id));
-			
 			std::string id(symbol_to_str((exp->id)));
 			  
 			int offset = local_variables[id];
