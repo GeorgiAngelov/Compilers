@@ -595,24 +595,6 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			
 			//print end for label
 			out << end_for_label << ":" << std::endl;
-			
-			/*
-
-			mips_traverse_exp(stmt->exp, env);
-			out << "move $t" << count << ", $v0" << std::endl;
-			resultC = count;
-			count++;
-
-			//Load the counter
-			out << "li $t" << count << ", 0" << std::endl;
-			counter = count;
-			count++;
-
-			out << for_label << ": " << "beq $t" << resultC << ", $t" << counter << ", " << end_for_label << std::endl;
-			
-			
-		  	
-		  	*/
 
 			break;
 		}
