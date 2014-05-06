@@ -205,7 +205,7 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			//traverset the left side of the expression
 			mips_traverse_exp(exp->left, env);
 			
-			//store the result from the left side into the stack
+			//store the result from the left side onto the stack
 			out << "sw $v0, 0($sp)"<< std::endl;
 			
 			//traverse the right side of the expression
