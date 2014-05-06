@@ -28,6 +28,8 @@ static Env* genv;
 
 int count;
 int label_count;
+int stack_count = 0;
+
 //FILE* out;
 std::ofstream out;
 std::map<std::string, int> local_variables;
@@ -251,23 +253,31 @@ int main(int argc, char** argv) {
 					out << "syscall" << std::endl;
 					*/
 					//value
+					std::cout << " symbol: " << (*ii).first << " | " << offset << "($fp)"<< std::endl;
 					out << "lw $a0, " << offset << "($fp)" << std::endl;
 					//out << "li " << offset << "($fp), 1" << std::endl;
 					out << "li $v0, 1" << std::endl;
 					out << "syscall" << std::endl;
 					
-					//newline
+					//newline 
 					out << "la $a0, newline" << std::endl;
 					out << "li $v0, 4" << std::endl;
 					out << "syscall" << std::endl;
 				}
-				out <<
-				"li $v0, 10\n" <<
-				"syscall";
-			
-                  free(file_out);
-                  //fclose(out);
-                  out.close();
+				
+				///CLEAR STACK////
+				//CLEAR THE STACK FROM ALL LOCAL VARIABLES! ASSUMPTION THAT WE ONLY HAVE MAIN - CHECK POINT 1
+				out << "add $sp, $sp, " << local_variables.size() * 4 << std::endl;
+				//decrease the stack counter variable since we are done with the variable
+				stack_count = stack_count - local_variables.size()*4;
+				/////////////////
+				
+				//exit command
+				out << "li $v0, 10\n syscall";
+
+				free(file_out);
+				//fclose(out);
+				out.close();
             }
 
             env_destroy(genv);
