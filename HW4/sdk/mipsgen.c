@@ -25,14 +25,14 @@ enum {
      SYMBOL_PSEUDO,
 };
 
-extern int count;
+extern int count; 
 extern int label_count;
 //extern FILE *out;
 extern std::ofstream out;
 extern int reverse;
 extern std::map<std::string, int> local_variables;
 
-int stack_count = 0;
+extern int stack_count;
 
 //function to generate a the next label ( done so we do not interfere with previously created labels )
 std::string mips_label_gen() {

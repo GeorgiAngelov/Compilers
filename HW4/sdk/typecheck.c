@@ -5,7 +5,7 @@
 #include <glib.h>
 #include <assert.h>
 #include <stdio.h>
-
+ 
 static void annotate_stmt(struct stmt*, Env*);
 static void annotate_decl(struct decl*, Env*);
 static int stmts_all_ok(GList* stmts);
