@@ -1,7 +1,8 @@
+//allocate space for the global variables before op
+
 function main(args : [[int]]) : int {
 	var a : int;
 	var b : int = 2;
-	var c : int = 5 * 5;
-	var d : int = b + c;
-	
+	var c : int = 5 * 5 + 10 * (7 * 4) / 5 + b + a;
+	var d : int; 	
 }
