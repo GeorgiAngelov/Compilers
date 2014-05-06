@@ -1,0 +1,47 @@
+function main(args : [[int]]) : int {
+	var a : int = 1;
+	var b : int = 2;
+	var c : int = 3;
+	var d : int = 4;
+	
+	if (a < 2)
+	{
+		a = 5;
+	}
+	else
+	{
+		a = 2;
+	}
+	
+	if (b >= 2)
+	{
+		b = b * b;
+	}
+	else
+	{
+		b = b / b;
+	}
+	
+	if (c == 3 & d < 3)
+	{
+		d = c;
+	}
+	else
+	{
+		c = d;
+	}
+	
+	// a = 5, b = 4, c = 4, d = 4
+	
+	if ( a > 1 | d == 4)
+	{
+		d = d * d;
+	}
+	else
+	{
+		d = 0;
+	}
+	
+	// a = 5, b = 4, c = 4, d = 16
+	
+}

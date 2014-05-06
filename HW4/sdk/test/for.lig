@@ -1,0 +1,15 @@
+function main(args : [[int]]) : int {
+	var a : int = 1;
+	var b : int = 2;
+	var c : int = 3;
+	var d : int = 4;
+	
+	//for a = 2 to 12 (b= b + 10 * 2)
+	for ( a = b to c * d)
+	{
+		b = 2 + b;
+	}
+	
+	// a = 12, b = 22, c = 3, d = 4
+	
+}
