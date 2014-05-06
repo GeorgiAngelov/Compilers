@@ -62,6 +62,19 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 	//if the declaration has any expressions
 	if (d->exp) {
 		const Type* t = mips_traverse_exp(d->exp, env);
+		//This case is "var i:int  = 5"
+		if(symbol_is_var(d->id)){
+			out << "sub $sp, $sp, 4" << std::endl;
+			//set up var access in map -- looks up the id
+			std::string id(symbol_to_str((d->id)));
+			//this increments the stack count, the current offset
+			stack_count += 4;
+			//thus is stored on a map based on the id
+			local_variables[id] = stack_count;
+			
+			//store the evaluation of the expression and store 
+			out << "sw $v0, " << stack_count << "($fp)" << std::endl;
+		}
 	}
 	//if the declaration has any declarations or statements(hence it is a function)
 	else if (d->decls || d->stmts) {
@@ -75,6 +88,7 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 	}
 	else
 	{
+		std::cout << "it is neither and symbol is: " << symbol_to_str((d->id)) << std::endl;
 		//How to reserve space on the stack for local
 		//Also below is the reserve space
 		out << "sub $sp, $sp, 4" << std::endl;
