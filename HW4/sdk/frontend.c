@@ -2,7 +2,7 @@
 #include "mipsgen.h"
 #include "ast.h"
 #include "env.h"
-#include "frontend.h"m
+#include "frontend.h"
 
 #include "lexer.h"
 #include "parser.h"
@@ -14,6 +14,8 @@
 #include <iostream>
 #include <fstream> 
 #include <map>
+#include <vector>
+#include <string>
 
 int yyparse(void);
 
@@ -30,9 +32,9 @@ int count;
 int label_count;
 int stack_count = 0;
 
-//FILE* out;
 std::ofstream out;
-std::map<std::string, int> local_variables;
+//std::map<std::string, int> local_variables;
+std::vector<std::map<std::string, int> > variables;
 int reverse = 0;
 
 void done_parsing(GList* parse_result) {
@@ -243,7 +245,7 @@ int main(int argc, char** argv) {
 				generate_mips(ast_root, genv);
 
 				//fprintf(out, "move $a0, $v0\nli $v0, 1       # Select print_int syscall\nsyscall\n              la $a0, newline\n                li $v0, 4               # Select print_string syscall\n                syscall\nli $v0, 10\nsyscall");
-				for( std::map<std::string, int>::iterator ii=local_variables.begin(); ii!=local_variables.end(); ++ii)
+				for( std::map<std::string, int>::iterator ii=variables[0].begin(); ii!=variables[0].end(); ++ii)
 				{
 					int offset = (*ii).second;
 					/*
@@ -267,9 +269,9 @@ int main(int argc, char** argv) {
 				
 				///CLEAR STACK////
 				//CLEAR THE STACK FROM ALL LOCAL VARIABLES! ASSUMPTION THAT WE ONLY HAVE MAIN - CHECK POINT 1
-				out << "add $sp, $sp, " << local_variables.size() * 4 << std::endl;
+				out << "add $sp, $sp, " << variables[0].size() * 4 << std::endl;
 				//decrease the stack counter variable since we are done with the variable
-				stack_count = stack_count - local_variables.size()*4;
+				stack_count = stack_count - variables[0].size()*4;
 				/////////////////
 				
 				//exit command

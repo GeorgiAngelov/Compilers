@@ -14,6 +14,7 @@
 #include <string>
 #include <sstream>
 #include <map>
+#include <vector>
 
 
 enum {
@@ -30,10 +31,17 @@ extern int label_count;
 //extern FILE *out;
 extern std::ofstream out;
 extern int reverse;
-extern std::map<std::string, int> local_variables;
+//extern std::map<std::string, int> local_variables;
+//this is the map that holds all variables
+//0 will be all global variables, 1 will be all main variables,
+//and the indices after that will be every function call
+extern std::vector< std::map<std::string, int> > variables;
 
 extern int stack_count;
 
+std::string MAIN_LABEL = "main";
+
+	
 //function to generate a the next label ( done so we do not interfere with previously created labels )
 std::string mips_label_gen() {
 	std::string label = "_lbl";
@@ -50,27 +58,61 @@ std::string mips_label_gen() {
 	return label;
 }
 
+int get_variable_offset(std::string id){
+	std::map<std::string,int>::iterator it = variables.back().find(id);
+	int offset;
+	//the variable is declared inside the function so access it
+	if(it != variables.back().end())
+	{
+	   offset = it->second;
+	}
+	//the variable is a global variable(not declared in function)
+	else{
+		offset = variables[0][id];
+	}
+	
+	return offset;
+}
+
+//prints how many current variable environments we have
+void print_variables_environments(){
+	std::cout << "Current vector::variable length is " << variables.size();
+}
+
 //local declarations
 void mips_generate_text(GList * decls, Env* env){
+	std::cout << "before inserting global into variables" << std::endl;
+	print_variables_environments();
+	
+	//INSERT THE MAP FOR THE GLOBAL DECLARATIONS
+	//THIS IS INDEX 0 IN variables 
+	std::map<std::string, int> tmp;
+	//push the new map into the the vector
+	variables.push_back(tmp);
+	
 	//loop through each declaration in the tree
 	g_list_foreach(decls, (GFunc)mips_traverse_decl, env);
 }
 
-static void mips_traverse_decl(struct decl* d, Env* env) {
-	Type* calculated = NULL;
+void mips_traverse_decl(struct decl* d, Env* env) {
+	//Type* calculated = NULL;
 
 	//if the declaration has any expressions
 	if (d->exp) {
-		const Type* t = mips_traverse_exp(d->exp, env);
+		//const Type* t = 
+		mips_traverse_exp(d->exp, env);
 		//This case is "var i:int  = 5"
 		if(symbol_is_var(d->id)){
+			std::cout << "symbol_is_var is hit and id is " << symbol_to_str(d->id) << std::endl;
 			out << "sub $sp, $sp, 4" << std::endl;
 			//set up var access in map -- looks up the id
 			std::string id(symbol_to_str((d->id)));
 			//this increments the stack count, the current offset
 			stack_count += 4;
+			std::cout << "before storing variable after expression and environment is: " << std::endl;
+			print_variables_environments();
 			//thus is stored on a map based on the id
-			local_variables[id] = stack_count;
+			variables.back()[id] = stack_count;
 			
 			//store the evaluation of the expression and store 
 			out << "sw $v0, " << stack_count << "($fp)" << std::endl;
@@ -78,26 +120,41 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 	}
 	//if the declaration has any declarations or statements(hence it is a function)
 	else if (d->decls || d->stmts) {
+		std::cout << "it is either a d-decls or d->stmts" << symbol_to_str((d->id)) << std::endl;
+		print_variables_environments();
 		Env* fun_env = env_lookup_fun_env(env, d->id);
-
+		
+		//make space in the vector variables for main if we are declaring main
+		if(MAIN_LABEL.compare(symbol_to_str(d->id))){
+			//INSERT THE MAP FOR "MAIN's" DECLARATIONS
+			//THIS IS INDEX 1 IN variables 
+			std::map<std::string, int> tmp;
+			//push the new map into the the vector
+			variables.push_back(tmp);
+		}
+		
 		Env* merged_env = env_union(env, fun_env);
 
 		g_list_foreach(d->decls, (GFunc)mips_traverse_decl, merged_env);
 		g_list_foreach(d->stmts, (GFunc)mips_traverse_stmt, merged_env);
 		env_destroy(merged_env);
+		std::cout << "after decls or stmts" << std::endl;
+		print_variables_environments();
 	}
+	//this gets hit if we have "var x:int;"
 	else
 	{
 		std::cout << "it is neither and symbol is: " << symbol_to_str((d->id)) << std::endl;
+		print_variables_environments();
 		//How to reserve space on the stack for local
 		//Also below is the reserve space
 		out << "sub $sp, $sp, 4" << std::endl;
-		//set up var access in map -- looks up the id
+		//set up var access in m	ap -- looks up the id
 		std::string id(symbol_to_str((d->id)));
 		//this increments the stack count, the current offset
 		stack_count += 4;
 		//thus is stored on a map based on the id
-		local_variables[id] = stack_count;	
+		variables.back()[id] = stack_count;	
 	}
 }
 
@@ -181,7 +238,7 @@ void print_exp_type (int kind)
 	
 }
 
-static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
+const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 	exp->node_type = NULL;
 
 	switch (exp->kind) {
@@ -225,105 +282,6 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			print_exp_type(exp->kind);
 			
 			out << " $v0, $v1, $v0" << std::endl;
-			
-			//OLD CODE!!! OLD CODE OLD !!! CODE OLD CODE!!
-			/*
-			//if both expressions are only nums, then we store them in a register
-			if 	(
-				(exp->left->kind == AST_EXP_NUM && exp->right->kind == AST_EXP_NUM) || 
-				(exp->left->kind == AST_EXP_TRUE && exp->right->kind == AST_EXP_FALSE) ||
-				(exp->left->kind == AST_EXP_FALSE && exp->right->kind == AST_EXP_TRUE) ||
-				(exp->left->kind == AST_EXP_TRUE && exp->right->kind == AST_EXP_TRUE) ||
-				(exp->left->kind == AST_EXP_FALSE && exp->right->kind == AST_EXP_FALSE)
-				) {
-				//printf("li $t0, %d\n", exp->left->num);
-				//printf("li $t1, %d\n", exp->right->num);
-				//printf("case1\n");
-				
-				//fprintf(out, "li $t%d, %d\n", count, exp->left->num);
-				out << "li $t" << count << ", " << exp->left->num << std::endl;
-				leftC = count;
-				count++;
-				//fprintf(out, "li $t%d, %d\n", count, exp->right->num);
-				out << "li $t" << count << ", " << exp->right->num << std::endl;
-				rightC = count;
-				count++;
-			}
-			//if the LEFT one is the only num, then store it in a register, because the right side is already in a register
-			else if(	(exp->left->kind == AST_EXP_NUM) ||
-					(exp->left->kind == AST_EXP_TRUE) ||
-					(exp->left->kind == AST_EXP_FALSE)
-					){
-				//printf("case2\n");
-				
-				//printf("li $t0, %d\n", exp->left->num);
-				
-				
-				//fprintf(out, "li $t%d, %d\n", count, exp->left->num);
-				out << "li $t" << count << ", " << exp->left->num << std::endl;
-				leftC = count;
-				count++;
-				 mips_traverse_exp(exp->right, env);
-				 //result of right is in v0
-				 //fprintf(out, "move $t%d, $v0\n", count);
-				 out << "move $t" << count << ", $v0" << std::endl;
-				 rightC = count;
-				 count++;
-			}
-			//if the RIGHT one is the only num, then store it in a register, because the right side is already in a register
-			else if(	(exp->right->kind == AST_EXP_NUM) ||
-					(exp->right->kind == AST_EXP_TRUE) ||
-					(exp->right->kind == AST_EXP_FALSE)
-					){
-				//printf("li $t1, %d\n", exp->right->num);
-				
-				//printf("case3\n");
-				
-				//fprintf(out, "li $t%d, %d\n", count, exp->right->num);
-				out << "li $t" << count << ", " << exp->right->num << std::endl;
-				rightC = count;
-				count++;
-				mips_traverse_exp(exp->left, env);
-				//result of left is in v0
-				//fprintf(out, "move $t%d, $v0\n", count);
-				out << "move $t" << count << ", $v0" << std::endl;
-				leftC = count;
-				count++;
-			}
-			//if neither one is a NUM, it means that we stored them in a register, LEFT Is always $2, and RIGHT Is always $3
-			else{
-				//printf("case4\n");
-				mips_traverse_exp(exp->left, env);
-				//result of left is now stored v0
-				//fprintf(out, "move $t%d, $v0\n", count);
-				//out << "move $t" << count << ", $v0" << std::endl;
-				//leftC = count;
-				//count++;
-				
-				out << "sub $sp, $sp, 4" << std::endl;
-				//set up var access in map
-				stack_count += 4;
-				out << "sw $v0, " << stack_count << "($fp)" << std::endl;
-				
-				mips_traverse_exp(exp->right, env);
-				//result of right is now stored v0
-				//fprintf(out, "move $t%d, $v0\n", count);
-				out << "move $t" << count << ", $v0" << std::endl;
-				rightC = count;
-				count++;
-				
-				out << "lw $t" << count << ", " << stack_count << "($fp)" << std::endl;
-				out << "add $sp, $sp, 4" << std::endl;
-				stack_count = stack_count - 4;
-				leftC = count;
-				count++;
-			}
-			
-			print_exp_type(exp->kind);
-			//fprintf(out, " $v0, $t%d, $t%d\n", leftC, rightC);
-			out << " $v0, $t" << leftC << ", $t" << rightC << std::endl;
-			count = count -2;
-			*/
 			
 			exp->node_type = type_int_new();
 			break;
@@ -394,7 +352,7 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		case AST_EXP_ID: {
 			std::string id(symbol_to_str((exp->id)));
 			  
-			int offset = local_variables[id];
+			int offset = get_variable_offset(id);
 			  
 			//$vo contains result of right expression.
 			out << "lw $v0, " << offset << "($fp)" << std::endl;
@@ -415,8 +373,23 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		}
 
 		case AST_EXP_FUN_CALL: {
-			/*assert(symbol_is_fun(exp->id));
-			exp->node_type = annotate_fun_call(exp->id, exp->params, env);*/
+			//assert(symbol_is_fun(exp->id));
+			
+			std::string compare = symbol_to_str(exp->id);
+			if (compare != "print"){
+				//need to call function to print the "print" function in MIPS
+				//if not print, ordinary function prologue
+				//out << "addiu $sp,$sp,128" << "#push stack frame" << std::endl;
+				out << "jal " << compare << std::endl;
+				//mode = compare;
+				//create a new map for the new function call
+				std::map<std::string, int> tmp;
+				//push the new map into the the vector
+				variables.push_back(tmp);
+				//inception++;
+			}
+		
+			//exp->node_type = annotate_fun_call(exp->id, exp->params, env);
 			break;
 		}
 
@@ -466,7 +439,8 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			}
 			else
 			{
-				const Type* right = mips_traverse_exp(stmt->right, env);
+				//const Type* right = 
+				mips_traverse_exp(stmt->right, env);
 			}
 			//After end, value will be stored $v0
 			
@@ -474,7 +448,7 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			std::string id(symbol_to_str((stmt->left->id)));
 			
 			//Find the particular symbol's offset  
-			int offset = local_variables[id];
+			int offset = get_variable_offset(id);
 			
 			//This is where the storage of $v0 happens  
 			//$vo contains result of right expression.
@@ -485,7 +459,7 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 
 		case AST_STMT_IF: {
 			  //const Type* cond = mips_traverse_exp(stmt->exp, env);
-			int resultC;
+			//int resultC;
 			int resultcompareC;
 			std::string elselabel = mips_label_gen();
 			std::string endelselabel = mips_label_gen();
@@ -563,7 +537,7 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			std::string id(symbol_to_str((stmt->left->id)));
 			
 			//Find the particular symbol's offset  
-			int offset = local_variables[id];
+			int offset = get_variable_offset(id);// local_variables[id];
 			
 			//assign initial value to counter
 			out << "sw $v0, " << offset << "($fp)" << std::endl;
@@ -600,7 +574,8 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 		}
 
 		case AST_STMT_RETURN: {
-			  Type* expected = env_lookup(env, symbol_fun_return());
+			  //Type* expected = 
+			  env_lookup(env, symbol_fun_return());
 
 			  Type* actual = NULL;
 			  if (stmt->exp) {
