@@ -2,18 +2,13 @@ var m : int = 5;
 
 function fred() : int {
 	var z : int;
+	z = 5;
 	return (10);
 }
 
 function main(args : [[int]]) : int {
-	var i : int;
 	var j : int;
-	i = 15;
-
-	
-	while(i<20){
-		i = i+1;
-	}
+	var i : int;
 	
 	return (0);
 }
