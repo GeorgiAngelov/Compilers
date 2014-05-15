@@ -157,19 +157,20 @@ void create_return(Symbol current_fun, Env* env)
 {
 	if (symbol_equal(current_fun, symbol_fun("main")))
 			{
-				/*
+				
 				for( std::map<std::string, int>::iterator ii=variables[0].begin(); ii!=variables[0].end(); ++ii)
 				{
 					int offset = (*ii).second;
-					
+					/*
 					//label
 					//out << "li $a0, '" << (*ii).first << "'" << std::endl;//<< " = \"" << std::endl;
 					out << "li $v0, 4" << std::endl;
 					out << "syscall" << std::endl;
-					
+					*/
 					//value
-					std::cout << " symbol: " << (*ii).first << " | " << offset << "($fp)"<< std::endl;
-					out << "lw $a0, " << offset << "($fp)" << std::endl;
+					std::cout << " symbol: " << (*ii).first << " | " << offset << "($" << get_variable_pointer_name((*ii).first) << ")" << std::endl;
+					out << "lw $a0, " << offset << "($" << get_variable_pointer_name((*ii).first) << ")" << std::endl;
+					//out << "lw $a0, " << offset << "($fp)" << std::endl;
 					//out << "li " << offset << "($fp), 1" << std::endl;
 					out << "li $v0, 1" << std::endl;
 					out << "syscall" << std::endl;
@@ -179,7 +180,7 @@ void create_return(Symbol current_fun, Env* env)
 					out << "li $v0, 4" << std::endl;
 					out << "syscall" << std::endl;
 				}
-				*/
+				
 				
 				///CLEAR STACK////
 				//CLEAR THE STACK FROM ALL LOCAL VARIABLES! ASSUMPTION THAT WE ONLY HAVE MAIN - CHECK POINT 1
@@ -277,7 +278,7 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 			std::string id(symbol_to_str((d->id)));
 			
 			//open space on the stack
-			out << "sub $sp, $sp, 4" << std::endl;
+			//out << "sub $sp, $sp, 4" << std::endl;
 			
 			//if global store offset from fp
 			if(current_fun.kind == INVALID_VALUE)
@@ -657,7 +658,7 @@ const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			//$vo contains result of right expression.
 			if(current_fun.kind == INVALID_VALUE)
 			{
-				out << "lw $v0, " << offset << "($" << get_variable_pointer_name(id) << ")" << std::endl;;
+				out << "lw $v0, " << offset << "($" << get_variable_pointer_name(id) << ")" << std::endl;
 			}
 			else
 			{
