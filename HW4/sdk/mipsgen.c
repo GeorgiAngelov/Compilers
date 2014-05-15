@@ -818,7 +818,6 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			  
 			  create_return(current_fun, env);
 			return_complete = 1;
-=
 			  type_destroy(actual);
 			  break;
 		}
