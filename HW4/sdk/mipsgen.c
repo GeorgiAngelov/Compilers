@@ -124,7 +124,7 @@ std::string get_variable_pointer_name(std::string id){
 			pointer_name = "fp";
 		}
 		//if the variable is not in main, use global
-		else{
+		else if(variables[0].count(id)){
 			pointer_name = "gp";
 		}
 	}else{

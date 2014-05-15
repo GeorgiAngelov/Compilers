@@ -7,6 +7,5 @@ function fred() : int {
 
 function main(args : [[int]]) : int {
 	var c : int = 3;
-	var d : int = a;
 	return (0);
 }

@@ -23,11 +23,7 @@ li $v0, 3
 sub $sp, $sp, 4
 sub $sp, $sp, 4
 sw $v0, 12($fp)
-lw $v0, 0($fp)
-sub $sp, $sp, 4
-sub $sp, $sp, 4
-sw $v0, 16($fp)
 li $v0, 0
-add $sp, $sp, 20
+add $sp, $sp, 12
 li $v0, 10
  syscall
