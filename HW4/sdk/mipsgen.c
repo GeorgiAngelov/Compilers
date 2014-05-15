@@ -171,9 +171,11 @@ void create_return(Symbol current_fun, Env* env)
 					out << "add $sp, $sp, " << g_hash_table_size(en->vars) * 4 << std::endl;
 				}
 				
-				out << "mov $sp, 0($fp)" << std::endl;
+				//out << "move $sp, 0($fp)" << std::endl;
+				out << "lw $sp, 0($fp)" << std::endl;
 				
-				out << "mov $fp, -4($fp)" << std::endl;
+				//out << "move $fp, -4($fp)" << std::endl;
+				out << "lw $fp, -4($fp)" << std::endl;
 				
 				out << "add $sp, $sp, 8" << std::endl;
 				
@@ -284,8 +286,9 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 		
 		//assume old stack pointer and old frame pointer have been stored on the stack
 		//set frame pointer = stack pointer
-		out << "mov $fp, $sp" << std::endl;
-		stack_count = 0;
+		//out << "
+		//" << std::endl;
+		//stack_count = 0;
 
 		if(function_name.compare("main"))
 			in_execution = 1;
@@ -654,15 +657,17 @@ const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			out << "sw $sp, 0($sp)" << std::endl;
 			
 			//set frame pointer = stack pointer
-			out << "mov $fp, $sp" << std::endl;
+			out << "move $fp, $sp" << std::endl;
 			stack_count = 0;
+			
+			//setup parameters
 			
 			out << "jal " << compare << std::endl;
 			//mode = compare;
 			//create a new map for the new function call
-			std::map<std::string, int> tmp;
+			//std::map<std::string, int> tmp;
 			//push the new map into the the vector
-			variables.push_back(tmp);
+			//variables.push_back(tmp);
 			
 			//exps_print(glist_param);
 			
