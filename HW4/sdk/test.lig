@@ -2,12 +2,25 @@ var a : int = 1;
 var b : int = 2;
 
 function fred() : int {
-	//b = 15;
-	return(15);
+	return (a + b);
+}
+
+function sally() : int {
+	return (a * b);
+}
+
+function dostuff() : int {
+	a = sally();
+//	b = fred();
+	return (0);
 }
 
 function main(args : [[int]]) : int {
-	//a = 3;
-	b = fred();
+//	var c : int = 3;
+//	var d : int = 4;
+	dostuff();
+//	dostuff();
+//	c = c * c;
+//	d = d + d;
 	return (0);
 }

@@ -33,6 +33,7 @@ enum{
 };
 
 extern int count;
+int g_global = 0;
 
 #define INVALID_VALUE -500
 
@@ -69,7 +70,7 @@ int return_complete = 0;
 extern int stack_count;
 
 extern int global_count;
-
+int jal_flag = 0;
 extern int frame_count;
 
 
@@ -216,6 +217,8 @@ void create_return(Symbol current_fun, Env* env)
 				//out << "move $fp, -4($fp)" << std::endl;
 				out << "lw $fp, -4($fp)" << std::endl;
 				
+				stack_count = stack_count - 8;
+				
 				out << "add $sp, $sp, 8" << std::endl;
 				
 				out << "jr $ra #" << symbol_to_str(current_fun) << std::endl;	
@@ -267,10 +270,16 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 	//if the declaration has any expressions
 	if (d->exp) {
 		//const Type* t = 
+		if (current_fun.kind == INVALID_VALUE && g_global == 0 && symbol_is_var(d->id))
+		{
+			out << "\t\tg_global:" << std::endl; 
+			g_global = 1;
+		}
 		mips_traverse_exp(d->exp, env);
 		//This case is "var i:int  = 5"
 		if(symbol_is_var(d->id)){
 			std::cout << "symbol_is_var is hit and id is " << symbol_to_str(d->id) << std::endl;
+			
 			
 			// std::cout << "symbol_is_var is hit and id is " << symbol_to_str(d->id) << std::endl;
 			out << "sub $sp, $sp, 4" << std::endl;
@@ -286,7 +295,7 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 				//this increments the frame count, the current offset
 				stack_count += 4;
 				insert_var(id, stack_count);
-				out << "sw $v0, " << stack_count << "($fp)" << std::endl;
+				out << "sw $v0, " << stack_count << "($gp)" << std::endl;
 			}
 			//else store offset from sp
 			else
@@ -309,7 +318,8 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 				insert_var(id, global_count);
 			} else {
 				insert_var(id, stack_count);
-			}	
+			}
+			
 			//store the evaluation of the expression and store 
 			
 		}else{
@@ -323,10 +333,25 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 		// printf("jr $ra\n");
 		//out << symbol_to_str(d->id) << ":" << std::endl;
 
+		if (current_fun.kind == INVALID_VALUE && jal_flag == 0)
+		{
+			out << "jal main_start" << std::endl; 
+			jal_flag = 1;
+		}
 
 		std::string function_name = symbol_to_str(d->id);
-		out << "\t\t" << function_name << ":" << std::endl;
-		current_fun = d->id;
+		if (function_name.compare("main") == 0)
+		{
+			out << "\t\tmain:" << std::endl;
+			out << "jal g_global" << std::endl;
+			out << "\t\tmain_start" << ":" << std::endl;
+			current_fun = d->id;
+		}
+		else
+		{
+			out << "\t\t" << function_name << ":" << std::endl;
+			current_fun = d->id;
+		}
 		
 		//assume old stack pointer and old frame pointer have been stored on the stack
 		//set frame pointer = stack pointer
@@ -334,7 +359,7 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 		//" << std::endl;
 		//stack_count = 0;
 
-		if(function_name.compare("main"))
+		if(function_name.compare("main") ==0)
 			in_execution = 1;
 		//setting mode
 		mode = symbol_to_str(d->id);
@@ -700,10 +725,13 @@ const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			
 			//before setting up parameters:
 			out << "sub $sp, $sp, 8" << std::endl;
+			stack_count += 4;
 			
-			out << "sw $fp, -4($sp)" << std::endl;
+			out << "sw $fp, " << stack_count << "($fp)" << std::endl;
 			
-			out << "sw $sp, 0($sp)" << std::endl;
+			stack_count += 4;
+			
+			out << "sw $sp, " << stack_count << "($fp)" << std::endl;
 			
 			//set frame pointer = stack pointer
 			out << "move $fp, $sp" << std::endl;
