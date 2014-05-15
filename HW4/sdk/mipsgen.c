@@ -176,7 +176,7 @@ void mips_traverse_decl(struct decl* d, Env* env) {
 			std::cout << "before storing variable after expression and environment is: " << std::endl;
 			print_variables_environments();
 			//thus is stored on a map based on the id
-			std::cout << symbol_to_str(current_fun) << std::endl;
+			//std::cout << symbol_to_str(current_fun) << std::endl;
 			if (symbol_equal(current_fun, symbol_fun("main")))
 			{
 				variables[1][id] = stack_count;
