@@ -36,7 +36,8 @@ extern int reverse;
 //0 will be all global variables, 1 will be all main variables,
 //and the indices after that will be every function call
 extern std::vector< std::map<std::string, int> > variables;
-
+Symbol current_fun;
+int return_complete = 0;
 extern int stack_count;
 
 std::string MAIN_LABEL = "main";
@@ -76,7 +77,70 @@ int get_variable_offset(std::string id){
 
 //prints how many current variable environments we have
 void print_variables_environments(){
-	std::cout << "Current vector::variable length is " << variables.size();
+	std::cout << "Current vector::variable length is " << variables.size() << std::endl;
+}
+
+//function return statements
+void create_return(Symbol current_fun, Env* env)
+{
+	if (symbol_equal(current_fun, symbol_fun("main")))
+			{
+				/*
+				for( std::map<std::string, int>::iterator ii=variables[0].begin(); ii!=variables[0].end(); ++ii)
+				{
+					int offset = (*ii).second;
+					
+					//label
+					//out << "li $a0, '" << (*ii).first << "'" << std::endl;//<< " = \"" << std::endl;
+					out << "li $v0, 4" << std::endl;
+					out << "syscall" << std::endl;
+					
+					//value
+					std::cout << " symbol: " << (*ii).first << " | " << offset << "($fp)"<< std::endl;
+					out << "lw $a0, " << offset << "($fp)" << std::endl;
+					//out << "li " << offset << "($fp), 1" << std::endl;
+					out << "li $v0, 1" << std::endl;
+					out << "syscall" << std::endl;
+					
+					//newline 
+					out << "la $a0, newline" << std::endl;
+					out << "li $v0, 4" << std::endl;
+					out << "syscall" << std::endl;
+				}
+				*/
+				
+				///CLEAR STACK////
+				//CLEAR THE STACK FROM ALL LOCAL VARIABLES! ASSUMPTION THAT WE ONLY HAVE MAIN - CHECK POINT 1
+				out << "add $sp, $sp, " << (variables[0].size() * 4 + variables[1].size() * 4) << std::endl;
+				for (int i = 0; i < variables.size(); i++)
+				{
+					for (std::map<std::string,int>::iterator it=variables[i].begin(); it!=variables[i].end(); ++it)
+					{
+    						std::cout << "variables[" << i << "][" << "] = " << it->first << std::endl;
+					}
+				}
+				std::cout << "local to main: " << variables[1].size() << std::endl;
+				std::cout << "global: " << variables[0].size() << std::endl;
+				//decrease the stack counter variable since we are done with the variable
+				stack_count = stack_count - variables[0].size()*4;
+				stack_count = stack_count - variables[1].size()*4;
+				/////////////////
+				
+				//exit command
+				out << "li $v0, 10\n syscall" << std::endl;
+			}
+			else
+			{
+				//lookup function:
+				Env * en = env_lookup_fun_env(env, current_fun);
+				
+				//free local variables
+				out << "add $sp, $sp, " << g_hash_table_size(en->vars) * 4 << std::endl;
+				
+				//free function parameters (or are these included in local variable count? I think they are)
+				
+				out << "jr $ra #" << symbol_to_str(current_fun) << std::endl;	
+			}
 }
 
 //local declarations
@@ -112,7 +176,15 @@ void mips_traverse_decl(struct decl* d, Env* env) {
 			std::cout << "before storing variable after expression and environment is: " << std::endl;
 			print_variables_environments();
 			//thus is stored on a map based on the id
-			variables.back()[id] = stack_count;
+			std::cout << symbol_to_str(current_fun) << std::endl;
+			if (symbol_equal(current_fun, symbol_fun("main")))
+			{
+				variables[1][id] = stack_count;
+			}
+			else
+			{
+				variables.back()[id] = stack_count;
+			}
 			
 			//store the evaluation of the expression and store 
 			out << "sw $v0, " << stack_count << "($fp)" << std::endl;
@@ -130,14 +202,36 @@ void mips_traverse_decl(struct decl* d, Env* env) {
 			//THIS IS INDEX 1 IN variables 
 			std::map<std::string, int> tmp;
 			//push the new map into the the vector
+			  std::vector<std::map<std::string, int> >::iterator it = variables.begin();
+			  it++;
+			std::cout << "main insertion variables.count " << variables.size() << std::endl;
+			variables.insert(it, tmp);
+			//variables.push_back(tmp);
+		}
+		else
+		{
+			std::map<std::string, int> tmp;
 			variables.push_back(tmp);
 		}
+		out << "\t\t" << symbol_to_str(d->id) << ":" << std::endl;
+		current_fun = d->id;
 		
 		Env* merged_env = env_union(env, fun_env);
-
+		
+		return_complete = 0;
+		
 		g_list_foreach(d->decls, (GFunc)mips_traverse_decl, merged_env);
 		g_list_foreach(d->stmts, (GFunc)mips_traverse_stmt, merged_env);
+		
+		if (return_complete == 0)
+		{
+			create_return(d->id, env);
+		}
+		
 		env_destroy(merged_env);
+		
+		// pop variables off the stack
+		
 		std::cout << "after decls or stmts" << std::endl;
 		print_variables_environments();
 	}
@@ -154,7 +248,15 @@ void mips_traverse_decl(struct decl* d, Env* env) {
 		//this increments the stack count, the current offset
 		stack_count += 4;
 		//thus is stored on a map based on the id
-		variables.back()[id] = stack_count;	
+		std::cout << symbol_to_str(current_fun) << std::endl;
+		if (symbol_equal(current_fun, symbol_fun("main")))
+		{
+			variables[1][id] = stack_count;
+		}
+		else
+		{
+			variables.back()[id] = stack_count;
+		}
 	}
 }
 
@@ -255,6 +357,45 @@ const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		case AST_EXP_LT_EQ:
 		case AST_EXP_EQ:
 		case AST_EXP_NOT_EQ: {
+			
+			//Smarter version
+			
+			if (exp->left->kind == AST_EXP_NUM || 
+				exp->left->kind == AST_EXP_TRUE ||
+				exp->left->kind == AST_EXP_FALSE)
+			{
+				//do right first
+				mips_traverse_exp(exp->right, env);
+				
+				out << "move $v1, $v0" << std::endl;
+				
+				mips_traverse_exp(exp->left, env);
+				
+				//print the type of expression(add, sub, mul, etc...)
+				print_exp_type(exp->kind);
+				
+				out << " $v0, $v0, $v1" << std::endl;
+			}
+			else if (exp->right->kind == AST_EXP_NUM || 
+				exp->right->kind == AST_EXP_TRUE ||
+				exp->right->kind == AST_EXP_FALSE)
+			{
+				//do left first
+				mips_traverse_exp(exp->left, env);
+				
+				out << "move $v1, $v0" << std::endl;
+				
+				mips_traverse_exp(exp->right, env);
+				
+				//print the type of expression
+				print_exp_type(exp->kind);
+				
+				out << " $v0, $v1, $v0" << std::endl;
+			}
+			else
+			{
+			//Simple Version
+			
 			//create a whole for the value of this expression
 			out << "sub $sp, $sp, 4" << std::endl;
 			//increment our stack_count variable for offsets
@@ -282,6 +423,9 @@ const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			print_exp_type(exp->kind);
 			
 			out << " $v0, $v1, $v0" << std::endl;
+			}
+			
+			
 			
 			exp->node_type = type_int_new();
 			break;
@@ -575,8 +719,14 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 
 		case AST_STMT_RETURN: {
 			  //Type* expected = 
-			  env_lookup(env, symbol_fun_return());
-
+			  //env_lookup(env, symbol_fun_return());
+			
+			//Env * en = env_lookup_fun_env(env, symbol_fun_return());
+			
+			create_return(current_fun, env);
+			return_complete = 1;
+			
+			
 			  Type* actual = NULL;
 			  if (stmt->exp) {
 					actual = type_copy_deep(mips_traverse_exp(stmt->exp, env));

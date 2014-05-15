@@ -1,7 +1,15 @@
+var m : int = 5;
+
+function fred() : int {
+	var z : int;
+	return (10);
+}
+
 function main(args : [[int]]) : int {
 	var i : int;
 	var j : int;
 	i = 15;
+
 	
 	while(i<20){
 		i = i+1;
