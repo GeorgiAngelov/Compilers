@@ -67,6 +67,7 @@ extern std::vector< std::map<std::string, int> > variables;
 Symbol current_fun;
 int return_complete = 0;
 extern int stack_count;
+extern int frame_count;
 
 
 std::string MAIN_LABEL = "main";
@@ -155,8 +156,8 @@ void create_return(Symbol current_fun, Env* env)
 				//std::cout << "local to main: " << variables[1].size() << std::endl;
 				//std::cout << "global: " << variables[0].size() << std::endl;
 				//decrease the stack counter variable since we are done with the variable
-				stack_count = stack_count - variables[0].size()*4;
-				stack_count = stack_count - variables[1].size()*4;
+				//stack_count = stack_count - variables[0].size()*4;
+				//stack_count = stack_count - variables[1].size()*4;
 				/////////////////
 				
 				//exit command
@@ -170,7 +171,11 @@ void create_return(Symbol current_fun, Env* env)
 				//free local variables
 				out << "add $sp, $sp, " << g_hash_table_size(en->vars) * 4 << std::endl;
 				
-				//free function parameters (or are these included in local variable count? I think they are)
+				out << "mov $sp, 0($fp)" << std::endl;
+				
+				out << "mov $fp, -4($fp)" << std::endl;
+				
+				out << "add $sp, $sp, 8" << std::endl;
 				
 				out << "jr $ra #" << symbol_to_str(current_fun) << std::endl;	
 			}
@@ -219,7 +224,6 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 	Type* calculated = NULL;
 	printf(symbol_to_str(d->id));
 	printf("\n");
-
 	//if the declaration has any expressions
 	if (d->exp) {
 		//const Type* t = 
@@ -227,32 +231,57 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 		//This case is "var i:int  = 5"
 		if(symbol_is_var(d->id)){
 			std::cout << "symbol_is_var is hit and id is " << symbol_to_str(d->id) << std::endl;
-			out << "sub $sp, $sp, 4" << std::endl;
+			
 			//set up var access in map -- looks up the id
 			std::string id(symbol_to_str((d->id)));
-			//this increments the stack count, the current offset
-			stack_count += 4;
+			
+			//open space on the stack
+			out << "sub $sp, $sp, 4" << std::endl;
+			
+			//if global store offset from fp
+			if(current_fun.kind == INVALID_VALUE)
+			{
+				//this increments the frame count, the current offset
+				frame_count -= 4;
+				insert_var(id, frame_count);
+				out << "sw $v0, " << frame_count << "($fp)" << std::endl;
+			}
+			//else store offset from sp
+			else
+			{
+				//this increments the stack count, the current offset
+				stack_count += 4;
+				insert_var(id, stack_count);
+				out << "sw $v0, " << stack_count << "($fp)" << std::endl;
+			}
+			
+			
 			//std::cout << "before storing variable after expression and environment is: " << std::endl;
-			print_variables_environments();
+			//print_variables_environments();
 			//thus is stored on a map based on the id
 			//std::cout << symbol_to_str(current_fun) << std::endl;
 			//insert into var
-			insert_var(id, stack_count);
+			
 			
 			//store the evaluation of the expression and store 
-			out << "sw $v0, " << stack_count << "($fp)" << std::endl;
+			
 		}else{
 			std::cout << " Expression is not an assignmnet but just 'x = 5' " << symbol_to_str(d->id) << std::endl;
 		}
 	}
 	//if the declaration has any declarations or statements(hence it is a function)
 	else if (d->decls || d->stmts) {
-
-		out << "jr $ra" << std::endl;
-		printf("jr $ra\n");
-		out << symbol_to_str(d->id) << ":" << std::endl;
+		
 		std::string function_name = symbol_to_str(d->id);
-		if(function_name == "main")
+		out << "\t\t" << function_name << ":" << std::endl;
+		current_fun = d->id;
+		
+		//assume old stack pointer and old frame pointer have been stored on the stack
+		//set frame pointer = stack pointer
+		out << "mov $fp, $sp" << std::endl;
+		stack_count = 0;
+
+		if(function_name.compare("main"))
 			in_execution = 1;
 		//setting mode
 		mode = symbol_to_str(d->id);
@@ -266,6 +295,7 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 
 		Env* fun_env = env_lookup_fun_env(env, d->id);
 		std::cout << "symbol_to_str is " << symbol_to_str(d->id) << std::endl;
+		
 		//make space in the vector variables for main if we are declaring main
 		if(MAIN_LABEL.compare(symbol_to_str(d->id)) == 0){
 			std::cout << " inserting 'main' " << symbol_to_str(d->id) << std::endl;
@@ -273,11 +303,9 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 			//THIS IS INDEX 1 IN variables 
 			std::map<std::string, int> tmp;
 			//push the new map into the the vector
-			  std::vector<std::map<std::string, int> >::iterator it = variables.begin();
-			  it++;
-			//std::cout << "main insertion variables.count " << variables.size() << std::endl;
+			std::vector<std::map<std::string, int> >::iterator it = variables.begin();
+			it++;
 			variables.insert(it, tmp);
-			//variables.push_back(tmp);
 		}
 		else
 		{
@@ -285,14 +313,16 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 			std::map<std::string, int> tmp;
 			variables.push_back(tmp);
 		}
-		out << "\t\t" << symbol_to_str(d->id) << ":" << std::endl;
-		current_fun = d->id;
+		
+		
 		
 		Env* merged_env = env_union(env, fun_env);
 		
 		return_complete = 0;
 		
+		//declare local variables on the stack
 		g_list_foreach(d->decls, (GFunc)mips_traverse_decl, merged_env);
+		//generate function statements
 		g_list_foreach(d->stmts, (GFunc)mips_traverse_stmt, merged_env);
 
 		
@@ -301,7 +331,9 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 			create_return(d->id, env);
 		}
 		
-
+		//out << "jr $ra" << std::endl;
+		
+		
 		env_destroy(merged_env);
 		
 		// pop variables off the stack
@@ -470,13 +502,13 @@ const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			mips_traverse_exp(exp->left, env);
 			
 			//store the result from the left side onto the stack
-			out << "sw $v0, 0($sp)"<< std::endl;
+			out << "sw $v0, 4($sp)"<< std::endl;
 			
 			//traverse the right side of the expression
 			mips_traverse_exp(exp->right, env);
 			
 			//store the results from the right expression into $v1
-			out << "lw $v1, 0($sp)" << std::endl;
+			out << "lw $v1, 4($sp)" << std::endl;
 			
 			//decrement the stack (that way we are back to the original stack length
 			//that was right before we entered this case
@@ -565,7 +597,16 @@ const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			int offset = get_variable_offset(id);
 			  
 			//$vo contains result of right expression.
-			out << "lw $v0, " << offset << "($fp)" << std::endl;
+			if(current_fun.kind == INVALID_VALUE)
+			{
+				out << "lw $v0, " << offset << "($fp)" << std::endl;
+			}
+			else
+			{
+				out << "lw $v0, " << offset << "($sp)" << std::endl;
+			}
+			
+			
 			
 			break;
 		}
@@ -583,6 +624,7 @@ const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		}
 
 		case AST_EXP_FUN_CALL: {
+			
 			/*assert(symbol_is_fun(exp->id));
 			exp->node_type = annotate_fun_call(exp->id, exp->params, env);*/
 			std::string compare = symbol_to_str(exp->id);
@@ -596,12 +638,24 @@ const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			GList *glist_param;
 			glist_param = g_list_first(exp->params);
 			
-							out << "jal " << compare << std::endl;
-				//mode = compare;
-				//create a new map for the new function call
-				std::map<std::string, int> tmp;
-				//push the new map into the the vector
-				variables.push_back(tmp);
+			
+			//before setting up parameters:
+			out << "sub $sp, $sp, 8" << std::endl;
+			
+			out << "sw $fp, -4($sp)" << std::endl;
+			
+			out << "sw $sp, 0($sp)" << std::endl;
+			
+			//set frame pointer = stack pointer
+			out << "mov $fp, $sp" << std::endl;
+			stack_count = 0;
+			
+			out << "jal " << compare << std::endl;
+			//mode = compare;
+			//create a new map for the new function call
+			std::map<std::string, int> tmp;
+			//push the new map into the the vector
+			variables.push_back(tmp);
 			
 			//exps_print(glist_param);
 			
@@ -674,7 +728,15 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			
 			//This is where the storage of $v0 happens  
 			//$vo contains result of right expression.
-			out << "sw $v0, " << offset << "($fp)" << std::endl;
+			if(current_fun.kind == INVALID_VALUE)
+			{
+				out << "sw $v0, " << offset << "($fp)" << std::endl;
+			}
+			else
+			{
+				out << "sw $v0, " << offset << "($sp)" << std::endl;
+			}
+			
 			 
 			break;
 		}

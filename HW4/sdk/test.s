@@ -2,26 +2,22 @@
 newline:	.asciiz "\n"
 		.text
 move $fp $sp
-li $v0, 5
-sub $sp, $sp, 4
-sw $v0, 4($fp)
-li $v0, 244
-sub $sp, $sp, 4
-sw $v0, 8($fp)
 		fred:
-sub $sp, $sp, 4
-li $v0, 5
-sub $sp, $sp, 4
-sw $v0, 16($fp)
+mov $fp, $sp
 li $v0, 10
-add $sp, $sp, 12
+add $sp, $sp, 4
+mov $sp, 0($fp)
+mov $fp, -4($fp)
+add $sp, $sp, 8
 jr $ra #fred
 		main:
-sub $sp, $sp, 4
-li $v0, 15
-sub $sp, $sp, 4
-sw $v0, 24($fp)
+mov $fp, $sp
+sub $sp, $sp, 8
+sw $fp, -4($sp)
+sw $sp, 0($sp)
+mov $fp, $sp
+jal fred
 li $v0, 0
-add $sp, $sp, 16
+add $sp, $sp, 0
 li $v0, 10
  syscall
