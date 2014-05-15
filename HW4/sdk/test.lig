@@ -1,16 +1,8 @@
-
 function fred() : int {
-	var z : int;
-	var x : int = 5;
-	if(x == 3) {
-		return (10);
-	}
-	return (5);
+	return (10);
 }
 
 function main(args : [[int]]) : int {
-	var j : int;
-	var i : int = 15;
-	
+	fred();
 	return (0);
 }

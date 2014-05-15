@@ -40,7 +40,10 @@ int local_data;
 }fun_data;
 
 int stack_count = 0;
+
 int global_count = 0;
+int frame_count = 0;
+
 
 
 std::ofstream out;

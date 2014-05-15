@@ -3,35 +3,20 @@ newline:	.asciiz "\n"
 		.text
 lw $gp $sp
 move $fp $sp
-jr $ra
-fred:
 		fred:
-sub $sp, $sp, 4
-li $v0, 5
-sub $sp, $sp, 4
-sw $v0, 8($fp)
-lw $v0, 8($fp)
-move $v1, $v0
-li $v0, 3
-seq $v0, $v1, $v0
-beq $v0, 0, _lbl0
 li $v0, 10
+add $sp, $sp, 0
+lw $sp, 0($fp)
+lw $fp, -4($fp)
 add $sp, $sp, 8
 jr $ra #fred
-j _lbl1
-_lbl0:
-_lbl1:
-li $v0, 5
-add $sp, $sp, 8
-jr $ra #fred
-jr $ra
-main:
 		main:
-sub $sp, $sp, 4
-li $v0, 15
-sub $sp, $sp, 4
-sw $v0, 16($fp)
+sub $sp, $sp, 8
+sw $fp, -4($sp)
+sw $sp, 0($sp)
+move $fp, $sp
+jal fred
 li $v0, 0
-add $sp, $sp, 8
+add $sp, $sp, 0
 li $v0, 10
  syscall
