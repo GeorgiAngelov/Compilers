@@ -26,6 +26,8 @@ enum {
      SYMBOL_PSEUDO,
 };
 
+#define INVALID_VALUE -500
+
 extern int count; 
 extern int label_count;
 //extern FILE *out;
@@ -77,7 +79,7 @@ int get_variable_offset(std::string id){
 
 //prints how many current variable environments we have
 void print_variables_environments(){
-	std::cout << "Current vector::variable length is " << variables.size() << std::endl;
+	//std::cout << "Current vector::variable length is " << variables.size() << std::endl;
 }
 
 //function return statements
@@ -119,8 +121,8 @@ void create_return(Symbol current_fun, Env* env)
     						std::cout << "variables[" << i << "][" << "] = " << it->first << std::endl;
 					}
 				}
-				std::cout << "local to main: " << variables[1].size() << std::endl;
-				std::cout << "global: " << variables[0].size() << std::endl;
+				//std::cout << "local to main: " << variables[1].size() << std::endl;
+				//std::cout << "global: " << variables[0].size() << std::endl;
 				//decrease the stack counter variable since we are done with the variable
 				stack_count = stack_count - variables[0].size()*4;
 				stack_count = stack_count - variables[1].size()*4;
@@ -143,9 +145,33 @@ void create_return(Symbol current_fun, Env* env)
 			}
 }
 
+void insert_var(std::string id, int stack_count){
+	//if we are dealing with global vars
+	if(current_fun.kind == INVALID_VALUE){
+		std::cout << "Inserting value into global" << std::endl;
+		variables[0][id] = stack_count;
+	}
+	//if the current function is main
+	else if (symbol_equal(current_fun, symbol_fun("main")))
+	{
+		std::cout << "Inserting value " << id << " into MAIN" << std::endl;
+		variables[1][id] = stack_count;
+	}
+	//if we are in any other function, get the	 back!
+	else
+	{
+		std::cout << "Not in main so I am inserting at last function I am in and var id is " << id << std::endl;
+		std::cout << " variable count is " << variables.size() << std::endl;
+		variables.back()[id] = stack_count;
+	}
+}
+
 //local declarations
 void mips_generate_text(GList * decls, Env* env){
-	std::cout << "before inserting global into variables" << std::endl;
+	//default value of current_fun to know we are in global in the begining.
+	current_fun.kind = INVALID_VALUE;
+	
+	//std::cout << "before inserting global into variables" << std::endl;
 	print_variables_environments();
 	
 	//INSERT THE MAP FOR THE GLOBAL DECLARATIONS
@@ -173,43 +199,41 @@ void mips_traverse_decl(struct decl* d, Env* env) {
 			std::string id(symbol_to_str((d->id)));
 			//this increments the stack count, the current offset
 			stack_count += 4;
-			std::cout << "before storing variable after expression and environment is: " << std::endl;
+			//std::cout << "before storing variable after expression and environment is: " << std::endl;
 			print_variables_environments();
 			//thus is stored on a map based on the id
 			//std::cout << symbol_to_str(current_fun) << std::endl;
-			if (symbol_equal(current_fun, symbol_fun("main")))
-			{
-				variables[1][id] = stack_count;
-			}
-			else
-			{
-				variables.back()[id] = stack_count;
-			}
+			//insert into var
+			insert_var(id, stack_count);
 			
 			//store the evaluation of the expression and store 
 			out << "sw $v0, " << stack_count << "($fp)" << std::endl;
+		}else{
+			std::cout << " Expression is not an assignmnet but just 'x = 5' " << symbol_to_str(d->id) << std::endl;
 		}
 	}
 	//if the declaration has any declarations or statements(hence it is a function)
 	else if (d->decls || d->stmts) {
-		std::cout << "it is either a d-decls or d->stmts" << symbol_to_str((d->id)) << std::endl;
+		//std::cout << "it is either a d-decls or d->stmts" << symbol_to_str((d->id)) << std::endl;
 		print_variables_environments();
 		Env* fun_env = env_lookup_fun_env(env, d->id);
-		
+		std::cout << "symbol_to_str is " << symbol_to_str(d->id) << std::endl;
 		//make space in the vector variables for main if we are declaring main
-		if(MAIN_LABEL.compare(symbol_to_str(d->id))){
+		if(MAIN_LABEL.compare(symbol_to_str(d->id)) == 0){
+			std::cout << " inserting 'main' " << symbol_to_str(d->id) << std::endl;
 			//INSERT THE MAP FOR "MAIN's" DECLARATIONS
 			//THIS IS INDEX 1 IN variables 
 			std::map<std::string, int> tmp;
 			//push the new map into the the vector
 			  std::vector<std::map<std::string, int> >::iterator it = variables.begin();
 			  it++;
-			std::cout << "main insertion variables.count " << variables.size() << std::endl;
+			//std::cout << "main insertion variables.count " << variables.size() << std::endl;
 			variables.insert(it, tmp);
 			//variables.push_back(tmp);
 		}
 		else
 		{
+			std::cout << " inserting a new function and it's id is " << symbol_to_str(d->id) << std::endl;
 			std::map<std::string, int> tmp;
 			variables.push_back(tmp);
 		}
@@ -232,7 +256,7 @@ void mips_traverse_decl(struct decl* d, Env* env) {
 		
 		// pop variables off the stack
 		
-		std::cout << "after decls or stmts" << std::endl;
+		//std::cout << "after decls or stmts" << std::endl;
 		print_variables_environments();
 	}
 	//this gets hit if we have "var x:int;"
@@ -247,16 +271,8 @@ void mips_traverse_decl(struct decl* d, Env* env) {
 		std::string id(symbol_to_str((d->id)));
 		//this increments the stack count, the current offset
 		stack_count += 4;
-		//thus is stored on a map based on the id
-		std::cout << symbol_to_str(current_fun) << std::endl;
-		if (symbol_equal(current_fun, symbol_fun("main")))
-		{
-			variables[1][id] = stack_count;
-		}
-		else
-		{
-			variables.back()[id] = stack_count;
-		}
+		//insert a var
+		insert_var(id, stack_count);
 	}
 }
 

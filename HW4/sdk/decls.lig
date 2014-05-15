@@ -3,3 +3,7 @@ var x:int = 5;
 function main(argv : [[int]]) : int {
 	var j:int = 1;
 }
+
+function skipto(){
+	var b:int = 5;
+}
