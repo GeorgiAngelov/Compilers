@@ -113,6 +113,34 @@ int get_variable_offset(std::string id){
 	return offset;
 }
 
+//The function returns the appropriate pointer to use for the offset accessing of variables
+std::string get_variable_pointer_name(std::string id){
+	std::string pointer_name;
+	
+	//if we are in main
+	if(symbol_equal(current_fun, symbol_fun("main"))){
+		//if the variable is declared in main
+		if(variables[1].count(id)){
+			pointer_name = "fp";
+		}
+		//if the variable is not in main, use global
+		else{
+			pointer_name = "gp";
+		}
+	}else{
+		//if the variable is declared in the current function context
+		if(variables.back().count(id)){
+			pointer_name = "fp";
+		}
+		//if the variable is not in the current function, use global
+		else{
+			pointer_name = "gp";
+		}
+	}
+	
+	return pointer_name;
+}
+
 //prints how many current variable environments we have
 void print_variables_environments(){
 	//std::cout << "Current vector::variable length is " << variables.size() << std::endl;
@@ -249,9 +277,9 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 			if(current_fun.kind == INVALID_VALUE)
 			{
 				//this increments the frame count, the current offset
-				frame_count -= 4;
-				insert_var(id, frame_count);
-				out << "sw $v0, " << frame_count << "($fp)" << std::endl;
+				stack_count += 4;
+				insert_var(id, stack_count);
+				out << "sw $v0, " << stack_count << "($fp)" << std::endl;
 			}
 			//else store offset from sp
 			else
@@ -623,11 +651,11 @@ const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			//$vo contains result of right expression.
 			if(current_fun.kind == INVALID_VALUE)
 			{
-				out << "lw $v0, " << offset << "($fp)" << std::endl;
+				out << "lw $v0, " << offset << "($" << get_variable_pointer_name(id) << ")" << std::endl;;
 			}
 			else
 			{
-				out << "lw $v0, " << offset << "($sp)" << std::endl;
+				out << "lw $v0, " << offset << "($" << get_variable_pointer_name(id) << ")" << std::endl;
 			}
 			
 			
@@ -756,11 +784,11 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			//$vo contains result of right expression.
 			if(current_fun.kind == INVALID_VALUE)
 			{
-				out << "sw $v0, " << offset << "($fp)" << std::endl;
+				out << "sw $v0, " << offset << "($" << get_variable_pointer_name(id) << ")" << std::endl;
 			}
 			else
 			{
-				out << "sw $v0, " << offset << "($sp)" << std::endl;
+				out << "sw $v0, " << offset << "($" << get_variable_pointer_name(id) << ")" << std::endl;
 			}
 			
 			 
@@ -848,7 +876,6 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			
 			//Find the particular symbol's offset  
 			int offset = get_variable_offset(id);// local_variables[id];
-			
 			//assign initial value to counter
 			out << "sw $v0, " << offset << "($fp)" << std::endl;
 
@@ -862,16 +889,16 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			
 			//do comparison
 			mips_traverse_exp(stmt->right, env);
-			out << "lw $v1, " << offset << "($fp)" << std::endl;
+			out << "lw $v1, " << offset << "($" << get_variable_pointer_name(id) << ")" << std::endl;
 			out << "bge $v1, $v0, " << end_for_label << std::endl;
 			
 			//execute block
 			g_list_foreach(stmt->block1, (GFunc)mips_traverse_stmt, env);
 			
 			//increment counter
-			out << "lw $v0, " << offset << "($fp)" << std::endl;
+			out << "lw $v0, " << offset << "($" << get_variable_pointer_name(id) << ")" << std::endl;
 			out << "addi $v0, $v0, 1" << std::endl;
-			out << "sw $v0, " << offset << "($fp)" << std::endl;
+			out << "sw $v0, " << offset << "($" << get_variable_pointer_name(id) << ")" << std::endl;
 			
 			
 			//loop

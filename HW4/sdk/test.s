@@ -6,11 +6,11 @@ move $fp $sp
 li $v0, 1
 sub $sp, $sp, 4
 sub $sp, $sp, 4
-sw $v0, -4($fp)
+sw $v0, 4($fp)
 li $v0, 2
 sub $sp, $sp, 4
 sub $sp, $sp, 4
-sw $v0, -8($fp)
+sw $v0, 8($fp)
 		fred:
 li $v0, 10
 add $sp, $sp, 0
@@ -22,11 +22,11 @@ jr $ra #fred
 li $v0, 3
 sub $sp, $sp, 4
 sub $sp, $sp, 4
-sw $v0, 4($fp)
-lw $v0, 0($sp)
+sw $v0, 12($fp)
+lw $v0, 0($fp)
 sub $sp, $sp, 4
 sub $sp, $sp, 4
-sw $v0, 8($fp)
+sw $v0, 16($fp)
 li $v0, 0
 add $sp, $sp, 20
 li $v0, 10
