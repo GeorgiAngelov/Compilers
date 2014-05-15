@@ -5,7 +5,7 @@ move $fp $sp
 		fred:
 mov $fp, $sp
 li $v0, 10
-add $sp, $sp, 4
+add $sp, $sp, 0
 mov $sp, 0($fp)
 mov $fp, -4($fp)
 add $sp, $sp, 8
