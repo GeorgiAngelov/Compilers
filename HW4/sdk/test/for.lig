@@ -1,0 +1,20 @@
+//Make the for loop evaluation constant
+function main(args : [[int]]) : int {
+	var a : int = 1;
+	var b : int = 2;
+	var c : int = 3;
+	var d : int = 4;
+	
+	//for a = 2 to 12 (b= b + 10 * 2)
+	for ( a = b to 10)
+	{
+		b = 2 + b;
+		for (c = d to 15)
+		{
+			d = d + 1;
+		}
+	}
+	
+	// a = 12, b = 22, c = 3, d = 4
+	
+}

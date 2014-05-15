@@ -1,0 +1,35 @@
+function main(args : [[int]]) : int {
+	var a : int = 1;
+	var b : int = 2;
+	var c : int = 3;
+	var d : int = 4;
+	var e : int = 5;
+	
+	//for a = 2 to 12 (b= b + 10 * 2)
+	while ( a < 10)
+	{
+		a = a + 2;
+	}
+	
+	while ( b <= 20)
+	{
+		b = b + 3;
+	}
+	
+	while ( d > 0)
+	{
+		d = d - 1;
+	}
+	
+	while ( c != 15)
+	{
+		c = c + 1;
+	}
+	
+	while (e >= 0)
+	{
+		e = e - 1;
+	}
+	// a = 11, b = 23, c = 15, d = 0
+	
+}

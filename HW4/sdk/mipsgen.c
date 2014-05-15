@@ -14,6 +14,7 @@
 #include <string>
 #include <sstream>
 #include <map>
+#include <vector>
 
 
 enum {
@@ -32,10 +33,14 @@ enum{
 };
 
 extern int count;
+
+#define INVALID_VALUE -500
+
 extern int label_count;
 //extern FILE *out;
 extern std::ofstream out;
 extern int reverse;
+
 
 std::string mode = "none";
 
@@ -54,8 +59,19 @@ int local_data;
 extern std::map<std::string, int> local_variables;
 std::map<std::string,function_data> function_map;
 
-int stack_count = 0;
+//extern std::map<std::string, int> local_variables;
+//this is the map that holds all variables
+//0 will be all global variables, 1 will be all main variables,
+//and the indices after that will be every function call
+extern std::vector< std::map<std::string, int> > variables;
+Symbol current_fun;
+int return_complete = 0;
+extern int stack_count;
 
+
+std::string MAIN_LABEL = "main";
+
+	
 //function to generate a the next label ( done so we do not interfere with previously created labels )
 std::string mips_label_gen() {
 	std::string label = "_lbl";
@@ -72,8 +88,129 @@ std::string mips_label_gen() {
 	return label;
 }
 
+int get_variable_offset(std::string id){
+	
+	std::map<std::string,int>::iterator it = variables.back().find(id);
+	int offset;
+	//the variable is declared inside the function so access it
+	if(symbol_equal(current_fun, symbol_fun("main"))){
+		offset = variables[1][id];
+	}
+	else if(it != variables.back().end())
+	{
+		offset = it->second;
+	}
+	//the variable is a global variable(not declared in function)
+	else{
+		offset = variables[0][id];
+	}
+	
+	return offset;
+}
+
+//prints how many current variable environments we have
+void print_variables_environments(){
+	//std::cout << "Current vector::variable length is " << variables.size() << std::endl;
+}
+
+//function return statements
+void create_return(Symbol current_fun, Env* env)
+{
+	if (symbol_equal(current_fun, symbol_fun("main")))
+			{
+				/*
+				for( std::map<std::string, int>::iterator ii=variables[0].begin(); ii!=variables[0].end(); ++ii)
+				{
+					int offset = (*ii).second;
+					
+					//label
+					//out << "li $a0, '" << (*ii).first << "'" << std::endl;//<< " = \"" << std::endl;
+					out << "li $v0, 4" << std::endl;
+					out << "syscall" << std::endl;
+					
+					//value
+					std::cout << " symbol: " << (*ii).first << " | " << offset << "($fp)"<< std::endl;
+					out << "lw $a0, " << offset << "($fp)" << std::endl;
+					//out << "li " << offset << "($fp), 1" << std::endl;
+					out << "li $v0, 1" << std::endl;
+					out << "syscall" << std::endl;
+					
+					//newline 
+					out << "la $a0, newline" << std::endl;
+					out << "li $v0, 4" << std::endl;
+					out << "syscall" << std::endl;
+				}
+				*/
+				
+				///CLEAR STACK////
+				//CLEAR THE STACK FROM ALL LOCAL VARIABLES! ASSUMPTION THAT WE ONLY HAVE MAIN - CHECK POINT 1
+				out << "add $sp, $sp, " << (variables[0].size() * 4 + variables[1].size() * 4) << std::endl;
+				for (int i = 0; i < variables.size(); i++)
+				{
+					for (std::map<std::string,int>::iterator it=variables[i].begin(); it!=variables[i].end(); ++it)
+					{
+    						std::cout << "variables[" << i << "][" << "] = " << it->first << std::endl;
+					}
+				}
+				//std::cout << "local to main: " << variables[1].size() << std::endl;
+				//std::cout << "global: " << variables[0].size() << std::endl;
+				//decrease the stack counter variable since we are done with the variable
+				stack_count = stack_count - variables[0].size()*4;
+				stack_count = stack_count - variables[1].size()*4;
+				/////////////////
+				
+				//exit command
+				out << "li $v0, 10\n syscall" << std::endl;
+			}
+			else
+			{
+				//lookup function:
+				Env * en = env_lookup_fun_env(env, current_fun);
+				
+				//free local variables
+				out << "add $sp, $sp, " << g_hash_table_size(en->vars) * 4 << std::endl;
+				
+				//free function parameters (or are these included in local variable count? I think they are)
+				
+				out << "jr $ra #" << symbol_to_str(current_fun) << std::endl;	
+			}
+}
+
+void insert_var(std::string id, int stack_count){
+	//if we are dealing with global vars
+	if(current_fun.kind == INVALID_VALUE){
+		std::cout << "Inserting value into global" << std::endl;
+		variables[0][id] = stack_count;
+	}
+	//if the current function is main
+	else if (symbol_equal(current_fun, symbol_fun("main")))
+	{
+		std::cout << "Inserting value " << id << " into MAIN" << std::endl;
+		variables[1][id] = stack_count;
+	}
+	//if we are in any other function, get the	 back!
+	else
+	{
+		std::cout << "Not in main so I am inserting at last function I am in and var id is " << id << std::endl;
+		std::cout << " variable count is " << variables.size() << std::endl;
+		variables.back()[id] = stack_count;
+	}
+}
+
 //local declarations
 void mips_generate_text(GList * decls, Env* env){
+	//default value of current_fun to know we are in global in the begining.
+	current_fun.kind = INVALID_VALUE;
+	
+	//std::cout << "before inserting global into variables" << std::endl;
+	print_variables_environments();
+	
+	//INSERT THE MAP FOR THE GLOBAL DECLARATIONS
+	//THIS IS INDEX 0 IN variables 
+	std::map<std::string, int> tmp;
+	//push the new map into the the vector
+	variables.push_back(tmp);
+	
 	//loop through each declaration in the tree
 	g_list_foreach(decls, (GFunc)mips_traverse_decl, env);
 }
@@ -82,12 +219,35 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 	Type* calculated = NULL;
 	printf(symbol_to_str(d->id));
 	printf("\n");
+
 	//if the declaration has any expressions
 	if (d->exp) {
-		const Type* t = mips_traverse_exp(d->exp, env);
+		//const Type* t = 
+		mips_traverse_exp(d->exp, env);
+		//This case is "var i:int  = 5"
+		if(symbol_is_var(d->id)){
+			std::cout << "symbol_is_var is hit and id is " << symbol_to_str(d->id) << std::endl;
+			out << "sub $sp, $sp, 4" << std::endl;
+			//set up var access in map -- looks up the id
+			std::string id(symbol_to_str((d->id)));
+			//this increments the stack count, the current offset
+			stack_count += 4;
+			//std::cout << "before storing variable after expression and environment is: " << std::endl;
+			print_variables_environments();
+			//thus is stored on a map based on the id
+			//std::cout << symbol_to_str(current_fun) << std::endl;
+			//insert into var
+			insert_var(id, stack_count);
+			
+			//store the evaluation of the expression and store 
+			out << "sw $v0, " << stack_count << "($fp)" << std::endl;
+		}else{
+			std::cout << " Expression is not an assignmnet but just 'x = 5' " << symbol_to_str(d->id) << std::endl;
+		}
 	}
 	//if the declaration has any declarations or statements(hence it is a function)
 	else if (d->decls || d->stmts) {
+
 		out << "jr $ra" << std::endl;
 		printf("jr $ra\n");
 		out << symbol_to_str(d->id) << ":" << std::endl;
@@ -100,27 +260,69 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 		function_data func;
 
 		function_map[function_name] = func;
-				
+
+		//std::cout << "it is either a d-decls or d->stmts" << symbol_to_str((d->id)) << std::endl;
+		print_variables_environments();
+
 		Env* fun_env = env_lookup_fun_env(env, d->id);
-
+		std::cout << "symbol_to_str is " << symbol_to_str(d->id) << std::endl;
+		//make space in the vector variables for main if we are declaring main
+		if(MAIN_LABEL.compare(symbol_to_str(d->id)) == 0){
+			std::cout << " inserting 'main' " << symbol_to_str(d->id) << std::endl;
+			//INSERT THE MAP FOR "MAIN's" DECLARATIONS
+			//THIS IS INDEX 1 IN variables 
+			std::map<std::string, int> tmp;
+			//push the new map into the the vector
+			  std::vector<std::map<std::string, int> >::iterator it = variables.begin();
+			  it++;
+			//std::cout << "main insertion variables.count " << variables.size() << std::endl;
+			variables.insert(it, tmp);
+			//variables.push_back(tmp);
+		}
+		else
+		{
+			std::cout << " inserting a new function and it's id is " << symbol_to_str(d->id) << std::endl;
+			std::map<std::string, int> tmp;
+			variables.push_back(tmp);
+		}
+		out << "\t\t" << symbol_to_str(d->id) << ":" << std::endl;
+		current_fun = d->id;
+		
 		Env* merged_env = env_union(env, fun_env);
-
+		
+		return_complete = 0;
+		
 		g_list_foreach(d->decls, (GFunc)mips_traverse_decl, merged_env);
 		g_list_foreach(d->stmts, (GFunc)mips_traverse_stmt, merged_env);
-		//g_list_foreach(d->params, (GFunc)mips_traverse_exp, merged_env);
+
+		
+		if (return_complete == 0)
+		{
+			create_return(d->id, env);
+		}
+		
+
 		env_destroy(merged_env);
+		
+		// pop variables off the stack
+		
+		//std::cout << "after decls or stmts" << std::endl;
+		print_variables_environments();
 	}
+	//this gets hit if we have "var x:int;"
 	else
 	{
+		std::cout << "it is neither and symbol is: " << symbol_to_str((d->id)) << std::endl;
+		print_variables_environments();
 		//How to reserve space on the stack for local
 		//Also below is the reserve space
 		out << "sub $sp, $sp, 4" << std::endl;
-		//set up var access in map -- looks up the id
+		//set up var access in m	ap -- looks up the id
 		std::string id(symbol_to_str((d->id)));
 		//this increments the stack count, the current offset
 		stack_count += 4;
-		//thus is stored on a map based on the id
-		local_variables[id] = stack_count;	
+		//insert a var
+		insert_var(id, stack_count);
 	}
 }
 
@@ -204,7 +406,7 @@ void print_exp_type (int kind)
 	
 }
 
-static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
+const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 	exp->node_type = NULL;
 
 	switch (exp->kind) {
@@ -221,6 +423,45 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		case AST_EXP_LT_EQ:
 		case AST_EXP_EQ:
 		case AST_EXP_NOT_EQ: {
+			
+			//Smarter version
+			
+			if (exp->left->kind == AST_EXP_NUM || 
+				exp->left->kind == AST_EXP_TRUE ||
+				exp->left->kind == AST_EXP_FALSE)
+			{
+				//do right first
+				mips_traverse_exp(exp->right, env);
+				
+				out << "move $v1, $v0" << std::endl;
+				
+				mips_traverse_exp(exp->left, env);
+				
+				//print the type of expression(add, sub, mul, etc...)
+				print_exp_type(exp->kind);
+				
+				out << " $v0, $v0, $v1" << std::endl;
+			}
+			else if (exp->right->kind == AST_EXP_NUM || 
+				exp->right->kind == AST_EXP_TRUE ||
+				exp->right->kind == AST_EXP_FALSE)
+			{
+				//do left first
+				mips_traverse_exp(exp->left, env);
+				
+				out << "move $v1, $v0" << std::endl;
+				
+				mips_traverse_exp(exp->right, env);
+				
+				//print the type of expression
+				print_exp_type(exp->kind);
+				
+				out << " $v0, $v1, $v0" << std::endl;
+			}
+			else
+			{
+			//Simple Version
+			
 			//create a whole for the value of this expression
 			out << "sub $sp, $sp, 4" << std::endl;
 			//increment our stack_count variable for offsets
@@ -228,7 +469,7 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			//traverset the left side of the expression
 			mips_traverse_exp(exp->left, env);
 			
-			//store the result from the left side into the stack
+			//store the result from the left side onto the stack
 			out << "sw $v0, 0($sp)"<< std::endl;
 			
 			//traverse the right side of the expression
@@ -248,6 +489,9 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			print_exp_type(exp->kind);
 			
 			out << " $v0, $v1, $v0" << std::endl;
+			}
+			
+			
 			
 			exp->node_type = type_int_new();
 			break;
@@ -316,11 +560,9 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		}
 
 		case AST_EXP_ID: {
-			//exp->node_type = type_copy_deep(env_lookup(env, exp->id));
-			
 			std::string id(symbol_to_str((exp->id)));
 			  
-			int offset = local_variables[id];
+			int offset = get_variable_offset(id);
 			  
 			//$vo contains result of right expression.
 			out << "lw $v0, " << offset << "($fp)" << std::endl;
@@ -353,6 +595,13 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			std::string parameter;
 			GList *glist_param;
 			glist_param = g_list_first(exp->params);
+			
+							out << "jal " << compare << std::endl;
+				//mode = compare;
+				//create a new map for the new function call
+				std::map<std::string, int> tmp;
+				//push the new map into the the vector
+				variables.push_back(tmp);
 			
 			//exps_print(glist_param);
 			
@@ -408,7 +657,8 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			}
 			else
 			{
-				const Type* right = mips_traverse_exp(stmt->right, env);
+				//const Type* right = 
+				mips_traverse_exp(stmt->right, env);
 			}
 
 			//check if we are in a function declaration
@@ -420,7 +670,7 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			std::string id(symbol_to_str((stmt->left->id)));
 			
 			//Find the particular symbol's offset  
-			int offset = local_variables[id];
+			int offset = get_variable_offset(id);
 			
 			//This is where the storage of $v0 happens  
 			//$vo contains result of right expression.
@@ -431,7 +681,7 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 
 		case AST_STMT_IF: {
 			  //const Type* cond = mips_traverse_exp(stmt->exp, env);
-			int resultC;
+			//int resultC;
 			int resultcompareC;
 			std::string elselabel = mips_label_gen();
 			std::string endelselabel = mips_label_gen();
@@ -509,7 +759,7 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			std::string id(symbol_to_str((stmt->left->id)));
 			
 			//Find the particular symbol's offset  
-			int offset = local_variables[id];
+			int offset = get_variable_offset(id);// local_variables[id];
 			
 			//assign initial value to counter
 			out << "sw $v0, " << offset << "($fp)" << std::endl;
@@ -541,31 +791,17 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			
 			//print end for label
 			out << end_for_label << ":" << std::endl;
-			
-			/*
-
-			mips_traverse_exp(stmt->exp, env);
-			out << "move $t" << count << ", $v0" << std::endl;
-			resultC = count;
-			count++;
-
-			//Load the counter
-			out << "li $t" << count << ", 0" << std::endl;
-			counter = count;
-			count++;
-
-			out << for_label << ": " << "beq $t" << resultC << ", $t" << counter << ", " << end_for_label << std::endl;
-			
-			
-		  	
-		  	*/
 
 			break;
 		}
 
 		case AST_STMT_RETURN: {
-			  Type* expected = env_lookup(env, symbol_fun_return());
-
+			  //Type* expected = 
+			  //env_lookup(env, symbol_fun_return());
+			
+			//Env * en = env_lookup_fun_env(env, symbol_fun_return());
+			
+			
 			  Type* actual = NULL;
 			  if (stmt->exp) {
 					actual = type_copy_deep(mips_traverse_exp(stmt->exp, env));
@@ -579,6 +815,10 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			  if(in_execution == 1){
 			  	printf("end main\n");
 			  }
+			  
+			  create_return(current_fun, env);
+			return_complete = 1;
+=
 			  type_destroy(actual);
 			  break;
 		}
