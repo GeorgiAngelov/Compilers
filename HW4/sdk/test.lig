@@ -2,24 +2,18 @@ var a : int = 1;
 var b : int = 2;
 
 function fred() : int {
-	return (a + b);
+	return (10);
+	//return (sally());
 }
 
 function sally() : int {
-	return (a * b);
-}
-
-function dostuff() : int {
-	a = sally();
-//	b = fred();
-	return (0);
+	return (10);
 }
 
 function main(args : [[int]]) : int {
 //	var c : int = 3;
 //	var d : int = 4;
-	dostuff();
-//	dostuff();
+	fred();
 //	c = c * c;
 //	d = d + d;
 	return (0);

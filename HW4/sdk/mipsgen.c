@@ -217,8 +217,6 @@ void create_return(Symbol current_fun, Env* env)
 				//out << "move $fp, -4($fp)" << std::endl;
 				out << "lw $fp, -4($fp)" << std::endl;
 				
-				stack_count = stack_count - 8;
-				
 				out << "add $sp, $sp, 8" << std::endl;
 				
 				out << "jr $ra #" << symbol_to_str(current_fun) << std::endl;	
@@ -725,13 +723,10 @@ const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			
 			//before setting up parameters:
 			out << "sub $sp, $sp, 8" << std::endl;
-			stack_count += 4;
 			
-			out << "sw $fp, " << stack_count << "($fp)" << std::endl;
+			out << "sw $fp, -4($sp)" << std::endl;
 			
-			stack_count += 4;
-			
-			out << "sw $sp, " << stack_count << "($fp)" << std::endl;
+			out << "sw $sp, 0($sp)" << std::endl;
 			
 			//set frame pointer = stack pointer
 			out << "move $fp, $sp" << std::endl;
