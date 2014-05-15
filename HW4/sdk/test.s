@@ -1,6 +1,7 @@
 		.data
 newline:	.asciiz "\n"
 		.text
+lw $gp $sp
 move $fp $sp
 jr $ra
 fred:

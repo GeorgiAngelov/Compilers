@@ -67,6 +67,7 @@ extern std::vector< std::map<std::string, int> > variables;
 Symbol current_fun;
 int return_complete = 0;
 extern int stack_count;
+extern int global_count;
 
 
 std::string MAIN_LABEL = "main";
@@ -237,7 +238,12 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 			//thus is stored on a map based on the id
 			//std::cout << symbol_to_str(current_fun) << std::endl;
 			//insert into var
-			insert_var(id, stack_count);
+			if(current_fun.kind == INVALID_VALUE) {
+				global_count +=4; 
+				insert_var(id, global_count);
+			} else {
+				insert_var(id, stack_count);
+			}
 			
 			//store the evaluation of the expression and store 
 			out << "sw $v0, " << stack_count << "($fp)" << std::endl;
@@ -321,8 +327,11 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 		std::string id(symbol_to_str((d->id)));
 		//this increments the stack count, the current offset
 		stack_count += 4;
-		//insert a var
-		insert_var(id, stack_count);
+		if(current_fun.kind == INVALID_VALUE) {
+			insert_var(id, global_count);
+		} else {
+			insert_var(id, stack_count);
+		}
 	}
 }
 
@@ -460,35 +469,35 @@ const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			}
 			else
 			{
-			//Simple Version
-			
-			//create a whole for the value of this expression
-			out << "sub $sp, $sp, 4" << std::endl;
-			//increment our stack_count variable for offsets
-			stack_count += 4;
-			//traverset the left side of the expression
-			mips_traverse_exp(exp->left, env);
-			
-			//store the result from the left side onto the stack
-			out << "sw $v0, 0($sp)"<< std::endl;
-			
-			//traverse the right side of the expression
-			mips_traverse_exp(exp->right, env);
-			
-			//store the results from the right expression into $v1
-			out << "lw $v1, 0($sp)" << std::endl;
-			
-			//decrement the stack (that way we are back to the original stack length
-			//that was right before we entered this case
-			out << "add $sp, $sp, 4" << std::endl;
-			
-			//decrease the stack counter variable since we are done with the variable
-			stack_count = stack_count - 4;
-			
-			//print the type of epression(add, sub, mul, etc...)
-			print_exp_type(exp->kind);
-			
-			out << " $v0, $v1, $v0" << std::endl;
+				//Simple Version
+				
+				//create a whole for the value of this expression
+				out << "sub $sp, $sp, 4" << std::endl;
+				//increment our stack_count variable for offsets
+				stack_count += 4;
+				//traverset the left side of the expression
+				mips_traverse_exp(exp->left, env);
+				
+				//store the result from the left side onto the stack
+				out << "sw $v0, 0($sp)"<< std::endl;
+				
+				//traverse the right side of the expression
+				mips_traverse_exp(exp->right, env);
+				
+				//store the results from the right expression into $v1
+				out << "lw $v1, 0($sp)" << std::endl;
+				
+				//decrement the stack (that way we are back to the original stack length
+				//that was right before we entered this case
+				out << "add $sp, $sp, 4" << std::endl;
+				
+				//decrease the stack counter variable since we are done with the variable
+				stack_count = stack_count - 4;
+				
+				//print the type of epression(add, sub, mul, etc...)
+				print_exp_type(exp->kind);
+				
+				out << " $v0, $v1, $v0" << std::endl;
 			}
 			
 			
