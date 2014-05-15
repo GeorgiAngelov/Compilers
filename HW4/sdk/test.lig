@@ -9,6 +9,6 @@ function fred() : int {
 function main(args : [[int]]) : int {
 	var j : int;
 	var i : int;
-	
+
 	return (0);
 }

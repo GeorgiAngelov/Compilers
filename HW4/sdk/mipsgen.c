@@ -62,12 +62,16 @@ std::string mips_label_gen() {
 }
 
 int get_variable_offset(std::string id){
+	
 	std::map<std::string,int>::iterator it = variables.back().find(id);
 	int offset;
 	//the variable is declared inside the function so access it
-	if(it != variables.back().end())
+	if(symbol_equal(current_fun, symbol_fun("main"))){
+		offset = variables[1][id];
+	}
+	else if(it != variables.back().end())
 	{
-	   offset = it->second;
+		offset = it->second;
 	}
 	//the variable is a global variable(not declared in function)
 	else{
