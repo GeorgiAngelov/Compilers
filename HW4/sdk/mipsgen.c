@@ -99,7 +99,13 @@ int get_variable_offset(std::string id){
 	int offset;
 	//the variable is declared inside the function so access it
 	if(symbol_equal(current_fun, symbol_fun("main"))){
-		offset = variables[1][id];
+		if(variables[1].count(id)){
+			offset = variables[1][id];
+		}
+		//if the variable is not in main, use global
+		else if(variables[0].count(id)){
+			offset = variables[0][id];
+		}
 	}
 	else if(it != variables.back().end())
 	{
