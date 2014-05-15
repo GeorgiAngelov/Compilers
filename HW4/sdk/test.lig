@@ -1,10 +1,11 @@
-var m : int = 5;
-var n : int = 244;
 
 function fred() : int {
 	var z : int;
 	var x : int = 5;
-	return (10);
+	if(x == 3) {
+		return (10);
+	}
+	return (5);
 }
 
 function main(args : [[int]]) : int {

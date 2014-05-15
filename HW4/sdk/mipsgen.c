@@ -144,14 +144,9 @@ void create_return(Symbol current_fun, Env* env)
 				
 				///CLEAR STACK////
 				//CLEAR THE STACK FROM ALL LOCAL VARIABLES! ASSUMPTION THAT WE ONLY HAVE MAIN - CHECK POINT 1
-				out << "add $sp, $sp, " << (variables[0].size() * 4 + variables[1].size() * 4) << std::endl;
-				for (int i = 0; i < variables.size(); i++)
-				{
-					for (std::map<std::string,int>::iterator it=variables[i].begin(); it!=variables[i].end(); ++it)
-					{
-    						std::cout << "variables[" << i << "][" << "] = " << it->first << std::endl;
-					}
-				}
+
+				out << "add $sp, $sp, " << ((variables[0].size() * 4) + (variables[1].size() * 4)) << std::endl;
+
 				//std::cout << "local to main: " << variables[1].size() << std::endl;
 				//std::cout << "global: " << variables[0].size() << std::endl;
 				//decrease the stack counter variable since we are done with the variable
@@ -168,31 +163,36 @@ void create_return(Symbol current_fun, Env* env)
 				Env * en = env_lookup_fun_env(env, current_fun);
 				
 				//free local variables
-				out << "add $sp, $sp, " << g_hash_table_size(en->vars) * 4 << std::endl;
+				env_print(en);
+				if(env_contains(en, symbol_var("$return"))) {
+					out << "add $sp, $sp, " << (g_hash_table_size(en->vars)-1) * 4 << std::endl;
+				} else {
+					out << "add $sp, $sp, " << g_hash_table_size(en->vars) * 4 << std::endl;
+				}
 				
 				//free function parameters (or are these included in local variable count? I think they are)
 				
 				out << "jr $ra #" << symbol_to_str(current_fun) << std::endl;	
 			}
 }
-
+ 
 void insert_var(std::string id, int stack_count){
 	//if we are dealing with global vars
 	if(current_fun.kind == INVALID_VALUE){
-		std::cout << "Inserting value into global" << std::endl;
+		// std::cout << "Inserting value into global" << std::endl;
 		variables[0][id] = stack_count;
 	}
 	//if the current function is main
 	else if (symbol_equal(current_fun, symbol_fun("main")))
 	{
-		std::cout << "Inserting value " << id << " into MAIN" << std::endl;
+		// std::cout << "Inserting value " << id << " into MAIN" << std::endl;
 		variables[1][id] = stack_count;
 	}
 	//if we are in any other function, get the	 back!
 	else
 	{
-		std::cout << "Not in main so I am inserting at last function I am in and var id is " << id << std::endl;
-		std::cout << " variable count is " << variables.size() << std::endl;
+		// std::cout << "Not in main so I am inserting at last function I am in and var id is " << id << std::endl;
+		// std::cout << " variable count is " << variables.size() << std::endl;
 		variables.back()[id] = stack_count;
 	}
 }
@@ -217,8 +217,8 @@ void mips_generate_text(GList * decls, Env* env){
 
 static void mips_traverse_decl(struct decl* d, Env* env) {
 	Type* calculated = NULL;
-	printf(symbol_to_str(d->id));
-	printf("\n");
+	// printf(symbol_to_str(d->id));
+	// printf("\n");
 
 	//if the declaration has any expressions
 	if (d->exp) {
@@ -226,7 +226,7 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 		mips_traverse_exp(d->exp, env);
 		//This case is "var i:int  = 5"
 		if(symbol_is_var(d->id)){
-			std::cout << "symbol_is_var is hit and id is " << symbol_to_str(d->id) << std::endl;
+			// std::cout << "symbol_is_var is hit and id is " << symbol_to_str(d->id) << std::endl;
 			out << "sub $sp, $sp, 4" << std::endl;
 			//set up var access in map -- looks up the id
 			std::string id(symbol_to_str((d->id)));
@@ -242,14 +242,14 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 			//store the evaluation of the expression and store 
 			out << "sw $v0, " << stack_count << "($fp)" << std::endl;
 		}else{
-			std::cout << " Expression is not an assignmnet but just 'x = 5' " << symbol_to_str(d->id) << std::endl;
+			// std::cout << " Expression is not an assignmnet but just 'x = 5' " << symbol_to_str(d->id) << std::endl;
 		}
 	}
 	//if the declaration has any declarations or statements(hence it is a function)
 	else if (d->decls || d->stmts) {
 
 		out << "jr $ra" << std::endl;
-		printf("jr $ra\n");
+		// printf("jr $ra\n");
 		out << symbol_to_str(d->id) << ":" << std::endl;
 		std::string function_name = symbol_to_str(d->id);
 		if(function_name == "main")
@@ -265,10 +265,10 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 		print_variables_environments();
 
 		Env* fun_env = env_lookup_fun_env(env, d->id);
-		std::cout << "symbol_to_str is " << symbol_to_str(d->id) << std::endl;
+		// std::cout << "symbol_to_str is " << symbol_to_str(d->id) << std::endl;
 		//make space in the vector variables for main if we are declaring main
 		if(MAIN_LABEL.compare(symbol_to_str(d->id)) == 0){
-			std::cout << " inserting 'main' " << symbol_to_str(d->id) << std::endl;
+			// std::cout << " inserting 'main' " << symbol_to_str(d->id) << std::endl;
 			//INSERT THE MAP FOR "MAIN's" DECLARATIONS
 			//THIS IS INDEX 1 IN variables 
 			std::map<std::string, int> tmp;
@@ -281,7 +281,7 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 		}
 		else
 		{
-			std::cout << " inserting a new function and it's id is " << symbol_to_str(d->id) << std::endl;
+			// std::cout << " inserting a new function and it's id is " << symbol_to_str(d->id) << std::endl;
 			std::map<std::string, int> tmp;
 			variables.push_back(tmp);
 		}
@@ -312,7 +312,7 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 	//this gets hit if we have "var x:int;"
 	else
 	{
-		std::cout << "it is neither and symbol is: " << symbol_to_str((d->id)) << std::endl;
+		// std::cout << "it is neither and symbol is: " << symbol_to_str((d->id)) << std::endl;
 		print_variables_environments();
 		//How to reserve space on the stack for local
 		//Also below is the reserve space
