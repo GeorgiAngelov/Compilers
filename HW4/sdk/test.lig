@@ -12,7 +12,5 @@ function main(args : [[int]]) : int {
 	
 	j = 20;
 	
-	var i : int;
-
 	return (0);
 }
