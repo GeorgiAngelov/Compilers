@@ -8,9 +8,14 @@ function fred() : int {
 
 function main(args : [[int]]) : int {
 	var j : int;
+<<<<<<< HEAD
 	var i : int = 15;
 	
 	j = 20;
 	
+=======
+	var i : int;
+
+>>>>>>> 6080b9ef8bca2d979001ee4243bdf829800f435a
 	return (0);
 }
