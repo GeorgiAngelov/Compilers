@@ -5,29 +5,37 @@ move $gp $sp
 move $fp $sp
 li $v0, 1
 sub $sp, $sp, 4
-sub $sp, $sp, 4
 sw $v0, 4($fp)
 li $v0, 2
 sub $sp, $sp, 4
-sub $sp, $sp, 4
 sw $v0, 8($fp)
 		fred:
-li $v0, 10
+sub $sp, $sp, 4
+lw $v0, 8($gp)
+sw $v0, 4($sp)
+lw $v0, 8($gp)
+lw $v1, 4($sp)
+add $sp, $sp, 4
+add $v0, $v1, $v0
+# mode is fred
+sw $v0, 8($gp)
+li $v0, 0
 add $sp, $sp, 0
 lw $sp, 0($fp)
 lw $fp, -4($fp)
 add $sp, $sp, 8
 jr $ra #fred
 		main:
-li $v0, 3
 sub $sp, $sp, 4
-sub $sp, $sp, 4
-sw $v0, 12($fp)
 lw $v0, 0($fp)
-sub $sp, $sp, 4
-sub $sp, $sp, 4
-sw $v0, 16($fp)
+sw $v0, 4($sp)
+lw $v0, 0($fp)
+lw $v1, 4($sp)
+add $sp, $sp, 4
+add $v0, $v1, $v0
+# mode is main
+sw $v0, 0($fp)
 li $v0, 0
-add $sp, $sp, 20
+add $sp, $sp, 12
 li $v0, 10
  syscall

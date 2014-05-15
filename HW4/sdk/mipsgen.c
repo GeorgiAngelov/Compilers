@@ -271,7 +271,7 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 			std::string id(symbol_to_str((d->id)));
 			
 			//open space on the stack
-			out << "sub $sp, $sp, 4" << std::endl;
+			//out << "sub $sp, $sp, 4" << std::endl;
 			
 			//if global store offset from fp
 			if(current_fun.kind == INVALID_VALUE)

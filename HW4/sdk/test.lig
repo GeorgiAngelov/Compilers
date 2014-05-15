@@ -2,11 +2,11 @@ var a : int = 1;
 var b : int = 2;
 
 function fred() : int {
-	return (10);
+	b = b + b;
+	return(0);
 }
 
 function main(args : [[int]]) : int {
-	var c : int = 3;
-	var d : int = a;
+	a = a + a;
 	return (0);
 }
