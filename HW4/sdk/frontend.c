@@ -22,13 +22,21 @@ static void insert_decls(GList* decls, Env* env);
 static void insert_builtins(Env* env);
 static int check_main_defined(void);
 
+
 // A global variable for holding the root of the AST after parsing.
 static GList* ast_root;
 static Env* genv; 
 
 int count;
 int label_count;
+typedef struct function_data{
+std::string fun_name;
+int arguments;
+int preserved_registers;
+int local_data;
+}fun_data;
 //FILE* out;
+
 std::ofstream out;
 std::map<std::string, int> local_variables;
 int reverse = 0;
@@ -131,7 +139,7 @@ static void generate_text(GList * ast_root, Env* genv)
 {
 	if(check_main_defined()==1)
 		//fprintf(out,"\t\tmain:\n");
-		out << "\t\tmain:\n";
+		//out << "\t\tmain:\n";
 		out << "move $fp $sp" << std::endl;
 	
 	

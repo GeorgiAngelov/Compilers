@@ -1,0 +1,12 @@
+function printint(i : int) {
+     return;
+}
+
+function fib(n : int) : int {
+      
+}
+
+function main(args : [[int]]) : int {
+      printint(10);
+      return (0);
+}

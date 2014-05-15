@@ -25,12 +25,34 @@ enum {
      SYMBOL_PSEUDO,
 };
 
+enum{
+	fun_decl,
+	main,
+	fun_exec,
+};
+
 extern int count;
 extern int label_count;
 //extern FILE *out;
 extern std::ofstream out;
 extern int reverse;
+
+std::string mode = "none";
+
+int in_execution = 0;
+
+int inception = 0;
+
+struct function_data{
+std::string fun_name;
+int arguments;
+int preserved_registers;
+int local_data;
+};
+
+
 extern std::map<std::string, int> local_variables;
+std::map<std::string,function_data> function_map;
 
 int stack_count = 0;
 
@@ -58,19 +80,34 @@ void mips_generate_text(GList * decls, Env* env){
 
 static void mips_traverse_decl(struct decl* d, Env* env) {
 	Type* calculated = NULL;
-
+	printf(symbol_to_str(d->id));
+	printf("\n");
 	//if the declaration has any expressions
 	if (d->exp) {
 		const Type* t = mips_traverse_exp(d->exp, env);
 	}
 	//if the declaration has any declarations or statements(hence it is a function)
 	else if (d->decls || d->stmts) {
+		out << "jr $ra" << std::endl;
+		printf("jr $ra\n");
+		out << symbol_to_str(d->id) << ":" << std::endl;
+		std::string function_name = symbol_to_str(d->id);
+		if(function_name == "main")
+			in_execution = 1;
+		//setting mode
+		mode = symbol_to_str(d->id);
+
+		function_data func;
+
+		function_map[function_name] = func;
+				
 		Env* fun_env = env_lookup_fun_env(env, d->id);
 
 		Env* merged_env = env_union(env, fun_env);
 
 		g_list_foreach(d->decls, (GFunc)mips_traverse_decl, merged_env);
 		g_list_foreach(d->stmts, (GFunc)mips_traverse_stmt, merged_env);
+		//g_list_foreach(d->params, (GFunc)mips_traverse_exp, merged_env);
 		env_destroy(merged_env);
 	}
 	else
@@ -306,6 +343,21 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 		case AST_EXP_FUN_CALL: {
 			/*assert(symbol_is_fun(exp->id));
 			exp->node_type = annotate_fun_call(exp->id, exp->params, env);*/
+			std::string compare = symbol_to_str(exp->id);
+			if (compare != "print"){
+			//need to call function to print the "print" function in MIPS
+			//if not print, ordinary function prologue
+			//out << "addiu $sp,$sp,128" << "#push stack frame" << std::endl;
+			//out << "jal " << compare << std::endl;
+			mode = compare;
+			std::string parameter;
+			GList *glist_param;
+			glist_param = g_list_first(exp->params);
+			
+			//exps_print(glist_param);
+			
+			inception++;
+			}
 			break;
 		}
 
@@ -339,6 +391,7 @@ static const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 
 static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 	stmt->node_type = NULL;
+	//out << "# mode is " << mode << std::endl;
 
 	switch (stmt->kind) {
 		case AST_STMT_EXP: {
@@ -357,6 +410,10 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			{
 				const Type* right = mips_traverse_exp(stmt->right, env);
 			}
+
+			//check if we are in a function declaration
+			out << "# mode is " << mode << std::endl;
+		
 			//After end, value will be stored $v0
 			
 			//Then we do ID lookup
@@ -515,7 +572,13 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			  } else {
 					actual = type_void_new();
 			  }
-
+			  //function epilogue
+			  //out << "addiu $sp,$sp,128" << std::endl;
+			  if(in_execution == 0)
+ 			  	//out << "jr $31" << std::endl;
+			  if(in_execution == 1){
+			  	printf("end main\n");
+			  }
 			  type_destroy(actual);
 			  break;
 		}

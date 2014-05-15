@@ -1,0 +1,20 @@
+function chr(c : int) : [int] { return ([c]); }
+function ord(c : [int]) : int { return (c[0]); }
+
+function f(i : int) { 
+     
+}
+
+function printint(i : int) {
+     print("0");
+     return;
+}
+
+function fib(n : int) : int {
+      
+}
+
+function main(args : [[int]]) : int {
+      printint(10);
+      return (0);
+}
