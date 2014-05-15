@@ -1,8 +1,12 @@
+var a : int = 1;
+var b : int = 2;
+
 function fred() : int {
 	return (10);
 }
 
 function main(args : [[int]]) : int {
-	fred();
+	var c : int = 3;
+	var d : int = a;
 	return (0);
 }
