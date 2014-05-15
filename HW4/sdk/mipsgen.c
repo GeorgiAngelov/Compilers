@@ -739,9 +739,6 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			
 			//Env * en = env_lookup_fun_env(env, symbol_fun_return());
 			
-			create_return(current_fun, env);
-			return_complete = 1;
-			
 			
 			  Type* actual = NULL;
 			  if (stmt->exp) {
@@ -749,6 +746,9 @@ static const void mips_traverse_stmt(struct stmt* stmt, Env* env){
 			  } else {
 					actual = type_void_new();
 			  }
+			  
+			  create_return(current_fun, env);
+			return_complete = 1;
 
 			  type_destroy(actual);
 			  break;

@@ -8,7 +8,9 @@ function fred() : int {
 
 function main(args : [[int]]) : int {
 	var j : int;
-	var i : int;
+	var i : int = 15;
+	
+	j = 20;
 	
 	return (0);
 }
