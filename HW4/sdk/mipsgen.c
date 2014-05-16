@@ -212,14 +212,7 @@ void create_return(Symbol current_fun, Env* env)
 				}
 				
 				//out << "move $sp, 0($fp)" << std::endl;
-				out << "lw $sp, 0($fp)" << std::endl;
-				
-				//out << "move $fp, -4($fp)" << std::endl;
-				out << "lw $fp, -4($fp)" << std::endl;
-				
-				out << "lw $ra, -8($fp)" << std::endl;
-				
-				out << "add $sp, $sp, 12" << std::endl;
+
 				
 				out << "jr $ra #" << symbol_to_str(current_fun) << std::endl;	
 			}
@@ -262,6 +255,33 @@ void mips_generate_text(GList * decls, Env* env){
 	
 	//loop through each declaration in the tree
 	g_list_foreach(decls, (GFunc)mips_traverse_decl, env);
+}
+
+static void mips_traverse_param(struct decl* d)
+{
+	//out << symbol_to_str(d->id) << std::endl;
+	
+	//std::map<std::string,int>::iterator it = variables.back();
+	
+	
+	variables.back()[symbol_to_str(d->id)] = stack_count;
+	
+	stack_count += 4;
+	//out << stack_count << std::endl;
+}
+
+static void mips_pass_param(struct exp* e, Env* env)
+{
+	//out << symbol_to_str(d->id) << std::endl;
+	 	
+	mips_traverse_exp(e, env);
+	
+	stack_count += 4;
+	
+	out << "sub $sp, $sp, 4" << std::endl;
+	
+	out << "sw $v0, " << stack_count << "($fp)" << std::endl;
+	
 }
 
 static void mips_traverse_decl(struct decl* d, Env* env) {
@@ -413,6 +433,9 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 		Env* merged_env = env_union(env, fun_env);
 		
 		return_complete = 0;
+		
+		
+		g_list_foreach(d->type->fun.params, (GFunc)mips_traverse_param, NULL);
 		
 		//declare local variables on the stack
 		g_list_foreach(d->decls, (GFunc)mips_traverse_decl, merged_env);
@@ -734,8 +757,8 @@ const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			//out << "jal " << compare << std::endl;
 			mode = compare;
 			std::string parameter;
-			GList *glist_param;
-			glist_param = g_list_first(exp->params);
+			//GList *glist_param;
+			//glist_param = g_list_first(exp->params);
 			
 			
 			//before setting up parameters:
@@ -752,8 +775,21 @@ const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			stack_count = 0;
 			
 			//setup parameters
+			g_list_foreach(exp->params, (GFunc)mips_pass_param, env);
+			
 			
 			out << "jal " << compare << std::endl;
+			
+			out << "lw $sp, 0($fp)" << std::endl;
+				
+			//out << "move $fp, -4($fp)" << std::endl;
+			out << "lw $fp, -4($fp)" << std::endl;
+				
+			out << "lw $ra, -8($fp)" << std::endl;
+				
+			out << "add $sp, $sp, 12" << std::endl;
+			
+			
 			//mode = compare;
 			//create a new map for the new function call
 			//std::map<std::string, int> tmp;

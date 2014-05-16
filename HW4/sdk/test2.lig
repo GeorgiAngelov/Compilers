@@ -1,0 +1,30 @@
+var a : int = 1;
+var b : int = 2;
+
+function fred() : int {
+	//return (10);
+	return (sally());
+}
+
+function sally() : int {
+	return (10);
+}
+
+function george() : int {
+	while (a < 400)
+	{
+		//return (sally());
+		a = a + fred();
+	}
+	return (5);
+}
+
+function main(args : [[int]]) : int {
+//	var c : int = 3;
+//	var d : int = 4;
+	a = fred();
+	b = george();
+//	c = c * c;
+//	d = d + d;
+	return (0);
+}
