@@ -350,7 +350,12 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 	}
 	//if the declaration has any declarations or statements(hence it is a function)
 	else if (d->decls || d->stmts) {
-
+		if(g_global == 0){
+			out << "\t\tg_global:" << std::endl; 
+			out << "move $gp $sp" << std::endl;
+			out << "move $fp $sp" << std::endl;
+			g_global = 1;
+		}
 		//out << "jr $ra" << std::endl;
 		// printf("jr $ra\n");
 		//out << symbol_to_str(d->id) << ":" << std::endl;
