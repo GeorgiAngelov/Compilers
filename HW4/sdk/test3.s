@@ -2,8 +2,6 @@
 newline:	.asciiz "\n"
 		.text
 		g_global:
-move $gp $sp
-move $fp $sp
 li $v0, 0
 sub $sp, $sp, 4
 sw $v0, 4($gp)
@@ -40,6 +38,8 @@ mul $v0, $v0, $v1
 add $sp, $sp, 0
 jr $ra #fred
 		main:
+move $gp $sp
+move $fp $sp
 sub $sp, $sp, 4
 sw $ra, 4($fp)
 jal g_global

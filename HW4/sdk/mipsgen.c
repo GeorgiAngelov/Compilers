@@ -293,8 +293,6 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 		if (current_fun.kind == INVALID_VALUE && g_global == 0 && symbol_is_var(d->id))
 		{
 			out << "\t\tg_global:" << std::endl; 
-			out << "move $gp $sp" << std::endl;
-			out << "move $fp $sp" << std::endl;
 			g_global = 1;
 		}
 		mips_traverse_exp(d->exp, env);
@@ -352,8 +350,7 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 	else if (d->decls || d->stmts) {
 		if(g_global == 0){
 			out << "\t\tg_global:" << std::endl; 
-			out << "move $gp $sp" << std::endl;
-			out << "move $fp $sp" << std::endl;
+
 			g_global = 1;
 		}
 		//out << "jr $ra" << std::endl;
@@ -370,6 +367,8 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 		if (function_name.compare("main") == 0)
 		{
 			out << "\t\tmain:" << std::endl;
+			out << "move $gp $sp" << std::endl;
+			out << "move $fp $sp" << std::endl;
 			
 			//save $ra onto stack
 			out << "sub $sp, $sp, 4" << std::endl;
