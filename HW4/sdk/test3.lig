@@ -1,0 +1,14 @@
+var a : int = 0;
+
+function fred() : int {
+	if(a < 400){
+		a= a + 5;
+		fred();
+	}
+	return(2*a);
+}
+
+function main(args : [[int]]) : int {
+	a = fred();
+	return (0);
+}
