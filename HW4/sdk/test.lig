@@ -1,14 +1,12 @@
 var a : int = 1;
-var b : int = 2;
 
-function sally(z : int) : int {
-	b = z;
+function sally() : int {
 	return (10);
 }
 
 function fred(f : int, g : int) : int {
-	sally(f);
-	return (g);
+	sally();
+	return (f + g);
 }
 
 function main(args : [[int]]) : int {
