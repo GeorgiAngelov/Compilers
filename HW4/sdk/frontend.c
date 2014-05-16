@@ -148,12 +148,13 @@ static void generate_data(GList * ast_root, Env* genv)
 static void generate_text(GList * ast_root, Env* genv)
 {
       //Set the global pointer equal to the stack pointer
-      out << "move $gp $sp" << std::endl;
+      if(check_main_defined() != 1)
+      out << "move $fp $sp" << std::endl;
 
 	if(check_main_defined()==1)
 		//fprintf(out,"\t\tmain:\n");
 		//out << "\t\tmain:\n";
-		out << "move $fp $sp" << std::endl;
+		
 	
 	
 	///////////////////////////////////////////

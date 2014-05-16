@@ -217,7 +217,9 @@ void create_return(Symbol current_fun, Env* env)
 				//out << "move $fp, -4($fp)" << std::endl;
 				out << "lw $fp, -4($fp)" << std::endl;
 				
-				out << "add $sp, $sp, 8" << std::endl;
+				out << "lw $ra, -8($fp)" << std::endl;
+				
+				out << "add $sp, $sp, 12" << std::endl;
 				
 				out << "jr $ra #" << symbol_to_str(current_fun) << std::endl;	
 			}
@@ -271,6 +273,8 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 		if (current_fun.kind == INVALID_VALUE && g_global == 0 && symbol_is_var(d->id))
 		{
 			out << "\t\tg_global:" << std::endl; 
+			out << "move $gp $sp" << std::endl;
+			out << "move $fp $sp" << std::endl;
 			g_global = 1;
 		}
 		mips_traverse_exp(d->exp, env);
@@ -341,8 +345,21 @@ static void mips_traverse_decl(struct decl* d, Env* env) {
 		if (function_name.compare("main") == 0)
 		{
 			out << "\t\tmain:" << std::endl;
+			
+			//save $ra onto stack
+			out << "sub $sp, $sp, 4" << std::endl;
+			
+			out << "sw $ra, 4($fp)" << std::endl;
 			out << "jal g_global" << std::endl;
 			out << "\t\tmain_start" << ":" << std::endl;
+			
+			//restore $ra
+			out << "lw $ra, 4($fp)" << std::endl;
+			
+			out << "add $sp, $sp, 4" << std::endl;
+			
+			
+			
 			current_fun = d->id;
 		}
 		else
@@ -722,7 +739,9 @@ const Type* mips_traverse_exp(struct exp* exp, Env* env) {
 			
 			
 			//before setting up parameters:
-			out << "sub $sp, $sp, 8" << std::endl;
+			out << "sub $sp, $sp, 12" << std::endl;
+			
+			out << "sw $ra, -8($fp)" << std::endl;
 			
 			out << "sw $fp, -4($sp)" << std::endl;
 			
